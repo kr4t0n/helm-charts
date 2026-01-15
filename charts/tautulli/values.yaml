@@ -39,6 +39,12 @@ persistence:
   storageClass: ""  # Use default storage class if empty
   size: 1Gi
 
+# Node selector for pod scheduling
+nodeSelector: {}
+  # Example:
+  # kubernetes.io/os: linux
+  # node-role.kubernetes.io/worker: ""
+
 # Additional environment variables
 extraEnvs: []
   # - name: TZ

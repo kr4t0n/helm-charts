@@ -3,6 +3,16 @@ entries:
   tautulli:
   - apiVersion: v2
     appVersion: 2.16.0
+    created: "2026-01-15T07:42:56.902989713Z"
+    description: A Helm chart for Kubernetes
+    digest: 9ee963abd7c040c7c1fa3b83286d9e0ec78f606bf6316eb6faef629c47d1827e
+    name: tautulli
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/tautulli-0.0.2/tautulli-0.0.2.tgz
+    version: 0.0.2
+  - apiVersion: v2
+    appVersion: 2.16.0
     created: "2026-01-15T07:14:31.14022345Z"
     description: A Helm chart for Kubernetes
     digest: c085e2c43ea6fd2d772e1269b26db2dd4c6875af778c5c6b98b90b941ecac551
@@ -11,4 +21,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/tautulli-0.0.1/tautulli-0.0.1.tgz
     version: 0.0.1
-generated: "2026-01-15T07:14:31.140232116Z"
+generated: "2026-01-15T07:42:56.902997888Z"

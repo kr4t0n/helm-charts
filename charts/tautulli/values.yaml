@@ -1,0 +1,48 @@
+# Default values for tautulli.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: linuxserver/tautulli
+  tag: latest 
+
+imagePullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8181
+
+ingress:
+  enabled: false
+  # Each ingress class can have its own hosts, TLS, and annotations
+  classes: []
+  # Example:
+  # classes:
+  #   - className: "nginx"
+  #     annotations:
+  #       kubernetes.io/ingress.class: nginx
+  #       cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  #     hosts:
+  #       - host: tautulli.example.com
+  #         paths:
+  #           - path: /
+  #             pathType: Prefix
+  #     tls:
+  #       - secretName: tautulli-tls
+  #         hosts:
+  #           - tautulli.example.com
+
+persistence:
+  enabled: true
+  storageClass: ""  # Use default storage class if empty
+  size: 1Gi
+
+# Additional environment variables
+extraEnvs: []
+  # - name: TZ
+  #   value: "America/New_York"
+  # - name: PLEX_TOKEN
+  #   value: "your-plex-token"
+

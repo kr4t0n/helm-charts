@@ -1,5 +1,16 @@
 apiVersion: v1
 entries:
+  homeassistant:
+  - apiVersion: v2
+    appVersion: 2026.1.2
+    created: "2026-01-17T13:48:32.24762939Z"
+    description: A Helm chart for Kubernetes
+    digest: e1038b32c9868bc0f646f8a8df1d92494535a9e6a6028efe4a0e2691d73464b4
+    name: homeassistant
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/homeassistant-0.0.1/homeassistant-0.0.1.tgz
+    version: 0.0.1
   tautulli:
   - apiVersion: v2
     appVersion: 2.16.0
@@ -21,4 +32,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/tautulli-0.0.1/tautulli-0.0.1.tgz
     version: 0.0.1
-generated: "2026-01-15T07:42:56.902997888Z"
+generated: "2026-01-17T13:48:32.247644459Z"

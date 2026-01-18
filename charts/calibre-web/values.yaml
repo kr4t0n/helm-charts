@@ -1,0 +1,72 @@
+# Default values for calibre-web.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: linuxserver/calibre-web
+  tag: latest 
+
+imagePullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8083
+
+ingress:
+  enabled: false
+  # Each ingress class can have its own hosts, TLS, and annotations
+  classes: []
+  # Example:
+  # classes:
+  #   - className: "nginx"
+  #     annotations:
+  #       kubernetes.io/ingress.class: nginx
+  #       cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  #     hosts:
+  #       - host: tautulli.example.com
+  #         paths:
+  #           - path: /
+  #             pathType: Prefix
+  #     tls:
+  #       - secretName: tautulli-tls
+  #         hosts:
+  #           - tautulli.example.com
+
+persistence:
+  enabled: true
+  storageClass: ""  # Use default storage class if empty
+  size: 10Gi
+
+# Node selector for pod scheduling
+nodeSelector: {}
+  # Example:
+  # kubernetes.io/os: linux
+  # node-role.kubernetes.io/worker: ""
+
+# Additional environment variables
+extraEnvs: []
+  # - name: TZ
+  #   value: "America/New_York"
+  # - name: PLEX_TOKEN
+  #   value: "your-plex-token"
+
+# Additional volumes to add to the pod
+extraVolumes: []
+  # - name: books
+  #   nfs:
+  #     server: nfs-server.example.com
+  #     path: /mnt/books
+  # - name: config-map
+  #   configMap:
+  #     name: my-config
+
+# Additional volume mounts to add to the container
+extraVolumeMounts: []
+  # - name: books
+  #   mountPath: /books
+  #   readOnly: true
+  # - name: config-map
+  #   mountPath: /config-map
+

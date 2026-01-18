@@ -1,5 +1,16 @@
 apiVersion: v1
 entries:
+  calibre-web:
+  - apiVersion: v2
+    appVersion: 0.6.25
+    created: "2026-01-18T07:50:59.671776583Z"
+    description: A Helm chart for Kubernetes
+    digest: 23d67f3f217ad0a6f469bfbc72522bad4ec2aaa69a6f53927830780b6417d36a
+    name: calibre-web
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/calibre-web-0.0.1/calibre-web-0.0.1.tgz
+    version: 0.0.1
   home-assistant:
   - apiVersion: v2
     appVersion: 2026.1.2
@@ -43,4 +54,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/tautulli-0.0.1/tautulli-0.0.1.tgz
     version: 0.0.1
-generated: "2026-01-17T15:29:56.047249019Z"
+generated: "2026-01-18T07:50:59.671784971Z"

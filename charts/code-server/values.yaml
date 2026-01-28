@@ -52,6 +52,12 @@ extraEnvs: []
   # - name: PLEX_TOKEN
   #   value: "your-plex-token"
 
+# Reference to existing secret (optional)
+# If provided, will load ALL keys from the secret as environment variables
+existingSecret:
+  enabled: false
+  name: "" # Name of the existing secret
+
 # Additional volumes to add to the pod
 extraVolumes: []
   # - name: books

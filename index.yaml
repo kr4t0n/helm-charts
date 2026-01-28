@@ -14,6 +14,16 @@ entries:
   code-server:
   - apiVersion: v2
     appVersion: 4.108.2
+    created: "2026-01-28T15:09:04.996354698Z"
+    description: A Helm chart for Kubernetes
+    digest: ca6473ad4884aab38433942f4519c5cdb0dcd03fae51bd8a7be59d740a097e5c
+    name: code-server
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/code-server-0.0.3/code-server-0.0.3.tgz
+    version: 0.0.3
+  - apiVersion: v2
+    appVersion: 4.108.2
     created: "2026-01-28T15:00:02.440864355Z"
     description: A Helm chart for Kubernetes
     digest: 66f7d47e49ce4a4dc88974b458fca79a5ad86dc36782a05c282794282344ac37
@@ -85,4 +95,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/tautulli-0.0.1/tautulli-0.0.1.tgz
     version: 0.0.1
-generated: "2026-01-28T15:00:02.440876778Z"
+generated: "2026-01-28T15:09:04.996368847Z"

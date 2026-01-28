@@ -11,6 +11,17 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/calibre-web-0.0.1/calibre-web-0.0.1.tgz
     version: 0.0.1
+  code-server:
+  - apiVersion: v2
+    appVersion: 4.108.2
+    created: "2026-01-28T13:53:26.470679764Z"
+    description: A Helm chart for Kubernetes
+    digest: 78c7348e5d5c27b0c1b5a3b46535e733caabb46225dfa6588f3d264a016ec027
+    name: code-server
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/code-server-0.0.1/code-server-0.0.1.tgz
+    version: 0.0.1
   home-assistant:
   - apiVersion: v2
     appVersion: 2026.1.2
@@ -64,4 +75,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/tautulli-0.0.1/tautulli-0.0.1.tgz
     version: 0.0.1
-generated: "2026-01-23T15:59:57.927703807Z"
+generated: "2026-01-28T13:53:26.470692418Z"

@@ -64,6 +64,17 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/homeassistant-0.0.1/homeassistant-0.0.1.tgz
     version: 0.0.1
+  kikoeru:
+  - apiVersion: v2
+    appVersion: 0.6.14
+    created: "2026-01-29T12:07:13.944380122Z"
+    description: A Helm chart for Kubernetes
+    digest: a00fb3f5e2d03d417a8f362c8be9417acdb033b2f14b4e103ff5efc38bebab55
+    name: kikoeru
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/kikoeru-0.0.1/kikoeru-0.0.1.tgz
+    version: 0.0.1
   tautulli:
   - apiVersion: v2
     appVersion: 2.16.0
@@ -95,4 +106,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/tautulli-0.0.1/tautulli-0.0.1.tgz
     version: 0.0.1
-generated: "2026-01-28T15:09:04.996368847Z"
+generated: "2026-01-29T12:07:13.944396964Z"

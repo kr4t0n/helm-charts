@@ -31,17 +31,27 @@ spec:
           {{- end }}
           volumeMounts:
           {{- if .Values.persistence.enabled }}
-            - name: kikoeru-volume
-              mountPath: /usr/src/kikoeru
+            - name: sqlite-volume
+              mountPath: /usr/src/kikoeru/sqlite
+            - name: covers-volume
+              mountPath: /usr/src/kikoeru/covers
+            - name: config-volume
+              mountPath: /usr/src/kikoeru/config
           {{- end }}
           {{- with .Values.extraVolumeMounts }}
           {{- toYaml . | nindent 12 }}
           {{- end }}
       volumes:
       {{- if .Values.persistence.enabled }}
-        - name: kikoeru-volume
+        - name: sqlite-volume
           persistentVolumeClaim:
-            claimName: {{ .Release.Name }}
+            claimName: {{ .Release.Name }}-sqlite
+        - name: covers-volume
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-covers
+        - name: config-volume
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-config
       {{- end }}
       {{- with .Values.extraVolumes }}
       {{- toYaml . | nindent 8 }}

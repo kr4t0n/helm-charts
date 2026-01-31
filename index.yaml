@@ -85,6 +85,17 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/kikoeru-0.0.1/kikoeru-0.0.1.tgz
     version: 0.0.1
+  photoprism:
+  - apiVersion: v2
+    appVersion: "260129"
+    created: "2026-01-31T15:03:08.605189177Z"
+    description: A Helm chart for Kubernetes
+    digest: 3726d1f07ba6c3768cd41d212e3b723ab53db014acd76ca1f75a5b67250e60a6
+    name: photoprism
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/photoprism-0.0.1/photoprism-0.0.1.tgz
+    version: 0.0.1
   tautulli:
   - apiVersion: v2
     appVersion: 2.16.0
@@ -116,4 +127,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/tautulli-0.0.1/tautulli-0.0.1.tgz
     version: 0.0.1
-generated: "2026-01-29T12:30:58.826970451Z"
+generated: "2026-01-31T15:03:08.605208527Z"

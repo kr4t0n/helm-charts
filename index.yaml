@@ -109,6 +109,16 @@ entries:
   registry:
   - apiVersion: v2
     appVersion: 3.0.0
+    created: "2026-03-22T05:07:56.819673389Z"
+    description: A Helm chart for Kubernetes
+    digest: e10c17f11c10cb02b73cc8e24a78e51a4f42abf590d09085e9e9309ac6f4fbed
+    name: registry
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/registry-0.0.3/registry-0.0.3.tgz
+    version: 0.0.3
+  - apiVersion: v2
+    appVersion: 3.0.0
     created: "2026-03-22T05:02:02.276493776Z"
     description: A Helm chart for Kubernetes
     digest: cb29d1674d80170e354212d07cde10e92b9f73c4661071bf103813db492d9f98
@@ -158,4 +168,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/tautulli-0.0.1/tautulli-0.0.1.tgz
     version: 0.0.1
-generated: "2026-03-22T05:02:02.27651742Z"
+generated: "2026-03-22T05:07:56.819702504Z"

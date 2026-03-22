@@ -34,11 +34,6 @@ ingress:
   #         hosts:
   #           - tautulli.example.com
 
-persistence:
-  enabled: true
-  storageClass: "" # Use default storage class if empty
-  size: 1Gi
-
 # Node selector for pod scheduling
 nodeSelector: {}
   # Example:

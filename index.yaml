@@ -42,6 +42,17 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/code-server-0.0.1/code-server-0.0.1.tgz
     version: 0.0.1
+  graphileon:
+  - apiVersion: v2
+    appVersion: 3.6.0
+    created: "2026-03-27T14:23:40.874882047Z"
+    description: A Helm chart for Kubernetes
+    digest: e30dc54579bd7a062c2b87fd7201cbd0ae86a3eb93c05673fdea6e574dd9b401
+    name: graphileon
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/graphileon-0.0.1/graphileon-0.0.1.tgz
+    version: 0.0.1
   home-assistant:
   - apiVersion: v2
     appVersion: 2026.1.2
@@ -168,4 +179,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/tautulli-0.0.1/tautulli-0.0.1.tgz
     version: 0.0.1
-generated: "2026-03-22T05:07:56.819702504Z"
+generated: "2026-03-27T14:23:40.874907775Z"

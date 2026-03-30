@@ -117,6 +117,17 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/photoprism-0.0.1/photoprism-0.0.1.tgz
     version: 0.0.1
+  qbittorrent:
+  - apiVersion: v2
+    appVersion: 5.1.4
+    created: "2026-03-30T17:18:49.530716626Z"
+    description: A Helm chart for Kubernetes
+    digest: 7190944c0ba55d0bff1ca37eccf2bafc3e998ac65919219a532920a6842ff7e6
+    name: qbittorrent
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/qbittorrent-0.0.1/qbittorrent-0.0.1.tgz
+    version: 0.0.1
   registry:
   - apiVersion: v2
     appVersion: 3.0.0
@@ -179,4 +190,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/tautulli-0.0.1/tautulli-0.0.1.tgz
     version: 0.0.1
-generated: "2026-03-27T14:23:40.874907775Z"
+generated: "2026-03-30T17:18:49.530740941Z"

@@ -96,6 +96,17 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/kikoeru-0.0.1/kikoeru-0.0.1.tgz
     version: 0.0.1
+  moviepilot:
+  - apiVersion: v2
+    appVersion: 2.9.23
+    created: "2026-04-01T08:30:37.894507423Z"
+    description: A Helm chart for Kubernetes
+    digest: c295b09d9f34b6f31413752e0ee197a009c67857d3c8c3da208f81226c0a4a95
+    name: moviepilot
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/moviepilot-0.0.1/moviepilot-0.0.1.tgz
+    version: 0.0.1
   photoprism:
   - apiVersion: v2
     appVersion: "260129"
@@ -220,4 +231,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/tautulli-0.0.1/tautulli-0.0.1.tgz
     version: 0.0.1
-generated: "2026-03-30T17:42:30.99972441Z"
+generated: "2026-04-01T08:30:37.894559601Z"

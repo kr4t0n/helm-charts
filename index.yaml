@@ -131,6 +131,16 @@ entries:
   plex:
   - apiVersion: v2
     appVersion: 1.43.0.10492-121068a07
+    created: "2026-04-04T12:49:44.056185241Z"
+    description: A Helm chart for Kubernetes
+    digest: a5ee62aad0d7430d708e558ac19ffed4d72c9538a8c8abb38fd7c3d91576474c
+    name: plex
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/plex-0.0.2/plex-0.0.2.tgz
+    version: 0.0.2
+  - apiVersion: v2
+    appVersion: 1.43.0.10492-121068a07
     created: "2026-04-03T15:33:01.757260419Z"
     description: A Helm chart for Kubernetes
     digest: d9bf45677af23be2712ca22503a2d47695375babe2fed1854720eb8165f66353
@@ -242,4 +252,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/tautulli-0.0.1/tautulli-0.0.1.tgz
     version: 0.0.1
-generated: "2026-04-03T15:33:01.75730384Z"
+generated: "2026-04-04T12:49:44.056232229Z"

@@ -24,6 +24,7 @@ spec:
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
+              hostPort: {{ .Values.service.port }}
               protocol: TCP
             - containerPort: 1900
               protocol: UDP

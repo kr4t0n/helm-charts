@@ -21,6 +21,17 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/bambu-studio-0.0.1/bambu-studio-0.0.1.tgz
     version: 0.0.1
+  bambuddy:
+  - apiVersion: v2
+    appVersion: 0.2.3b1
+    created: "2026-04-05T12:17:05.19226933Z"
+    description: A Helm chart for Kubernetes
+    digest: 0458930bc91383e41ce3cd214533eee14db58b6a3280a7ed589775ea228ecd5a
+    name: bambuddy
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/bambuddy-0.0.1/bambuddy-0.0.1.tgz
+    version: 0.0.1
   calibre-web:
   - apiVersion: v2
     appVersion: 0.6.25
@@ -273,4 +284,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/tautulli-0.0.1/tautulli-0.0.1.tgz
     version: 0.0.1
-generated: "2026-04-05T04:20:48.216512116Z"
+generated: "2026-04-05T12:17:05.192312712Z"

@@ -1,0 +1,7 @@
+apiVersion: v2
+name: bambuddy
+description: A Helm chart for Kubernetes
+
+type: application
+version: 0.0.1
+appVersion: 0.2.3b1

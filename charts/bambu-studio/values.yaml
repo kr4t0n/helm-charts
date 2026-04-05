@@ -44,6 +44,15 @@ nodeSelector: {}
   # kubernetes.io/os: linux
   # node-role.kubernetes.io/worker: ""
 
+# CPU/memory requests and limits for the main container
+resources: {}
+  # requests:
+  #   cpu: 100m
+  #   memory: 256Mi
+  # limits:
+  #   cpu: "2"
+  #   memory: 2Gi
+
 # Additional environment variables
 extraEnvs: []
   # - name: TZ

@@ -3,6 +3,16 @@ entries:
   bambu-studio:
   - apiVersion: v2
     appVersion: 02.05.00
+    created: "2026-04-05T04:20:48.216472593Z"
+    description: A Helm chart for Kubernetes
+    digest: b1f3471e2448adb4da43a3911e745dafb45c67fd38305ed4c3d946a08b262fed
+    name: bambu-studio
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/bambu-studio-0.0.2/bambu-studio-0.0.2.tgz
+    version: 0.0.2
+  - apiVersion: v2
+    appVersion: 02.05.00
     created: "2026-04-05T03:36:48.851365992Z"
     description: A Helm chart for Kubernetes
     digest: e7747b96273210ef2f976de86dad22cfb319a4df3840c55515247197e08d72d9
@@ -263,4 +273,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/tautulli-0.0.1/tautulli-0.0.1.tgz
     version: 0.0.1
-generated: "2026-04-05T03:36:48.851478871Z"
+generated: "2026-04-05T04:20:48.216512116Z"

@@ -1,0 +1,125 @@
+# Default values for javalin.
+# This is a YAML-formatted file. Override anything by passing
+# `--set foo.bar=baz` or with a `-f my-values.yaml` file.
+
+image:
+  repository: kr4t0n/javalin
+  pullPolicy: IfNotPresent
+  # When empty, the chart's appVersion is used.
+  tag: ""
+
+imagePullSecrets: []
+
+# javalin's job state lives in the FastAPI process and the curl_cffi
+# session it owns is not thread-safe. Always run with one replica; the
+# Deployment's strategy is Recreate so a rolling update never temporarily
+# brings up a second instance racing for the same PVC.
+replicaCount: 1
+
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  # Matches the non-root user baked into the Docker image (uid/gid 1001).
+  # fsGroup ensures the mounted PVC ends up writable by that user.
+  runAsUser: 1001
+  runAsGroup: 1001
+  fsGroup: 1001
+  runAsNonRoot: true
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+  runAsUser: 1001
+
+service:
+  type: ClusterIP
+  port: 8000
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: javalin.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  # - secretName: javalin-tls
+  #   hosts:
+  #     - javalin.example.com
+
+resources: {}
+  # limits:
+  #   cpu: 500m
+  #   memory: 512Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+# Liveness and readiness probes both ping /api/outputs — it's the same
+# cheap heartbeat the SPA uses for its top-bar status pill and the same
+# endpoint the Dockerfile's HEALTHCHECK targets.
+probes:
+  liveness:
+    httpGet:
+      path: /api/outputs
+      port: http
+    initialDelaySeconds: 15
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readiness:
+    httpGet:
+      path: /api/outputs
+      port: http
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+  startup:
+    httpGet:
+      path: /api/outputs
+      port: http
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    failureThreshold: 12
+
+# Persistent volume for /data (inputs/ + outputs/ live here).
+# Disable to use an emptyDir (everything is wiped on pod restart — useful
+# for ephemeral demos but not for actual library curation).
+persistence:
+  enabled: true
+  # Existing PVC name — when set, the chart skips creating a new PVC and
+  # mounts this one instead.
+  existingClaim: ""
+  storageClass: ""
+  accessModes:
+    - ReadWriteOnce
+  size: 10Gi
+  annotations: {}
+
+# Extra environment variables passed to the container.
+# JAVALIN_DATA is set by default to match where persistence mounts.
+env:
+  JAVALIN_DATA: /data
+
+# Free-form extra env entries (envFrom / valueFrom).
+extraEnv: []
+  # - name: SOMETHING
+  #   value: "value"
+
+nodeSelector: {}
+  # The published image is currently linux/arm64 only — pin to arm64
+  # nodes if your cluster is mixed-arch:
+  # kubernetes.io/arch: arm64
+
+tolerations: []
+affinity: {}

@@ -1,0 +1,15 @@
+# Patterns to ignore when packaging Helm charts.
+# Operates on the Chart's own directory.
+.DS_Store
+.git/
+.gitignore
+.idea/
+.vscode/
+*.tmproj
+*.swp
+*.swo
+*.bak
+*.orig
+*.tgz
+.project
+README.md.bak

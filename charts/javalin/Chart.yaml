@@ -1,0 +1,24 @@
+apiVersion: v2
+name: javalin
+description: A self-hosted JavDB scraper that emits Kodi/Jellyfin NFO + artwork.
+type: application
+# Chart version — bump on every PR that changes anything under helm/.
+# chart-releaser-action only publishes a new release when this version is
+# incremented and no GitHub Release exists for the corresponding tag yet.
+version: 0.1.1
+# Application version — should track the javalin image's release tag.
+appVersion: "0.1.0"
+home: https://github.com/kr4t0n/javalin
+sources:
+  - https://github.com/kr4t0n/javalin
+icon: https://raw.githubusercontent.com/kr4t0n/javalin/main/frontend/public/favicon.svg
+keywords:
+  - javdb
+  - scraper
+  - kodi
+  - jellyfin
+  - nfo
+  - self-hosted
+maintainers:
+  - name: kr4t0n
+    url: https://github.com/kr4t0n

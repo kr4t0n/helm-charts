@@ -21,8 +21,9 @@ open http://127.0.0.1:8000
 - A `ReadWriteOnce` storage class (PVC is required by default for
   persistence). Disable with `--set persistence.enabled=false` if you
   just want an ephemeral demo.
-- An **arm64** node — the published image is `linux/arm64` only.
-  Pin pods with `--set nodeSelector."kubernetes.io/arch"=arm64`.
+- The published image is **multi-arch** (`linux/amd64` + `linux/arm64`),
+  so any modern Kubernetes cluster will pull the right variant
+  automatically.
 
 ## Why a single replica?
 
@@ -50,6 +51,9 @@ strategy.
 | `persistence.size`        | PVC requested size                                            | `10Gi`                |
 | `persistence.storageClass`| PVC storage class                                             | `""`                  |
 | `env.JAVALIN_DATA`        | Path the backend uses for inputs/outputs                      | `/data`               |
+| `proxy.http`              | `HTTP_PROXY` / `http_proxy` env value                         | `""`                  |
+| `proxy.https`             | `HTTPS_PROXY` / `https_proxy` env value                       | `""`                  |
+| `proxy.noProxy`           | `NO_PROXY` / `no_proxy` env value                             | `""`                  |
 | `extraEnv`                | Extra env entries (full Kubernetes shape)                     | `[]`                  |
 | `resources`               | Pod resource requests/limits                                  | `{}`                  |
 | `nodeSelector`            | Node selectors                                                | `{}`                  |
@@ -87,12 +91,24 @@ persistence:
   existingClaim: my-existing-media-pvc
 ```
 
-### Pin to arm64 nodes
+### Route traffic through an HTTP proxy
+
+When the cluster's egress can't reach `javdb.com` directly (common in
+restricted regions or corporate networks), set both `http` and `https`
+to the same proxy URL. The chart injects upper- *and* lower-case
+variants of `HTTP_PROXY`/`HTTPS_PROXY`/`NO_PROXY` so libcurl and any
+Python HTTP client downstream pick them up.
 
 ```yaml
-nodeSelector:
-  kubernetes.io/arch: arm64
+proxy:
+  http: "http://proxy.corp.example.com:8080"
+  https: "http://proxy.corp.example.com:8080"
+  # Bypass the proxy for in-cluster traffic.
+  noProxy: "localhost,127.0.0.1,.svc,.svc.cluster.local,.cluster.local"
 ```
+
+`--set proxy.http=http://...` works too if you'd rather not maintain
+a values file just for this.
 
 ## Uninstall
 

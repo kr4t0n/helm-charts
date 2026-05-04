@@ -111,15 +111,34 @@ persistence:
 env:
   JAVALIN_DATA: /data
 
-# Free-form extra env entries (envFrom / valueFrom).
+# HTTP/HTTPS proxy configuration. javalin's scraper uses curl_cffi
+# (libcurl), which honours these env vars natively; setting any of the
+# fields below injects both UPPER- and lower-case variants on the pod
+# so other Python HTTP libraries pick them up too.
+#
+# Useful when javdb.com is unreachable from the cluster's egress and
+# traffic must be routed through a corporate or regional proxy.
+# Leave fields empty (the default) to skip injection entirely — the env
+# list stays clean if you don't need a proxy.
+proxy:
+  http: ""        # e.g. "http://proxy.corp.example.com:8080"
+  https: ""       # e.g. "http://proxy.corp.example.com:8080"
+  # Comma-separated list of hosts/CIDRs to bypass the proxy for.
+  # Inside a Kubernetes cluster you usually want at least the in-cluster
+  # service network; the value below is a sensible starting point that
+  # only matters when proxy.http or proxy.https is set:
+  #   "localhost,127.0.0.1,.svc,.svc.cluster.local,.cluster.local"
+  noProxy: ""
+
+# Free-form extra env entries (envFrom / valueFrom). Rendered after the
+# proxy block, so anything you put here can override proxy values too.
 extraEnv: []
   # - name: SOMETHING
   #   value: "value"
 
 nodeSelector: {}
-  # The published image is currently linux/arm64 only — pin to arm64
-  # nodes if your cluster is mixed-arch:
-  # kubernetes.io/arch: arm64
+  # Image is multi-arch (amd64 + arm64); set this only if you want to
+  # constrain scheduling for other reasons.
 
 tolerations: []
 affinity: {}

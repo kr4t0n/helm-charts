@@ -1,13 +1,8 @@
 javalin {{ .Chart.AppVersion }} has been deployed as release {{ .Release.Name }}.
 
-⚠  Image arch — the published `{{ .Values.image.repository }}` image is
-    currently linux/arm64 only. If your cluster has amd64 nodes, either
-    pin pods to arm64 with:
-
-      nodeSelector:
-        kubernetes.io/arch: arm64
-
-    …or build and push your own multi-arch image.
+The published `{{ .Values.image.repository }}` image is multi-arch
+(linux/amd64 + linux/arm64) — Kubernetes will pick the right one
+per node automatically.
 
 Get the application URL by running these commands:
 {{- if .Values.ingress.enabled }}

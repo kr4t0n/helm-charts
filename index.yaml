@@ -110,6 +110,30 @@ entries:
   javalin:
   - apiVersion: v2
     appVersion: 0.1.0
+    created: "2026-05-04T03:09:17.681246472Z"
+    description: A self-hosted JavDB scraper that emits Kodi/Jellyfin NFO + artwork.
+    digest: ed6d6aaf61614efdbd09a71c1f874e5b069494b369595562f4bc86dfb8f31742
+    home: https://github.com/kr4t0n/javalin
+    icon: https://raw.githubusercontent.com/kr4t0n/javalin/main/frontend/public/favicon.svg
+    keywords:
+    - javdb
+    - scraper
+    - kodi
+    - jellyfin
+    - nfo
+    - self-hosted
+    maintainers:
+    - name: kr4t0n
+      url: https://github.com/kr4t0n
+    name: javalin
+    sources:
+    - https://github.com/kr4t0n/javalin
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/javalin-0.2.0/javalin-0.2.0.tgz
+    version: 0.2.0
+  - apiVersion: v2
+    appVersion: 0.1.0
     created: "2026-05-04T02:53:27.383672738Z"
     description: A self-hosted JavDB scraper that emits Kodi/Jellyfin NFO + artwork.
     digest: 8b3653974dfc79179da1d5761910b2c3bb47585d1b63ea0ad37fba0448b3ec2b
@@ -333,4 +357,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/tautulli-0.0.1/tautulli-0.0.1.tgz
     version: 0.0.1
-generated: "2026-05-04T02:53:27.383717552Z"
+generated: "2026-05-04T03:09:17.681288894Z"

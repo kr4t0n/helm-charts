@@ -22,11 +22,13 @@ fullnameOverride: ""
 podAnnotations: {}
 
 podSecurityContext:
-  # Matches the non-root user baked into the Docker image (uid/gid 1001).
-  # fsGroup ensures the mounted PVC ends up writable by that user.
-  runAsUser: 1001
-  runAsGroup: 1001
-  fsGroup: 1001
+  # Defaults track the Docker image's baked-in user (uid 1000, gid 100)
+  # which is the standard NAS / home-server convention. Override these
+  # if your host filesystem uses different numbering — fsGroup must
+  # match the gid that owns the mounted PVC.
+  runAsUser: 1000
+  runAsGroup: 100
+  fsGroup: 100
   runAsNonRoot: true
 
 securityContext:
@@ -36,7 +38,8 @@ securityContext:
       - ALL
   readOnlyRootFilesystem: false
   runAsNonRoot: true
-  runAsUser: 1001
+  runAsUser: 1000
+  runAsGroup: 100
 
 service:
   type: ClusterIP

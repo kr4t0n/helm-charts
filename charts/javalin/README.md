@@ -59,7 +59,7 @@ strategy.
 | `nodeSelector`            | Node selectors                                                | `{}`                  |
 | `tolerations`             | Tolerations                                                   | `[]`                  |
 | `affinity`                | Affinity rules                                                | `{}`                  |
-| `podSecurityContext`      | Pod-level security context                                    | non-root, uid/gid 1001|
+| `podSecurityContext`      | Pod-level security context                                    | non-root, uid 1000 / gid 100 |
 | `securityContext`         | Container-level security context                              | drop ALL caps         |
 
 See [`values.yaml`](./values.yaml) for the full list with comments.
@@ -90,6 +90,27 @@ persistence:
   enabled: true
   existingClaim: my-existing-media-pvc
 ```
+
+### Use different uid/gid
+
+The image defaults to uid `1000` / gid `100` (the typical NAS user).
+Override the chart values to match your storage class / node convention:
+
+```yaml
+podSecurityContext:
+  runAsUser: 1500
+  runAsGroup: 1500
+  fsGroup: 1500            # MUST match the gid you want on the PVC
+  runAsNonRoot: true
+securityContext:
+  runAsUser: 1500
+  runAsGroup: 1500
+```
+
+If you're upgrading from chart `0.1.x` (which defaulted to uid 1001),
+the kubelet will recursively reapply ownership matching the new
+`fsGroup` to the existing PVC on the next pod start, so writes resume
+without manual chown.
 
 ### Route traffic through an HTTP proxy
 

@@ -76,6 +76,20 @@ entries:
     version: 0.0.1
   common:
   - apiVersion: v2
+    created: "2026-06-22T09:19:07.157442678Z"
+    description: Shared template library for kr4t0n's self-hosted application charts.
+      Provides the deployment / service / ingress / pvc / labels boilerplate so each
+      application chart only has to supply values. Not installable on its own.
+    digest: da76ed03cff31bf308dfc0d9d0c4c97144de243ecea5ca8ff8dd4e8d924ed96c
+    maintainers:
+    - name: kr4t0n
+      url: https://github.com/kr4t0n
+    name: common
+    type: library
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/common-0.1.1/common-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
     created: "2026-06-22T07:35:37.87245413Z"
     description: Shared template library for kr4t0n's self-hosted application charts.
       Provides the deployment / service / ingress / pvc / labels boilerplate so each
@@ -344,6 +358,20 @@ entries:
   tautulli:
   - apiVersion: v2
     appVersion: 2.17.2
+    created: "2026-06-22T09:19:07.39114324Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.1.1
+    description: A Helm chart for Kubernetes
+    digest: 62dd16f4dd2a99e086548806cf07dd51440a191882d2e166de55cf9aee8ca7ba
+    name: tautulli
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/tautulli-0.1.1/tautulli-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 2.17.2
     created: "2026-06-22T07:35:38.046817263Z"
     dependencies:
     - name: common
@@ -386,4 +414,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/tautulli-0.0.1/tautulli-0.0.1.tgz
     version: 0.0.1
-generated: "2026-06-22T07:35:38.046859096Z"
+generated: "2026-06-22T09:19:07.391233379Z"

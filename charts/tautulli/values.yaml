@@ -18,21 +18,17 @@ service:
 
 ingress:
   enabled: false
-  # Each ingress class can have its own hosts, TLS, and annotations.
-  classes: []
-  # classes:
-  #   - className: nginx
-  #     annotations:
-  #       cert-manager.io/cluster-issuer: letsencrypt-prod
-  #     hosts:
-  #       - host: tautulli.example.com
-  #         paths:
-  #           - path: /
-  #             pathType: Prefix
-  #     tls:
-  #       - secretName: tautulli-tls
-  #         hosts:
-  #           - tautulli.example.com
+  className: ""
+  annotations: {}
+  # List of hostnames; each is routed (path "/") to the service.
+  hosts: []
+  #   - tautulli.example.com
+  tls: []
+  #   - hosts:
+  #       - tautulli.example.com
+  #     secretName: tautulli-tls   # optional; omit when the controller manages certs
+  # path: /            # optional, default "/"
+  # pathType: Prefix   # optional, default "Prefix"
 
 persistence:
   enabled: true

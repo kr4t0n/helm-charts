@@ -20,9 +20,10 @@ ingress:
   enabled: false
   className: ""
   annotations: {}
-  # List of hostnames; each is routed (path "/") to the service.
+  # Each entry may be `- host: name`, `- name` (bare string), or
+  # `- host: name` with a `paths:` list. Default path is "/".
   hosts: []
-  #   - tautulli.example.com
+  #   - host: tautulli.example.com
   tls: []
   #   - hosts:
   #       - tautulli.example.com

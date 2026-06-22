@@ -1,0 +1,11 @@
+apiVersion: v2
+name: common
+description: >-
+  Shared template library for kr4t0n's self-hosted application charts.
+  Provides the deployment / service / ingress / pvc / labels boilerplate so
+  each application chart only has to supply values. Not installable on its own.
+type: library
+version: 0.1.0
+maintainers:
+  - name: kr4t0n
+    url: https://github.com/kr4t0n

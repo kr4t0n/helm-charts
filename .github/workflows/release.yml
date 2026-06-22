@@ -27,6 +27,18 @@ jobs:
         with:
           version: v3.10.0
 
+      # Charts that use the in-repo `common` library declare it as a file://
+      # dependency. chart-releaser packages with `helm package`, which requires
+      # the dependency to be vendored into each chart's charts/ dir first.
+      - name: Vendor chart dependencies
+        run: |
+          for chart in charts/*/; do
+            if grep -qE '^dependencies:' "${chart}Chart.yaml" 2>/dev/null; then
+              echo "==> helm dependency update ${chart}"
+              helm dependency update "${chart}"
+            fi
+          done
+
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.5.0
         env:

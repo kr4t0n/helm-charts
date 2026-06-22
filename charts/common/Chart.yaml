@@ -5,7 +5,7 @@ description: >-
   Provides the deployment / service / ingress / pvc / labels boilerplate so
   each application chart only has to supply values. Not installable on its own.
 type: library
-version: 0.1.0
+version: 0.1.1
 maintainers:
   - name: kr4t0n
     url: https://github.com/kr4t0n

@@ -8,15 +8,18 @@ conventional schema:
     annotations:
       traefik.ingress.kubernetes.io/router.tls.certresolver: dnspod
     hosts:
-      - auth.example.com          # list of hostnames; each gets one rule
+      - host: auth.example.com    # object form (paths optional, default "/")
+      - other.example.com         # bare-string form also accepted
     tls:
       - hosts:
           - auth.example.com
         # secretName: auth-tls    # optional (omit when the controller manages certs)
-    # path: /                     # optional, default "/"
-    # pathType: Prefix            # optional, default "Prefix"
+    # path: /                     # default path when a host doesn't specify one
+    # pathType: Prefix            # default pathType
 
-Renders nothing when `ingress.enabled` is false.
+Each `hosts` entry may be a bare hostname string, `{host: <name>}`, or
+`{host: <name>, paths: [{path, pathType}, ...]}`. Renders nothing when
+`ingress.enabled` is false.
 */}}
 {{- define "common.ingress" -}}
 {{- if .Values.ingress.enabled -}}
@@ -45,16 +48,24 @@ spec:
   {{- end }}
   rules:
     {{- range .Values.ingress.hosts }}
-    - host: {{ . | quote }}
+    {{- $host := . -}}
+    {{- $hostPaths := list (dict "path" $path "pathType" $pathType) -}}
+    {{- if kindIs "map" . -}}
+      {{- $host = .host -}}
+      {{- with .paths }}{{- $hostPaths = . -}}{{- end -}}
+    {{- end }}
+    - host: {{ $host | quote }}
       http:
         paths:
-          - path: {{ $path }}
-            pathType: {{ $pathType }}
+          {{- range $hostPaths }}
+          - path: {{ .path | default $path }}
+            pathType: {{ .pathType | default $pathType }}
             backend:
               service:
                 name: {{ $fullName }}
                 port:
                   number: {{ $svcPort }}
+          {{- end }}
     {{- end }}
 {{- end }}
 {{- end }}

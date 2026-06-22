@@ -18,28 +18,33 @@ service:
 
 ingress:
   enabled: false
-  className: ""
-  annotations: {}
-  hosts:
-    - host: tautulli.local
-      paths:
-        - path: /
-          pathType: Prefix
-  tls: []
-  # - secretName: tautulli-tls
-  #   hosts:
-  #     - tautulli.example.com
+  # Each ingress class can have its own hosts, TLS, and annotations.
+  classes: []
+  # classes:
+  #   - className: nginx
+  #     annotations:
+  #       cert-manager.io/cluster-issuer: letsencrypt-prod
+  #     hosts:
+  #       - host: tautulli.example.com
+  #         paths:
+  #           - path: /
+  #             pathType: Prefix
+  #     tls:
+  #       - secretName: tautulli-tls
+  #         hosts:
+  #           - tautulli.example.com
 
 persistence:
   enabled: true
   # Cluster default StorageClass when empty.
   storageClass: ""
+  # Default request size; each volume below inherits it unless it sets its own.
+  size: 1Gi
   accessModes:
     - ReadWriteOnce
   volumes:
     config:
       mountPath: /config
-      size: 1Gi
       # Empty suffix => PVC is named exactly "<release>" (e.g. "tautulli"),
       # matching the pre-library chart so existing Longhorn PVCs are reused.
       claimNameSuffix: ""

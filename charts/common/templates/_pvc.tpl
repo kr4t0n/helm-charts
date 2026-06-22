@@ -22,6 +22,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: {{ include "common.pvcName" (dict "ctx" $top "key" $key "cfg" $cfg) }}
+  namespace: {{ $top.Release.Namespace }}
   labels:
     {{- include "common.labels" $top | nindent 4 }}
   {{- with $cfg.annotations }}
@@ -34,7 +35,7 @@ spec:
     {{- toYaml ($cfg.accessModes | default $top.Values.persistence.accessModes) | nindent 4 }}
   resources:
     requests:
-      storage: {{ required (printf "persistence.volumes.%s.size is required" $key) $cfg.size }}
+      storage: {{ required (printf "set persistence.size or persistence.volumes.%s.size" $key) ($cfg.size | default $top.Values.persistence.size) }}
 {{- end }}
 {{- end }}
 {{- end }}

@@ -21,6 +21,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "common.fullname" . }}
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "common.labels" . | nindent 4 }}
 spec:
@@ -48,7 +49,7 @@ spec:
       containers:
         - name: {{ include "common.name" . }}
           image: {{ include "common.image" . | quote }}
-          imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
+          imagePullPolicy: {{ .Values.image.pullPolicy | default .Values.imagePullPolicy | default "IfNotPresent" }}
           {{- with .Values.workingDir }}
           workingDir: {{ . }}
           {{- end }}
@@ -79,7 +80,7 @@ spec:
           volumeMounts:
             {{- if and .Values.persistence .Values.persistence.enabled }}
             {{- range $key, $cfg := .Values.persistence.volumes }}
-            - name: {{ $key }}
+            - name: {{ $key }}-volume
               mountPath: {{ $cfg.mountPath }}
               {{- with $cfg.subPath }}
               subPath: {{ . }}
@@ -94,7 +95,7 @@ spec:
       volumes:
         {{- if and .Values.persistence .Values.persistence.enabled }}
         {{- range $key, $cfg := .Values.persistence.volumes }}
-        - name: {{ $key }}
+        - name: {{ $key }}-volume
           persistentVolumeClaim:
             claimName: {{ include "common.pvcName" (dict "ctx" $ "key" $key "cfg" $cfg) }}
         {{- end }}

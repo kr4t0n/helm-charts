@@ -7,15 +7,16 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "common.fullname" . }}
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "common.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - name: http
-      port: {{ .Values.service.port }}
+    - port: {{ .Values.service.port }}
       targetPort: http
       protocol: TCP
+      name: http
     {{- with .Values.service.extraPorts }}
     {{- toYaml . | nindent 4 }}
     {{- end }}

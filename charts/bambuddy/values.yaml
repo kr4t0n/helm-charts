@@ -1,13 +1,14 @@
 # Default values for bambuddy.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+# Rendering is delegated to the `common` library chart; this file only supplies
+# the per-application data. See charts/common for the full template.
 
 replicaCount: 1
 
 image:
   repository: maziggy/bambuddy
-
-imagePullPolicy: IfNotPresent
+  pullPolicy: IfNotPresent
+  # Empty => the chart's appVersion is used, pinning the deploy.
+  tag: ""
 
 service:
   type: ClusterIP
@@ -15,36 +16,33 @@ service:
 
 ingress:
   enabled: false
-  # Each ingress class can have its own hosts, TLS, and annotations
-  classes: []
-  # Example:
-  # classes:
-  #   - className: "nginx"
-  #     annotations:
-  #       kubernetes.io/ingress.class: nginx
-  #       cert-manager.io/cluster-issuer: "letsencrypt-prod"
-  #     hosts:
-  #       - host: tautulli.example.com
-  #         paths:
-  #           - path: /
-  #             pathType: Prefix
-  #     tls:
-  #       - secretName: tautulli-tls
-  #         hosts:
-  #           - tautulli.example.com
+  className: ""
+  annotations: {}
+  hosts: []
+  #   - host: bambuddy.example.com
+  tls: []
+  #   - hosts:
+  #       - bambuddy.example.com
+  #     secretName: bambuddy-tls   # optional; omit when the controller manages certs
+  # path: /            # optional, default "/"
+  # pathType: Prefix   # optional, default "Prefix"
 
 persistence:
   enabled: true
-  storageClass: "" # Use default storage class if empty
+  # Cluster default StorageClass when empty.
+  storageClass: ""
+  # Default request size; each volume below inherits it unless it sets its own.
   size: 4Gi
+  accessModes:
+    - ReadWriteOnce
+  volumes:
+    # PVC "<release>-data", mounted at /app/data
+    data:
+      mountPath: /app/data
+    # PVC "<release>-logs", mounted at /app/logs
+    logs:
+      mountPath: /app/logs
 
-# Node selector for pod scheduling
-nodeSelector: {}
-  # Example:
-  # kubernetes.io/os: linux
-  # node-role.kubernetes.io/worker: ""
-
-# CPU/memory requests and limits for the main container
 resources: {}
   # requests:
   #   cpu: 100m
@@ -53,33 +51,20 @@ resources: {}
   #   cpu: "2"
   #   memory: 2Gi
 
-# Additional environment variables
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Additional environment variables.
 extraEnvs: []
   # - name: TZ
   #   value: "America/New_York"
-  # - name: PLEX_TOKEN
-  #   value: "your-plex-token"
 
-# Reference to existing secret (optional)
-# If provided, will load ALL keys from the secret as environment variables
+# Load ALL keys from an existing secret as environment variables.
 existingSecret:
   enabled: false
-  name: "" # Name of the existing secret
+  name: ""
 
-# Additional volumes to add to the pod
+# Free-form extra volumes / mounts.
 extraVolumes: []
-  # - name: books
-  #   nfs:
-  #     server: nfs-server.example.com
-  #     path: /mnt/books
-  # - name: config-map
-  #   configMap:
-  #     name: my-config
-
-# Additional volume mounts to add to the container
 extraVolumeMounts: []
-  # - name: books
-  #   mountPath: /books
-  #   readOnly: true
-  # - name: config-map
-  #   mountPath: /config-map

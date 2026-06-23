@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -23,9 +23,11 @@ jobs:
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
       - name: Install Helm
-        uses: azure/setup-helm@v3
+        uses: azure/setup-helm@v5
         with:
-          version: v3.10.0
+          # Pin to Helm 3.x — chart-releaser and these charts target Helm 3.
+          version: v3.21.2
+          token: ${{ github.token }}
 
       # Charts that use the in-repo `common` library declare it as a file://
       # dependency. chart-releaser packages with `helm package`, which requires
@@ -40,6 +42,11 @@ jobs:
           done
 
       - name: Run chart-releaser
-        uses: helm/chart-releaser-action@v1.5.0
+        uses: helm/chart-releaser-action@v1.7.0
+        with:
+          # Skip charts whose <name>-<version> release already exists instead of
+          # failing the whole run (e.g. when a chart dir changed but its version
+          # was not bumped). New versions still publish.
+          skip_existing: true
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"

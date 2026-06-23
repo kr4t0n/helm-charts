@@ -24,10 +24,10 @@ kubectl -n media port-forward svc/xteve 34400:34400
 
 | Key | Description | Default |
 |---|---|---|
-| `image.repository` | Image | `dnsforge/xteve` |
+| `image.repository` | Image | `alturismo/xteve` |
 | `image.tag` | Tag (only `latest` is published) | `latest` |
 | `service.port` | Web UI / HDHomeRun port | `34400` |
-| `persistence.size` | Config volume (`/home/xteve/conf`) size | `1Gi` |
+| `persistence.size` | System-folder volume (`/root/.xteve`) size | `1Gi` |
 | `persistence.storageClass` | StorageClass (empty ⇒ cluster default) | `""` |
 | `extraEnvs` | Extra env vars (e.g. `TZ`) | `[]` |
 | `ingress.*` | See [`common`](../common) (className / hosts / tls) | disabled |
@@ -36,9 +36,15 @@ See [`values.yaml`](./values.yaml) for the full list.
 
 ## Notes
 
-- **Persistence** mounts one PVC at `/home/xteve/conf` (config, data and
-  backups all live there).
+- **Image**: uses [`alturismo/xteve`](https://hub.docker.com/r/alturismo/xteve),
+  which runs xTeVe in the foreground, so it stays up under Kubernetes. (The
+  alternative `dnsforge/xteve` image expects an interactive TTY — `docker run
+  -it` — and its PID 1 exits without one, so the pod goes `Completed`. The
+  `common` library doesn't render `tty`/`stdin`, so that image isn't supported
+  here without a custom patch.)
+- **Persistence** mounts one PVC at `/root/.xteve` (xTeVe's system folder —
+  `settings.json`, lineups, EPG cache).
 - **Time zone**: xTeVe's scheduler honours `TZ` — set it via `extraEnvs`.
-- **Plex/Emby discovery**: auto-discovery relies on SSDP/host networking, which
-  this chart does not enable. Add xTeVe as a tuner manually using the Service
-  address (`http://xteve.<namespace>:34400`).
+- **Plex/Emby discovery**: SSDP/DLNA auto-discovery won't cross the cluster
+  network on a ClusterIP service. Add xTeVe as a tuner manually using the
+  Service address (`http://xteve.<namespace>:34400`).

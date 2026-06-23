@@ -5,10 +5,11 @@
 replicaCount: 1
 
 image:
-  repository: dnsforge/xteve
+  repository: alturismo/xteve
   pullPolicy: IfNotPresent
-  # dnsforge/xteve only publishes a `latest` tag (no versioned tags), so we
-  # track it. Pin to a digest via your own values if you want reproducibility.
+  # alturismo/xteve only publishes a `latest` tag (no versioned tags), so we
+  # track it. Unlike dnsforge/xteve it runs in the foreground, so it stays up
+  # under Kubernetes without needing a TTY.
   tag: latest
 
 service:
@@ -33,13 +34,13 @@ persistence:
   enabled: true
   # Cluster default StorageClass when empty.
   storageClass: ""
-  # Holds xTeVe config + data + backup (all under /home/xteve/conf).
+  # Holds xTeVe's system folder (settings.json, lineups, EPG cache).
   size: 1Gi
   accessModes:
     - ReadWriteOnce
   volumes:
     config:
-      mountPath: /home/xteve/conf
+      mountPath: /root/.xteve
       # Empty suffix => PVC is named exactly "<release>".
       claimNameSuffix: ""
 

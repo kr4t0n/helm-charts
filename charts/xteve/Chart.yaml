@@ -3,9 +3,9 @@ name: xteve
 description: M3U proxy server for Plex, Emby and other IPTV/.M3U8 clients (xTeVe)
 
 type: application
-version: 0.1.0
-# xTeVe app version. The dnsforge image only publishes `latest`, so this is
-# used for the version label; the deployed tag is set in values.yaml.
+version: 0.1.1
+# xTeVe app version. The image only publishes `latest`, so this is used for the
+# version label; the deployed tag is set in values.yaml.
 appVersion: "2.2.0"
 
 dependencies:

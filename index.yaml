@@ -470,4 +470,19 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/tautulli-0.0.1/tautulli-0.0.1.tgz
     version: 0.0.1
-generated: "2026-06-22T15:40:50.403258448Z"
+  xteve:
+  - apiVersion: v2
+    appVersion: 2.2.0
+    created: "2026-06-23T03:04:26.819527249Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.2.1
+    description: M3U proxy server for Plex, Emby and other IPTV/.M3U8 clients (xTeVe)
+    digest: d793da2956574cfa6ec3d31240e3b57d0ef47818b257f85f017157398230fa51
+    name: xteve
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.1.0/xteve-0.1.0.tgz
+    version: 0.1.0
+generated: "2026-06-23T03:04:26.81958137Z"

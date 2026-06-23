@@ -1,0 +1,61 @@
+# Default values for xteve.
+# Rendering is delegated to the `common` library chart; this file only supplies
+# the per-application data. See charts/common for the full template.
+
+replicaCount: 1
+
+image:
+  repository: dnsforge/xteve
+  pullPolicy: IfNotPresent
+  # dnsforge/xteve only publishes a `latest` tag (no versioned tags), so we
+  # track it. Pin to a digest via your own values if you want reproducibility.
+  tag: latest
+
+service:
+  type: ClusterIP
+  # xTeVe web UI (http://<host>:34400/web/) and HDHomeRun emulation port.
+  port: 34400
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts: []
+  #   - host: xteve.example.com
+  tls: []
+  #   - hosts:
+  #       - xteve.example.com
+  #     secretName: xteve-tls   # optional; omit when the controller manages certs
+  # path: /            # optional, default "/"
+  # pathType: Prefix   # optional, default "Prefix"
+
+persistence:
+  enabled: true
+  # Cluster default StorageClass when empty.
+  storageClass: ""
+  # Holds xTeVe config + data + backup (all under /home/xteve/conf).
+  size: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  volumes:
+    config:
+      mountPath: /home/xteve/conf
+      # Empty suffix => PVC is named exactly "<release>".
+      claimNameSuffix: ""
+
+resources: {}
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # limits:
+  #   cpu: "1"
+  #   memory: 512Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# xTeVe uses TZ for its scheduler; set it for correct local times.
+extraEnvs: []
+  # - name: TZ
+  #   value: "America/New_York"

@@ -1,4 +1,6 @@
 # Patterns to ignore when packaging Helm charts.
+# NOTE: do not ignore *.tgz here — it would exclude the vendored `common`
+# dependency under charts/ and break rendering.
 .DS_Store
 .git/
 .gitignore

@@ -1,0 +1,40 @@
+name: Lint Charts
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install Helm
+        uses: azure/setup-helm@v5
+        with:
+          version: v3.21.2
+          token: ${{ github.token }}
+
+      # Lint every chart, and render application charts, so broken templates or
+      # missing/mis-ignored dependencies fail the PR instead of the release.
+      - name: Lint and template charts
+        run: |
+          fail=0
+          for chart in charts/*/; do
+            [ -f "${chart}Chart.yaml" ] || continue
+            name=$(basename "$chart")
+            echo "::group::$name"
+            if grep -qE '^dependencies:' "${chart}Chart.yaml"; then
+              helm dependency update "$chart" || { echo "::error::dependency build failed for $name"; fail=1; }
+            fi
+            helm lint "$chart" || { echo "::error::helm lint failed for $name"; fail=1; }
+            # Library charts can't be rendered standalone; only template apps.
+            if ! grep -qE '^type:[[:space:]]*library' "${chart}Chart.yaml"; then
+              helm template "$name" "$chart" >/dev/null || { echo "::error::helm template failed for $name"; fail=1; }
+            fi
+            echo "::endgroup::"
+          done
+          exit $fail

@@ -487,6 +487,20 @@ entries:
   xteve:
   - apiVersion: v2
     appVersion: 2.2.0
+    created: "2026-06-23T04:17:25.658896604Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.2.1
+    description: M3U proxy server for Plex, Emby and other IPTV/.M3U8 clients (xTeVe)
+    digest: ed970fc95e6af836b9b759457e2efb5637654f05409d2258892d6a2f04e1d24f
+    name: xteve
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.1.1/xteve-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 2.2.0
     created: "2026-06-23T03:04:26.819527249Z"
     dependencies:
     - name: common
@@ -499,4 +513,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.1.0/xteve-0.1.0.tgz
     version: 0.1.0
-generated: "2026-06-23T03:22:21.50971175Z"
+generated: "2026-06-23T04:17:25.658954423Z"

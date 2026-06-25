@@ -1,14 +1,15 @@
-# Default values for code-server.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+# Default values for kikoeru.
+# Rendering is delegated to the `common` library chart; this file only supplies
+# the per-application data. See charts/common for the full template.
 
 replicaCount: 1
 
 image:
   repository: number17/kikoeru
-  tag: latest
-
-imagePullPolicy: IfNotPresent
+  pullPolicy: IfNotPresent
+  # Empty => the chart's appVersion is used (pins the deploy). This is the same
+  # image `latest` currently resolves to (identical digest).
+  tag: ""
 
 service:
   type: ClusterIP
@@ -16,54 +17,65 @@ service:
 
 ingress:
   enabled: false
-  # Each ingress class can have its own hosts, TLS, and annotations
-  classes: []
-  # Example:
-  # classes:
-  #   - className: "nginx"
-  #     annotations:
-  #       kubernetes.io/ingress.class: nginx
-  #       cert-manager.io/cluster-issuer: "letsencrypt-prod"
-  #     hosts:
-  #       - host: tautulli.example.com
-  #         paths:
-  #           - path: /
-  #             pathType: Prefix
-  #     tls:
-  #       - secretName: tautulli-tls
-  #         hosts:
-  #           - tautulli.example.com
+  className: ""
+  annotations: {}
+  hosts: []
+  #   - host: kikoeru.example.com
+  tls: []
+  #   - hosts:
+  #       - kikoeru.example.com
+  #     secretName: kikoeru-tls   # optional; omit when the controller manages certs
+  # path: /            # optional, default "/"
+  # pathType: Prefix   # optional, default "Prefix"
 
 persistence:
   enabled: true
-  storageClass: "" # Use default storage class if empty
+  # Cluster default StorageClass when empty.
+  storageClass: ""
+  # Default request size; each volume below inherits it unless it sets its own.
   size: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  volumes:
+    # PVC "<release>-sqlite", the application database
+    sqlite:
+      mountPath: /usr/src/kikoeru/sqlite
+    # PVC "<release>-covers", cover-art cache
+    covers:
+      mountPath: /usr/src/kikoeru/covers
+    # PVC "<release>-config", config files
+    config:
+      mountPath: /usr/src/kikoeru/config
 
-# Node selector for pod scheduling
+resources: {}
+  # requests:
+  #   cpu: 100m
+  #   memory: 256Mi
+  # limits:
+  #   cpu: "2"
+  #   memory: 1Gi
+
 nodeSelector: {}
-  # Example:
-  # kubernetes.io/os: linux
-  # node-role.kubernetes.io/worker: ""
+tolerations: []
+affinity: {}
 
-# Additional environment variables
+# Additional environment variables.
 extraEnvs: []
   # - name: TZ
   #   value: "America/New_York"
 
-# Additional volumes to add to the pod
+# Load ALL keys from an existing secret as environment variables.
+existingSecret:
+  enabled: false
+  name: ""
+
+# Mount your audio library (and any other volumes) into the pod.
 extraVolumes: []
-  # - name: books
+  # - name: media
   #   nfs:
   #     server: nfs-server.example.com
-  #     path: /mnt/books
-  # - name: config-map
-  #   configMap:
-  #     name: my-config
+  #     path: /mnt/audio
 
-# Additional volume mounts to add to the container
 extraVolumeMounts: []
-  # - name: books
-  #   mountPath: /books
-  #   readOnly: true
-  # - name: config-map
-  #   mountPath: /config-map
+  # - name: media
+  #   mountPath: /media

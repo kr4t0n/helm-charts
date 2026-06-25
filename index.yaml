@@ -267,6 +267,20 @@ entries:
     version: 0.1.1
   kikoeru:
   - apiVersion: v2
+    appVersion: v0.6.14-20260502
+    created: "2026-06-25T07:33:33.90726157Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.2.1
+    description: A Helm chart for Kubernetes
+    digest: 5284d8d8925cda50bca132ce877d48e5835fcd933b002814bded81539068a678
+    name: kikoeru
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/kikoeru-0.1.0/kikoeru-0.1.0.tgz
+    version: 0.1.0
+  - apiVersion: v2
     appVersion: 0.6.14
     created: "2026-01-29T12:30:58.826952808Z"
     description: A Helm chart for Kubernetes
@@ -541,4 +555,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.1.0/xteve-0.1.0.tgz
     version: 0.1.0
-generated: "2026-06-24T06:19:29.125492328Z"
+generated: "2026-06-25T07:33:33.907324798Z"

@@ -3,5 +3,13 @@ name: kikoeru
 description: A Helm chart for Kubernetes
 
 type: application
-version: 0.0.2
-appVersion: 0.6.14
+version: 0.1.0
+# number17/kikoeru publishes date-stamped tags (no plain "0.6.14"); pin to the
+# latest build, which has the same digest as `latest`. The deployed tag comes
+# from values.yaml image.tag.
+appVersion: "v0.6.14-20260502"
+
+dependencies:
+  - name: common
+    version: 0.2.1
+    repository: file://../common

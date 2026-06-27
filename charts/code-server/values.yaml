@@ -1,14 +1,15 @@
 # Default values for code-server.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+# Rendering is delegated to the `common` library chart; this file only supplies
+# the per-application data. See charts/common for the full template.
 
 replicaCount: 1
 
 image:
   repository: linuxserver/code-server
-  tag: latest
-
-imagePullPolicy: IfNotPresent
+  pullPolicy: IfNotPresent
+  # Empty => the chart's appVersion is used (pins the deploy). This is the same
+  # image `latest` currently resolves to (identical digest).
+  tag: ""
 
 service:
   type: ClusterIP
@@ -16,62 +17,53 @@ service:
 
 ingress:
   enabled: false
-  # Each ingress class can have its own hosts, TLS, and annotations
-  classes: []
-  # Example:
-  # classes:
-  #   - className: "nginx"
-  #     annotations:
-  #       kubernetes.io/ingress.class: nginx
-  #       cert-manager.io/cluster-issuer: "letsencrypt-prod"
-  #     hosts:
-  #       - host: tautulli.example.com
-  #         paths:
-  #           - path: /
-  #             pathType: Prefix
-  #     tls:
-  #       - secretName: tautulli-tls
-  #         hosts:
-  #           - tautulli.example.com
+  className: ""
+  annotations: {}
+  hosts: []
+  #   - host: code.example.com
+  tls: []
+  #   - hosts:
+  #       - code.example.com
+  #     secretName: code-server-tls   # optional; omit when the controller manages certs
+  # path: /            # optional, default "/"
+  # pathType: Prefix   # optional, default "Prefix"
 
 persistence:
   enabled: true
-  storageClass: "" # Use default storage class if empty
+  # Cluster default StorageClass when empty.
+  storageClass: ""
   size: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  volumes:
+    config:
+      mountPath: /config
+      # Empty suffix => PVC is named exactly "<release>".
+      claimNameSuffix: ""
 
-# Node selector for pod scheduling
+resources: {}
+  # requests:
+  #   cpu: 100m
+  #   memory: 256Mi
+  # limits:
+  #   cpu: "2"
+  #   memory: 2Gi
+
 nodeSelector: {}
-  # Example:
-  # kubernetes.io/os: linux
-  # node-role.kubernetes.io/worker: ""
+tolerations: []
+affinity: {}
 
-# Additional environment variables
+# Additional environment variables (e.g. PASSWORD, SUDO_PASSWORD, DEFAULT_WORKSPACE).
 extraEnvs: []
   # - name: TZ
   #   value: "America/New_York"
-  # - name: PLEX_TOKEN
-  #   value: "your-plex-token"
 
-# Reference to existing secret (optional)
-# If provided, will load ALL keys from the secret as environment variables
+# Load ALL keys from an existing secret as environment variables
+# (handy for PASSWORD / SUDO_PASSWORD).
 existingSecret:
   enabled: false
-  name: "" # Name of the existing secret
+  name: ""
 
-# Additional volumes to add to the pod
+# Free-form extra volumes / mounts (e.g. project directories).
 extraVolumes: []
-  # - name: books
-  #   nfs:
-  #     server: nfs-server.example.com
-  #     path: /mnt/books
-  # - name: config-map
-  #   configMap:
-  #     name: my-config
-
-# Additional volume mounts to add to the container
 extraVolumeMounts: []
-  # - name: books
-  #   mountPath: /books
-  #   readOnly: true
-  # - name: config-map
-  #   mountPath: /config-map

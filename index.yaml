@@ -384,6 +384,20 @@ entries:
   qbittorrent:
   - apiVersion: v2
     appVersion: 5.1.4
+    created: "2026-06-28T16:23:26.178389541Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.2.1
+    description: A Helm chart for Kubernetes
+    digest: 04ecae481d6a58604f5b91958b7a3908cd3bbf9e7fb3de6be961dbbfea876661
+    name: qbittorrent
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/qbittorrent-0.1.0/qbittorrent-0.1.0.tgz
+    version: 0.1.0
+  - apiVersion: v2
+    appVersion: 5.1.4
     created: "2026-03-30T17:42:30.999673825Z"
     description: A Helm chart for Kubernetes
     digest: 6111113845cf2cc4ad4dccb8923fe3c2db21bb59448da91b858fca02a80b61f4
@@ -611,4 +625,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.1.0/xteve-0.1.0.tgz
     version: 0.1.0
-generated: "2026-06-28T15:56:48.114411368Z"
+generated: "2026-06-28T16:23:26.178460834Z"

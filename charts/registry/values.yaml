@@ -29,10 +29,10 @@ ingress:
   # pathType: Prefix   # optional, default "Prefix"
 
 persistence:
-  # Registry stores pushed images under /var/lib/registry. Disabled by default
-  # to match the previous chart (images live on the container filesystem and are
-  # lost on pod restart). Set enabled: true to back it with a PVC.
-  enabled: false
+  # Registry stores pushed images under /var/lib/registry, backed by a PVC so
+  # they survive pod restarts/rescheduling. Set enabled: false for an ephemeral
+  # registry (images on the container filesystem, lost on restart).
+  enabled: true
   storageClass: ""
   size: 20Gi
   accessModes:

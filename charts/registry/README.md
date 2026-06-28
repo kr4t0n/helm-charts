@@ -26,8 +26,8 @@ kubectl -n registry port-forward svc/registry 5000:5000
 | `image.repository` | Image | `registry` |
 | `image.tag` | Tag (empty ⇒ chart `appVersion`) | `""` |
 | `service.port` | Registry port | `5000` |
-| `persistence.enabled` | Back `/var/lib/registry` with a PVC | `false` |
-| `persistence.size` | PVC size when enabled | `20Gi` |
+| `persistence.enabled` | Back `/var/lib/registry` with a PVC | `true` |
+| `persistence.size` | PVC size | `20Gi` |
 | `extraEnvs` | `REGISTRY_*` config env vars | `[]` |
 | `ingress.*` | See [`common`](../common) (className / hosts / tls) | disabled |
 
@@ -35,10 +35,11 @@ See [`values.yaml`](./values.yaml) for the full list.
 
 ## Notes
 
-- ⚠️ **Persistence is off by default** (matching the previous chart): pushed
-  images live on the container filesystem and are **lost on pod restart**. For
-  a durable registry set `persistence.enabled=true` — that mounts a PVC at
-  `/var/lib/registry`.
+- **Persistence is on by default**: a PVC is mounted at `/var/lib/registry`, so
+  pushed images survive pod restarts/rescheduling. Set `persistence.enabled=false`
+  for an ephemeral registry (images on the container filesystem, lost on restart).
+  Alternatively, point it at object storage (S3/GCS/…) via `REGISTRY_STORAGE_*`
+  in `extraEnvs` and leave persistence off.
 - **Config** is via `REGISTRY_*` environment variables (`extraEnvs`), e.g.
   `REGISTRY_STORAGE_DELETE_ENABLED=true` to allow image deletion.
 - **Image version**: `appVersion` tracks the current `registry` 3.1.x (the

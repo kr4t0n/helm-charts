@@ -1,79 +1,86 @@
 # Default values for qbittorrent.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+# Rendering is delegated to the `common` library chart; this file only supplies
+# the per-application data. See charts/common for the full template.
 
 replicaCount: 1
 
 image:
   repository: linuxserver/qbittorrent
-
-imagePullPolicy: IfNotPresent
+  pullPolicy: IfNotPresent
+  # Empty => the chart's appVersion is used (pins the deploy).
+  tag: ""
 
 service:
   type: ClusterIP
+  # Web UI port.
   port: 8080
 
-qbittorrent:
-  port: 6881
+# Extra container ports beyond the web UI. The BitTorrent listen port is
+# declared on the pod here; it is NOT added to the Service (matches the previous
+# chart). Add a matching `service.extraPorts` entry if you need to expose it.
+extraPorts:
+  - name: bttcp
+    containerPort: 6881
+    protocol: TCP
+  - name: btudp
+    containerPort: 6881
+    protocol: UDP
 
 ingress:
   enabled: false
-  # Each ingress class can have its own hosts, TLS, and annotations
-  classes: []
-  # Example:
-  # classes:
-  #   - className: "nginx"
-  #     annotations:
-  #       kubernetes.io/ingress.class: nginx
-  #       cert-manager.io/cluster-issuer: "letsencrypt-prod"
-  #     hosts:
-  #       - host: tautulli.example.com
-  #         paths:
-  #           - path: /
-  #             pathType: Prefix
-  #     tls:
-  #       - secretName: tautulli-tls
-  #         hosts:
-  #           - tautulli.example.com
+  className: ""
+  annotations: {}
+  hosts: []
+  #   - host: qbittorrent.example.com
+  tls: []
+  #   - hosts:
+  #       - qbittorrent.example.com
+  #     secretName: qbittorrent-tls   # optional; omit when the controller manages certs
+  # path: /            # optional, default "/"
+  # pathType: Prefix   # optional, default "Prefix"
 
 persistence:
   enabled: true
-  storageClass: "" # Use default storage class if empty
+  # Cluster default StorageClass when empty.
+  storageClass: ""
   size: 4Gi
+  accessModes:
+    - ReadWriteOnce
+  volumes:
+    config:
+      mountPath: /config
+      # Empty suffix => PVC is named exactly "<release>".
+      claimNameSuffix: ""
 
-# Node selector for pod scheduling
+resources: {}
+  # requests:
+  #   cpu: 100m
+  #   memory: 256Mi
+  # limits:
+  #   cpu: "2"
+  #   memory: 2Gi
+
 nodeSelector: {}
-  # Example:
-  # kubernetes.io/os: linux
-  # node-role.kubernetes.io/worker: ""
+tolerations: []
+affinity: {}
 
-# Additional environment variables
+# Additional environment variables (e.g. WEBUI_PORT, TZ).
 extraEnvs: []
   # - name: TZ
   #   value: "America/New_York"
-  # - name: PLEX_TOKEN
-  #   value: "your-plex-token"
 
-# Reference to existing secret (optional)
-# If provided, will load ALL keys from the secret as environment variables
+# Load ALL keys from an existing secret as environment variables.
 existingSecret:
   enabled: false
-  name: "" # Name of the existing secret
+  name: ""
 
-# Additional volumes to add to the pod
+# Mount your downloads directory (and any other volumes) into the pod.
 extraVolumes: []
-  # - name: books
+  # - name: downloads
   #   nfs:
   #     server: nfs-server.example.com
-  #     path: /mnt/books
-  # - name: config-map
-  #   configMap:
-  #     name: my-config
+  #     path: /mnt/downloads
 
-# Additional volume mounts to add to the container
 extraVolumeMounts: []
-  # - name: books
-  #   mountPath: /books
-  #   readOnly: true
-  # - name: config-map
-  #   mountPath: /config-map
+  # - name: downloads
+  #   mountPath: /downloads

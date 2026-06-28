@@ -1,14 +1,15 @@
 # Default values for registry.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+# Rendering is delegated to the `common` library chart; this file only supplies
+# the per-application data. See charts/common for the full template.
 
 replicaCount: 1
 
 image:
   repository: registry
-  tag: latest
-
-imagePullPolicy: IfNotPresent
+  pullPolicy: IfNotPresent
+  # Empty => the chart's appVersion is used (pins the deploy). This is the same
+  # image `latest` currently resolves to (3.1.x).
+  tag: ""
 
 service:
   type: ClusterIP
@@ -16,49 +17,52 @@ service:
 
 ingress:
   enabled: false
-  # Each ingress class can have its own hosts, TLS, and annotations
-  classes: []
-  # Example:
-  # classes:
-  #   - className: "nginx"
-  #     annotations:
-  #       kubernetes.io/ingress.class: nginx
-  #       cert-manager.io/cluster-issuer: "letsencrypt-prod"
-  #     hosts:
-  #       - host: tautulli.example.com
-  #         paths:
-  #           - path: /
-  #             pathType: Prefix
-  #     tls:
-  #       - secretName: tautulli-tls
-  #         hosts:
-  #           - tautulli.example.com
+  className: ""
+  annotations: {}
+  hosts: []
+  #   - host: registry.example.com
+  tls: []
+  #   - hosts:
+  #       - registry.example.com
+  #     secretName: registry-tls   # optional; omit when the controller manages certs
+  # path: /            # optional, default "/"
+  # pathType: Prefix   # optional, default "Prefix"
 
-# Node selector for pod scheduling
+persistence:
+  # Registry stores pushed images under /var/lib/registry. Disabled by default
+  # to match the previous chart (images live on the container filesystem and are
+  # lost on pod restart). Set enabled: true to back it with a PVC.
+  enabled: false
+  storageClass: ""
+  size: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  volumes:
+    data:
+      mountPath: /var/lib/registry
+
+resources: {}
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # limits:
+  #   cpu: "2"
+  #   memory: 1Gi
+
 nodeSelector: {}
-  # Example:
-  # kubernetes.io/os: linux
-  # node-role.kubernetes.io/worker: ""
+tolerations: []
+affinity: {}
 
-# Additional environment variables
+# Additional environment variables (registry config via REGISTRY_* vars).
 extraEnvs: []
-  # - name: TZ
-  #   value: "America/New_York"
+  # - name: REGISTRY_STORAGE_DELETE_ENABLED
+  #   value: "true"
 
-# Additional volumes to add to the pod
+# Load ALL keys from an existing secret as environment variables.
+existingSecret:
+  enabled: false
+  name: ""
+
+# Free-form extra volumes / mounts (e.g. a config.yml or alternate storage).
 extraVolumes: []
-  # - name: books
-  #   nfs:
-  #     server: nfs-server.example.com
-  #     path: /mnt/books
-  # - name: config-map
-  #   configMap:
-  #     name: my-config
-
-# Additional volume mounts to add to the container
 extraVolumeMounts: []
-  # - name: books
-  #   mountPath: /books
-  #   readOnly: true
-  # - name: config-map
-  #   mountPath: /config-map

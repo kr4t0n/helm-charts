@@ -3,5 +3,12 @@ name: registry
 description: A Helm chart for Kubernetes
 
 type: application
-version: 0.0.3
-appVersion: 3.0.0
+version: 0.1.0
+# Pinned to the current `latest` tag (3.1.x); the previous 3.0.0 is older than
+# what `latest` served. The deployed tag comes from values.yaml image.tag.
+appVersion: 3.1.1
+
+dependencies:
+  - name: common
+    version: 0.2.1
+    repository: file://../common

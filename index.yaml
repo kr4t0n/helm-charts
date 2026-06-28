@@ -425,6 +425,20 @@ entries:
   registry:
   - apiVersion: v2
     appVersion: 3.1.1
+    created: "2026-06-28T15:56:48.114316349Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.2.1
+    description: A Helm chart for Kubernetes
+    digest: 37fa8254f06a6a9a96770b63bc25ea32a3eaae7c7019b67f5a0d0d4f7b85e5c6
+    name: registry
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/registry-0.1.1/registry-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 3.1.1
     created: "2026-06-28T15:44:17.528760976Z"
     dependencies:
     - name: common
@@ -597,4 +611,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.1.0/xteve-0.1.0.tgz
     version: 0.1.0
-generated: "2026-06-28T15:44:17.528859678Z"
+generated: "2026-06-28T15:56:48.114411368Z"

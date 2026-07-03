@@ -1,13 +1,14 @@
 # Default values for moviepilot.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+# Rendering is delegated to the `common` library chart; this file only supplies
+# the per-application data. See charts/common for the full template.
 
 replicaCount: 1
 
 image:
   repository: jxxghp/moviepilot-v2
-
-imagePullPolicy: IfNotPresent
+  pullPolicy: IfNotPresent
+  # Empty => the chart's appVersion is used (pins the deploy).
+  tag: ""
 
 service:
   type: ClusterIP
@@ -15,62 +16,57 @@ service:
 
 ingress:
   enabled: false
-  # Each ingress class can have its own hosts, TLS, and annotations
-  classes: []
-  # Example:
-  # classes:
-  #   - className: "nginx"
-  #     annotations:
-  #       kubernetes.io/ingress.class: nginx
-  #       cert-manager.io/cluster-issuer: "letsencrypt-prod"
-  #     hosts:
-  #       - host: tautulli.example.com
-  #         paths:
-  #           - path: /
-  #             pathType: Prefix
-  #     tls:
-  #       - secretName: tautulli-tls
-  #         hosts:
-  #           - tautulli.example.com
+  className: ""
+  annotations: {}
+  hosts: []
+  #   - host: moviepilot.example.com
+  tls: []
+  #   - hosts:
+  #       - moviepilot.example.com
+  #     secretName: moviepilot-tls   # optional; omit when the controller manages certs
+  # path: /            # optional, default "/"
+  # pathType: Prefix   # optional, default "Prefix"
 
 persistence:
   enabled: true
-  storageClass: "" # Use default storage class if empty
+  # Cluster default StorageClass when empty.
+  storageClass: ""
+  # Default request size; the config volume inherits it, playwright overrides.
   size: 4Gi
+  accessModes:
+    - ReadWriteOnce
+  volumes:
+    # PVC "<release>", main config/data
+    config:
+      mountPath: /config
+      claimNameSuffix: ""
+    # PVC "<release>-playwright", the Playwright browser cache
+    playwright:
+      mountPath: /moviepilot/.cache/ms-playwright
+      size: 1Gi
 
-# Node selector for pod scheduling
+resources: {}
+  # requests:
+  #   cpu: 100m
+  #   memory: 512Mi
+  # limits:
+  #   cpu: "2"
+  #   memory: 2Gi
+
 nodeSelector: {}
-  # Example:
-  # kubernetes.io/os: linux
-  # node-role.kubernetes.io/worker: ""
+tolerations: []
+affinity: {}
 
-# Additional environment variables
+# Additional environment variables.
 extraEnvs: []
   # - name: TZ
   #   value: "America/New_York"
-  # - name: PLEX_TOKEN
-  #   value: "your-plex-token"
 
-# Reference to existing secret (optional)
-# If provided, will load ALL keys from the secret as environment variables
+# Load ALL keys from an existing secret as environment variables.
 existingSecret:
   enabled: false
-  name: "" # Name of the existing secret
+  name: ""
 
-# Additional volumes to add to the pod
+# Free-form extra volumes / mounts (e.g. a media library).
 extraVolumes: []
-  # - name: books
-  #   nfs:
-  #     server: nfs-server.example.com
-  #     path: /mnt/books
-  # - name: config-map
-  #   configMap:
-  #     name: my-config
-
-# Additional volume mounts to add to the container
 extraVolumeMounts: []
-  # - name: books
-  #   mountPath: /books
-  #   readOnly: true
-  # - name: config-map
-  #   mountPath: /config-map

@@ -73,6 +73,9 @@ spec:
                 secretKeyRef:
                   name: {{ include "open-design.fullname" . }}
                   key: OD_API_TOKEN
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           {{- if .Values.livenessProbe.enabled }}
           livenessProbe:
             exec:
@@ -98,6 +101,9 @@ spec:
               mountPath: /app/.od
             - name: tmp
               mountPath: /tmp
+            {{- with .Values.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
         - name: auth-proxy
           image: {{ .Values.authProxy.image }}
           securityContext:
@@ -148,6 +154,9 @@ spec:
           emptyDir: {}
         - name: proxy-tmp
           emptyDir: {}
+        {{- with .Values.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
 {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

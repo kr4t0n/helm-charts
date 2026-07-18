@@ -356,6 +356,16 @@ entries:
   open-design:
   - apiVersion: v2
     appVersion: 0.7.0
+    created: "2026-07-18T08:37:40.043176098Z"
+    description: A Helm chart for deploying Open Design on Kubernetes
+    digest: edad8f3e60225aad41153ce718c50545039f78df886004fbe2268feacf1329d2
+    name: open-design
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/open-design-0.1.1/open-design-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 0.7.0
     created: "2026-07-17T12:24:33.116222083Z"
     description: A Helm chart for deploying Open Design on Kubernetes
     digest: e65d47e94519861a42928bf752c77c3ef8e3e1e0df1928f892d3162a79e5955d
@@ -650,4 +660,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.1.0/xteve-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-17T12:24:33.116317051Z"
+generated: "2026-07-18T08:37:40.043261488Z"

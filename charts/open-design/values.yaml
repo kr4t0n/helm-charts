@@ -122,7 +122,7 @@ sidecars: []
 # --- Local additions (not in upstream) ---------------------------------------
 # Extra environment variables for the MAIN open-design container. Appended after
 # the built-in env, so anything here can also override earlier vars.
-extraEnv: []
+extraEnvs: []
   # Persist Codex auth/config across pod restarts by pointing CODEX_HOME at the
   # daemon's PVC (/app/.od is the only persistent, writable path since the
   # rootfs is read-only):
@@ -137,7 +137,7 @@ extraEnv: []
 #     - name: storage
 #       mountPath: /codex
 #       subPath: codex
-#   extraEnv:
+#   extraEnvs:
 #     - name: CODEX_HOME
 #       value: /codex
 # For a separate PVC instead, create it out-of-band and reference it here.

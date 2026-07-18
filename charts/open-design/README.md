@@ -20,7 +20,7 @@
 >
 > **Local modifications** (kept minimal, additive, and off-by-default):
 > 1. This provenance banner.
-> 2. `extraEnv`, `extraVolumes`, `extraVolumeMounts` passthroughs on the **main**
+> 2. `extraEnvs`, `extraVolumes`, `extraVolumeMounts` passthroughs on the **main**
 >    container (`templates/deployment.yaml` + `values.yaml`). Upstream has no
 >    generic env/volume hook; these let agents like Codex get a persistent
 >    `$CODEX_HOME` (rootfs is read-only, so agent state must live on a mount).
@@ -38,7 +38,7 @@ container has `readOnlyRootFilesystem: true`, point it at the daemon's PVC so it
 survives restarts:
 
 ```yaml
-extraEnv:
+extraEnvs:
   - name: CODEX_HOME
     value: /app/.od/codex     # /app/.od is the persistent PVC; a subdir is fine
 ```
@@ -46,7 +46,7 @@ extraEnv:
 For an isolated mount instead (still one PVC), use a `subPath` of `storage`:
 
 ```yaml
-extraEnv:
+extraEnvs:
   - name: CODEX_HOME
     value: /codex
 extraVolumeMounts:

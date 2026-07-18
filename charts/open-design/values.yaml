@@ -118,3 +118,28 @@ tolerations: []
 
 initContainers: []
 sidecars: []
+
+# --- Local additions (not in upstream) ---------------------------------------
+# Extra environment variables for the MAIN open-design container. Appended after
+# the built-in env, so anything here can also override earlier vars.
+extraEnv: []
+  # Persist Codex auth/config across pod restarts by pointing CODEX_HOME at the
+  # daemon's PVC (/app/.od is the only persistent, writable path since the
+  # rootfs is read-only):
+  # - name: CODEX_HOME
+  #   value: /app/.od/codex
+
+# Extra volumes / volume mounts for the MAIN container.
+# NOTE: readOnlyRootFilesystem is true, so an agent can only write to a mounted
+# volume. The simplest durable Codex home is a subdir of the existing `storage`
+# PVC (no extra PVC needed):
+#   extraVolumeMounts:
+#     - name: storage
+#       mountPath: /codex
+#       subPath: codex
+#   extraEnv:
+#     - name: CODEX_HOME
+#       value: /codex
+# For a separate PVC instead, create it out-of-band and reference it here.
+extraVolumes: []
+extraVolumeMounts: []

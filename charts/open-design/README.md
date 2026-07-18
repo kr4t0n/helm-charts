@@ -14,15 +14,46 @@
 > | Upstream | <https://github.com/nexu-io/open-design> |
 > | Upstream path | `charts/open-design` |
 > | Vendored at | `c9bd2c6628506fd79822397c9abe2036b9bc4a55` (`main`, 2026-07-17) |
+> | Upstream chart version | `0.1.0` (this repo's `version` = upstream + local patch) |
 > | Chart last changed upstream | `7abb7888` — *fix(deploy): align Docker defaults with GHCR releases (#4327)*, 2026-06-17 |
 > | License | Apache-2.0 — see [`LICENSE`](./LICENSE) |
 >
-> **Local modifications:** this banner only. All templates and `values.yaml` are
-> unmodified from upstream.
+> **Local modifications** (kept minimal, additive, and off-by-default):
+> 1. This provenance banner.
+> 2. `extraEnv`, `extraVolumes`, `extraVolumeMounts` passthroughs on the **main**
+>    container (`templates/deployment.yaml` + `values.yaml`). Upstream has no
+>    generic env/volume hook; these let agents like Codex get a persistent
+>    `$CODEX_HOME` (rootfs is read-only, so agent state must live on a mount).
+>    Default `[]` → renders nothing → no change unless you set them.
 >
 > **To sync:** re-copy `charts/open-design/` from upstream at a newer commit,
-> re-add this banner, update the commit above, and bump `version` in
-> `Chart.yaml` so chart-releaser publishes it.
+> re-apply the two local modifications above, update the commit + upstream
+> version here, and bump this chart's `version` (ahead of upstream's) so
+> chart-releaser publishes it.
+
+## Persisting Codex auth (local addition)
+
+Codex reads `$CODEX_HOME` (default `~/.codex`) for its auth/config. Because the
+container has `readOnlyRootFilesystem: true`, point it at the daemon's PVC so it
+survives restarts:
+
+```yaml
+extraEnv:
+  - name: CODEX_HOME
+    value: /app/.od/codex     # /app/.od is the persistent PVC; a subdir is fine
+```
+
+For an isolated mount instead (still one PVC), use a `subPath` of `storage`:
+
+```yaml
+extraEnv:
+  - name: CODEX_HOME
+    value: /codex
+extraVolumeMounts:
+  - name: storage
+    mountPath: /codex
+    subPath: codex
+```
 
 ## Introduction
 This chart bootstraps an [Open Design](https://github.com/nexu-io/open-design) deployment on a [Kubernetes](https://kubernetes.io) cluster using the [Helm](https://helm.sh) package manager.

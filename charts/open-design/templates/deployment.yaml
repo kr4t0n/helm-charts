@@ -73,7 +73,7 @@ spec:
                 secretKeyRef:
                   name: {{ include "open-design.fullname" . }}
                   key: OD_API_TOKEN
-            {{- with .Values.extraEnv }}
+            {{- with .Values.extraEnvs }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
           {{- if .Values.livenessProbe.enabled }}

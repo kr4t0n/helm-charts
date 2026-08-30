@@ -1,0 +1,94 @@
+# Default values for comfyui.
+# Rendering is delegated to the `common` library chart; this file only supplies
+# the per-application data. See charts/common for the full template.
+
+replicaCount: 1
+
+image:
+  repository: yanwk/comfyui-boot
+  pullPolicy: IfNotPresent
+  # CPU-only build (no CUDA/ROCm runtime, ~3.4GB instead of ~10GB). The image
+  # bakes `CLI_ARGS=--cpu`, so torch never looks for a GPU.
+  # `cpu` is the rolling tag; this pins the dated build so a pod restart can't
+  # silently change ComfyUI versions. NOT the same as appVersion (which is the
+  # bundled ComfyUI release), so it has to be set explicitly here.
+  tag: "cpu-20260824"
+
+service:
+  type: ClusterIP
+  port: 8188
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts: []
+  #   - host: comfyui.example.com
+  tls: []
+  #   - hosts:
+  #       - comfyui.example.com
+  #     secretName: comfyui-tls   # optional; omit when the controller manages certs
+  # path: /            # optional, default "/"
+  # pathType: Prefix   # optional, default "Prefix"
+
+persistence:
+  enabled: true
+  # Cluster default StorageClass when empty.
+  storageClass: ""
+  size: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  volumes:
+    # The image keeps *everything* under /root: the ComfyUI checkout it copies
+    # out of the image on first start, custom nodes, pip --user packages,
+    # models/, input/, output/ and user/ (settings + saved workflows + API-node
+    # credentials). One PVC covers the lot.
+    data:
+      mountPath: /root
+      # Empty suffix => PVC is named exactly "<release>".
+      claimNameSuffix: ""
+
+# Orchestration-only sizing: the graph runs here but the diffusion work happens
+# in remote APIs, so this mostly needs RAM for the Python/torch process.
+resources: {}
+  # requests:
+  #   cpu: 500m
+  #   memory: 1Gi
+  # limits:
+  #   cpu: "2"
+  #   memory: 4Gi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Additional environment variables.
+#
+# CLI_ARGS is appended to `python3 ComfyUI/main.py --listen --port 8188`. The
+# image already sets it to "--cpu"; if you override it here you MUST keep --cpu
+# or ComfyUI will try (and fail) to find a GPU.
+extraEnvs: []
+  # - name: CLI_ARGS
+  #   value: "--cpu --enable-cors-header"
+  # - name: TZ
+  #   value: "America/New_York"
+
+# Load ALL keys from an existing secret as environment variables. This is the
+# intended place for the provider API keys that remote-inference custom nodes
+# read (OPENAI_API_KEY, FAL_KEY, REPLICATE_API_TOKEN, ...):
+#   kubectl -n comfyui create secret generic comfyui-api-keys \
+#     --from-literal=OPENAI_API_KEY=sk-...
+existingSecret:
+  enabled: false
+  name: ""
+
+# Free-form extra volumes / mounts (e.g. an NFS share for outputs).
+extraVolumes: []
+  # - name: outputs
+  #   nfs:
+  #     server: nfs-server.example.com
+  #     path: /mnt/comfyui-output
+
+extraVolumeMounts: []
+  # - name: outputs
+  #   mountPath: /root/ComfyUI/output

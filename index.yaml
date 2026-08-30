@@ -116,6 +116,21 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/code-server-0.0.1/code-server-0.0.1.tgz
     version: 0.0.1
+  comfyui:
+  - apiVersion: v2
+    appVersion: 0.33.1
+    created: "2026-08-30T07:56:58.977248631Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.2.1
+    description: A Helm chart for Kubernetes
+    digest: 82f3a510437a39bf3af584ed54476c934812f2681b05dd9bad50e3b170feb2bd
+    name: comfyui
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/comfyui-0.1.0/comfyui-0.1.0.tgz
+    version: 0.1.0
   common:
   - apiVersion: v2
     created: "2026-06-22T15:40:50.173693271Z"
@@ -670,4 +685,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.1.0/xteve-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-18T14:57:12.376049175Z"
+generated: "2026-08-30T07:56:58.977330297Z"

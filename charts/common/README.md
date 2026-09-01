@@ -61,8 +61,33 @@ charts depend on it and call its named templates from one-line stubs.
 | `persistence.accessModes`    | Default access modes                                   | `[ReadWriteOnce]` |
 | `persistence.volumes`        | Map of `name → {mountPath, size, [storageClass], [accessModes], [subPath], [existingClaim], [claimNameSuffix], [annotations]}` | — |
 | `extraVolumes` / `extraVolumeMounts` | Free-form additions                            | `[]`           |
+| `extraInitContainers`        | Init containers to run before the app container         | `[]`           |
 | `podAnnotations` / `imagePullSecrets` | Pod-level settings                            | unset          |
 | `nodeSelector` / `tolerations` / `affinity` | Scheduling                              | unset          |
+
+### Init containers
+
+`extraInitContainers` is a raw list of container specs, passed through to
+`spec.template.spec.initContainers` verbatim. Mounts are not injected — to reach
+a `persistence.volumes` entry, mount its pod volume, which is named
+`<key>-volume` (not the PVC name):
+
+```yaml
+persistence:
+  volumes:
+    data:
+      mountPath: /root
+
+extraInitContainers:
+  - name: fix-perms
+    image: busybox:1.36
+    command: ["sh", "-c", "chown -R 1000:1000 /root"]
+    securityContext:
+      runAsUser: 0
+    volumeMounts:
+      - name: data-volume   # <key>-volume
+        mountPath: /root
+```
 
 ## Backward compatibility (in-place upgrades)
 

@@ -13,6 +13,7 @@ application chart. Per-app variation is driven entirely by values:
   extraEnvs                           optional env list
   persistence.{enabled,volumes}       map of named PVC-backed volumes
   extraVolumes / extraVolumeMounts    free-form additions
+  extraInitContainers                 free-form initContainers (list)
   podAnnotations / imagePullSecrets   optional pod-level settings
   nodeSelector / tolerations / affinity
 */}}
@@ -44,6 +45,10 @@ spec:
       {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.extraInitContainers }}
+      initContainers:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:

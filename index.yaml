@@ -24,6 +24,20 @@ entries:
   bambuddy:
   - apiVersion: v2
     appVersion: 0.2.4.7
+    created: "2026-09-01T03:01:16.281639906Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.2.2
+    description: A Helm chart for Kubernetes
+    digest: 335b072631dcfe89671c3dc919b3208bb400d3692cb960e9aa3ba21212f07b74
+    name: bambuddy
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/bambuddy-0.1.1/bambuddy-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 0.2.4.7
     created: "2026-06-23T16:42:42.755856774Z"
     dependencies:
     - name: common
@@ -49,6 +63,20 @@ entries:
   calibre-web:
   - apiVersion: v2
     appVersion: 0.6.26
+    created: "2026-09-01T03:01:16.421349525Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.2.2
+    description: A Helm chart for Kubernetes
+    digest: 6de8f7019c159a112fa9ce1ded17d56b8462a1fd52b69cfd7111dabdadc627ee
+    name: calibre-web
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/calibre-web-0.1.1/calibre-web-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 0.6.26
     created: "2026-06-24T06:19:29.125427542Z"
     dependencies:
     - name: common
@@ -72,6 +100,20 @@ entries:
     - https://github.com/kr4t0n/helm-charts/releases/download/calibre-web-0.0.1/calibre-web-0.0.1.tgz
     version: 0.0.1
   code-server:
+  - apiVersion: v2
+    appVersion: 4.126.0
+    created: "2026-09-01T03:01:16.605696576Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.2.2
+    description: A Helm chart for Kubernetes
+    digest: 46390319117a9dda756da61dd59492d370947f6a58a56d6236e9884df5d9a5df
+    name: code-server
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/code-server-0.1.1/code-server-0.1.1.tgz
+    version: 0.1.1
   - apiVersion: v2
     appVersion: 4.126.0
     created: "2026-06-27T08:58:43.641147881Z"
@@ -119,6 +161,20 @@ entries:
   comfyui:
   - apiVersion: v2
     appVersion: 0.33.1
+    created: "2026-09-01T03:01:16.759508942Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.2.2
+    description: A Helm chart for Kubernetes
+    digest: 4538b2db24b925956b3a5111012291bc9c124f076f409cc3ee88eae8d4d46bb6
+    name: comfyui
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/comfyui-0.1.1/comfyui-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 0.33.1
     created: "2026-08-30T07:56:58.977248631Z"
     dependencies:
     - name: common
@@ -132,6 +188,20 @@ entries:
     - https://github.com/kr4t0n/helm-charts/releases/download/comfyui-0.1.0/comfyui-0.1.0.tgz
     version: 0.1.0
   common:
+  - apiVersion: v2
+    created: "2026-09-01T03:01:16.903570218Z"
+    description: Shared template library for kr4t0n's self-hosted application charts.
+      Provides the deployment / service / ingress / pvc / labels boilerplate so each
+      application chart only has to supply values. Not installable on its own.
+    digest: 7b903f4ad93497f4e12b7c0a584f6ceaf96b5281036a2703d557a26b5b6f0127
+    maintainers:
+    - name: kr4t0n
+      url: https://github.com/kr4t0n
+    name: common
+    type: library
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/common-0.2.2/common-0.2.2.tgz
+    version: 0.2.2
   - apiVersion: v2
     created: "2026-06-22T15:40:50.173693271Z"
     description: Shared template library for kr4t0n's self-hosted application charts.
@@ -200,6 +270,20 @@ entries:
     - https://github.com/kr4t0n/helm-charts/releases/download/graphileon-0.0.1/graphileon-0.0.1.tgz
     version: 0.0.1
   home-assistant:
+  - apiVersion: v2
+    appVersion: 2026.6.4
+    created: "2026-09-01T03:01:17.083277779Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.2.2
+    description: A Helm chart for Kubernetes
+    digest: 7465fff7d21c9806536b3360cce2228c57660bc4c60e4796dd7f920fc21feddf
+    name: home-assistant
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/home-assistant-0.1.1/home-assistant-0.1.1.tgz
+    version: 0.1.1
   - apiVersion: v2
     appVersion: 2026.6.4
     created: "2026-06-27T09:30:33.727270667Z"
@@ -311,6 +395,20 @@ entries:
   kikoeru:
   - apiVersion: v2
     appVersion: v0.6.14-20260502
+    created: "2026-09-01T03:01:17.229173195Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.2.2
+    description: A Helm chart for Kubernetes
+    digest: 5816ece4fa2a4245a98674ff8d104c64fe702011ebcef9a124f599c4a1639a5e
+    name: kikoeru
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/kikoeru-0.1.1/kikoeru-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: v0.6.14-20260502
     created: "2026-06-25T07:33:33.90726157Z"
     dependencies:
     - name: common
@@ -344,6 +442,20 @@ entries:
     - https://github.com/kr4t0n/helm-charts/releases/download/kikoeru-0.0.1/kikoeru-0.0.1.tgz
     version: 0.0.1
   moviepilot:
+  - apiVersion: v2
+    appVersion: 2.9.23
+    created: "2026-09-01T03:01:17.380112725Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.2.2
+    description: A Helm chart for Kubernetes
+    digest: 88982f6568a52eeec463a3b511e95bf26e24e55c5733bfdee1d5104e415d6720
+    name: moviepilot
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/moviepilot-0.1.1/moviepilot-0.1.1.tgz
+    version: 0.1.1
   - apiVersion: v2
     appVersion: 2.9.23
     created: "2026-07-03T09:31:51.829384498Z"
@@ -444,6 +556,20 @@ entries:
   qbittorrent:
   - apiVersion: v2
     appVersion: 5.1.4
+    created: "2026-09-01T03:01:17.541183201Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.2.2
+    description: A Helm chart for Kubernetes
+    digest: 72e3a97767950637c6d11fba746514ce6d629b860aa5bf2cff21d581e7ac3fcf
+    name: qbittorrent
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/qbittorrent-0.1.1/qbittorrent-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 5.1.4
     created: "2026-06-28T16:23:26.178389541Z"
     dependencies:
     - name: common
@@ -497,6 +623,20 @@ entries:
     - https://github.com/kr4t0n/helm-charts/releases/download/qbittorrent-0.0.1/qbittorrent-0.0.1.tgz
     version: 0.0.1
   registry:
+  - apiVersion: v2
+    appVersion: 3.1.1
+    created: "2026-09-01T03:01:17.676722814Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.2.2
+    description: A Helm chart for Kubernetes
+    digest: 47890abbf031766a89fbbeef8e52954356e59059ff5128013d57f99a502b00b9
+    name: registry
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/registry-0.1.2/registry-0.1.2.tgz
+    version: 0.1.2
   - apiVersion: v2
     appVersion: 3.1.1
     created: "2026-06-28T15:56:48.114316349Z"
@@ -556,6 +696,20 @@ entries:
     - https://github.com/kr4t0n/helm-charts/releases/download/registry-0.0.1/registry-0.0.1.tgz
     version: 0.0.1
   tautulli:
+  - apiVersion: v2
+    appVersion: 2.17.2
+    created: "2026-09-01T03:01:17.812799848Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.2.2
+    description: A Helm chart for Kubernetes
+    digest: 9b9aa1706acd3cc0a5cdff7477f8a44ef34d1b3733a5e132079ea8d43d2399da
+    name: tautulli
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/tautulli-0.2.3/tautulli-0.2.3.tgz
+    version: 0.2.3
   - apiVersion: v2
     appVersion: 2.17.2
     created: "2026-06-23T03:22:21.509641955Z"
@@ -659,6 +813,20 @@ entries:
   xteve:
   - apiVersion: v2
     appVersion: 2.2.0
+    created: "2026-09-01T03:01:17.956987024Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.2.2
+    description: M3U proxy server for Plex, Emby and other IPTV/.M3U8 clients (xTeVe)
+    digest: c4421162198506ad741185f272b5791a30ff5ffe1766e04187bbb05c5fbe3f90
+    name: xteve
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.1.2/xteve-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
+    appVersion: 2.2.0
     created: "2026-06-23T04:17:25.658896604Z"
     dependencies:
     - name: common
@@ -685,4 +853,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.1.0/xteve-0.1.0.tgz
     version: 0.1.0
-generated: "2026-08-30T07:56:58.977330297Z"
+generated: "2026-09-01T03:01:17.957106227Z"

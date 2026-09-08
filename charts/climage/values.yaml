@@ -1,0 +1,159 @@
+# Default values for climage.
+# Rendering is delegated to the `common` library chart; this file only supplies
+# the per-application data. See charts/common for the full template.
+#
+# climage is not a service — it is a batteries-included environment for CLI
+# coding agents (Node, uv/ruff Python, ripgrep/ffmpeg/gh/…, plus the `claude`,
+# `codex` and `skills` CLIs). This chart parks one long-lived pod on the cluster
+# with a persistent home directory, and you work in it through `kubectl exec`.
+#
+# No command override appears below on purpose: the image's own CMD
+# (`climage-idle`) already parks when it is started without a terminal, so the
+# stock `common` Deployment runs it as-is. That requires an image built from
+# kr4t0n/climage after the climage-idle change — older tags default to `bash`,
+# which exits on EOF and crash-loops here.
+
+replicaCount: 1
+
+image:
+  repository: kr4t0n/climage
+  pullPolicy: IfNotPresent
+  # `latest` is the full build, `slim` drops the media and build-tool groups
+  # (~1.4GB instead of ~2.0GB). Only the `sha-<short>` tags are immutable — pin
+  # one of those if a sandbox has to stay identical across restarts. Set
+  # explicitly (not left to appVersion) so a stale appVersion can't downgrade it.
+  tag: "latest"
+
+# Nothing in the image listens on a port; this is the port a dev server started
+# *inside* the sandbox should bind so the Service can reach it. Until something
+# does, the Service resolves but refuses connections — that is expected. For
+# one-off access prefer `kubectl port-forward`, which needs no port at all.
+service:
+  type: ClusterIP
+  port: 8080
+
+# Only useful once something in the sandbox serves on service.port. There is no
+# authentication in front of it — an Ingress here exposes a shell-adjacent
+# environment, so put an authenticating proxy in front or leave this off.
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts: []
+  #   - host: climage.example.com
+  tls: []
+  # path: /            # optional, default "/"
+  # pathType: Prefix   # optional, default "Prefix"
+
+# The home volume is the point of this chart. Everything the agent CLIs
+# accumulate lives under $HOME:
+#   ~/.claude + ~/.claude.json   Claude Code credentials and settings
+#   ~/.codex                     Codex credentials and settings
+#   ~/.agents/skills             skills installed by the `skills` CLI, symlinked
+#                                into each agent's directory — persist the whole
+#                                home or those symlinks dangle
+#   ~/.npm-global                runtime `npm install -g`
+#   ~/.cache/uv                  UV_CACHE_DIR (Python downloads)
+# Mounting over $HOME does not hide the toolchain: the image keeps uv-managed
+# interpreters and `uv tool` installs in /opt/uv, and the agent CLIs in
+# /usr/local/lib/node_modules, precisely because home gets mounted over in
+# deployments like this one.
+persistence:
+  enabled: true
+  # Cluster default StorageClass when empty.
+  storageClass: ""
+  size: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  volumes:
+    home:
+      mountPath: /home/climage
+      # Empty suffix => PVC is named exactly "<release>".
+      claimNameSuffix: ""
+    # /workspace (the image's working directory) is ephemeral unless you add a
+    # volume for it. Cheaper alternative: set workingDir below to a path on the
+    # home volume and keep everything on one PVC.
+    # workspace:
+    #   mountPath: /workspace
+    #   size: 50Gi
+
+# Container working directory. The image default is /workspace, which is not
+# persisted; point this at the home volume to have `kubectl exec` sessions start
+# somewhere that survives a restart.
+workingDir: ""
+# workingDir: /home/climage/workspace
+
+# An agent shells out to compilers, test suites and ffmpeg, so this pod is
+# bursty. A CPU limit throttles exactly the work you want it doing; an
+# ephemeral-storage request is the more useful knob, since /workspace and /tmp
+# come out of node disk while $HOME does not.
+resources: {}
+  # requests:
+  #   cpu: 500m
+  #   memory: 2Gi
+  #   ephemeral-storage: 4Gi
+  # limits:
+  #   memory: 8Gi
+
+# Load ALL keys of an existing Secret as environment variables. This is the
+# intended home for agent credentials:
+#   kubectl -n climage create secret generic climage-agent-keys \
+#     --from-literal=ANTHROPIC_API_KEY=sk-ant-... \
+#     --from-literal=GH_TOKEN=ghp_...
+# Interactive `claude` / `codex` logins work too — the session is written under
+# /home/climage, i.e. onto the PVC, so it survives a restart.
+existingSecret:
+  enabled: false
+  name: ""
+
+# Additional environment variables.
+extraEnvs: []
+  # - name: TZ
+  #   value: "America/New_York"
+  # Per-container bootstrap: the image entrypoint *sources* the file named here
+  # before running the command, so it can export environment as well as run
+  # setup. Pair it with a ConfigMap in extraVolumes below.
+  # - name: CLIMAGE_INIT
+  #   value: /etc/climage/init.sh
+
+# Free-form extra volumes / mounts — a bootstrap script, an SSH key for git
+# push, an NFS share of source to work on.
+extraVolumes: []
+  # - name: init
+  #   configMap:
+  #     name: climage-init      # kubectl create configmap climage-init --from-file=init.sh
+  # - name: ssh
+  #   secret:
+  #     secretName: climage-ssh
+  #     defaultMode: 0400
+
+extraVolumeMounts: []
+  # - name: init
+  #   mountPath: /etc/climage
+  #   readOnly: true
+  # - name: ssh
+  #   mountPath: /home/climage/.ssh
+  #   readOnly: true
+
+# The container runs as uid/gid 1000 while a freshly provisioned PVC is usually
+# owned by root — on those provisioners the agent cannot write its own home.
+# The library chart has no securityContext/fsGroup support, so fix ownership
+# once with a root init container. Not enabled by default: provisioners that
+# hand out world-writable volumes (rancher local-path, most NFS provisioners)
+# do not need it, and clusters with a restricted PodSecurity policy will not
+# admit a root container. The volume name is "<key>-volume", i.e. home-volume.
+extraInitContainers: []
+  # - name: fix-home-ownership
+  #   image: busybox:1.37
+  #   command: ["sh", "-c", "chown 1000:1000 /home/climage"]
+  #   securityContext:
+  #     runAsUser: 0
+  #   volumeMounts:
+  #     - name: home-volume
+  #       mountPath: /home/climage
+
+podAnnotations: {}
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

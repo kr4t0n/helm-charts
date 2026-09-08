@@ -1,0 +1,28 @@
+apiVersion: v2
+name: climage
+description: A long-lived sandbox pod running the climage image for CLI coding agents.
+
+type: application
+# Chart version — bump on every PR that changes anything under charts/climage.
+version: 0.1.0
+# climage publishes `latest` (full) and `slim` on every push to main, and semver
+# tags only on `v*` releases, of which there are none yet. appVersion therefore
+# tracks the rolling tag; what actually deploys is values.yaml image.tag.
+appVersion: "latest"
+home: https://github.com/kr4t0n/climage
+sources:
+  - https://github.com/kr4t0n/climage
+keywords:
+  - agent
+  - cli
+  - sandbox
+  - claude-code
+  - codex
+maintainers:
+  - name: kr4t0n
+    url: https://github.com/kr4t0n
+
+dependencies:
+  - name: common
+    version: 0.2.2
+    repository: file://../common

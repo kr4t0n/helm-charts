@@ -99,6 +99,34 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/calibre-web-0.0.1/calibre-web-0.0.1.tgz
     version: 0.0.1
+  climage:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2026-09-08T14:15:50.341805494Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.2.2
+    description: A long-lived sandbox pod running the climage image for CLI coding
+      agents.
+    digest: c336bcd15f1a14f7aa7b7575b92dc11259964d3aa30091bf24166491fa50aff2
+    home: https://github.com/kr4t0n/climage
+    keywords:
+    - agent
+    - cli
+    - sandbox
+    - claude-code
+    - codex
+    maintainers:
+    - name: kr4t0n
+      url: https://github.com/kr4t0n
+    name: climage
+    sources:
+    - https://github.com/kr4t0n/climage
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/climage-0.1.0/climage-0.1.0.tgz
+    version: 0.1.0
   code-server:
   - apiVersion: v2
     appVersion: 4.126.0
@@ -853,4 +881,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.1.0/xteve-0.1.0.tgz
     version: 0.1.0
-generated: "2026-09-01T03:01:17.957106227Z"
+generated: "2026-09-08T14:15:50.341912487Z"

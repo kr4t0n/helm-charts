@@ -13,6 +13,8 @@ application chart. Per-app variation is driven entirely by values:
   existingSecret.{enabled,name}       optional envFrom secretRef
   extraEnvs                           optional env list
   probes.{startup,liveness,readiness} verbatim container probes (see below)
+  podSecurityContext                  pod-level securityContext
+  securityContext                     container-level securityContext
   persistence.{enabled,volumes}       map of named PVC-backed volumes
   extraVolumes / extraVolumeMounts    free-form additions
   extraInitContainers                 free-form initContainers (list)
@@ -23,6 +25,11 @@ Probes are passed through verbatim, so any probe kind works (httpGet, exec,
 tcpSocket, grpc) without this template knowing about it. Each of the three is
 independently optional; a chart that sets no `probes` renders exactly as before
 they existed.
+
+`podSecurityContext` lands on the pod (`spec.template.spec.securityContext`) and
+`securityContext` on the container — the two are separate API objects with
+different fields, following the `helm create` naming convention. Both are
+verbatim and independently optional.
 
 `strategy` is likewise verbatim. Leave it unset for the Kubernetes default
 (RollingUpdate 25%/25%); set `type: Recreate` for a singleton app on a
@@ -66,6 +73,10 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -78,6 +89,10 @@ spec:
         - name: {{ include "common.name" . }}
           image: {{ include "common.image" . | quote }}
           imagePullPolicy: {{ .Values.image.pullPolicy | default .Values.imagePullPolicy | default "IfNotPresent" }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- with .Values.workingDir }}
           workingDir: {{ . }}
           {{- end }}

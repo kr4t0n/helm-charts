@@ -196,6 +196,20 @@ entries:
     version: 0.1.0
   common:
   - apiVersion: v2
+    created: "2026-09-19T17:14:59.082510444Z"
+    description: Shared template library for kr4t0n's self-hosted application charts.
+      Provides the deployment / service / ingress / pvc / labels boilerplate so each
+      application chart only has to supply values. Not installable on its own.
+    digest: 90707e632613af2802a347b144c37c9e74d515ef1a0fb2e9a501976ebab9ddb1
+    maintainers:
+    - name: kr4t0n
+      url: https://github.com/kr4t0n
+    name: common
+    type: library
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/common-0.5.0/common-0.5.0.tgz
+    version: 0.5.0
+  - apiVersion: v2
     created: "2026-09-19T16:36:56.534941698Z"
     description: Shared template library for kr4t0n's self-hosted application charts.
       Provides the deployment / service / ingress / pvc / labels boilerplate so each
@@ -908,4 +922,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.1.0/xteve-0.1.0.tgz
     version: 0.1.0
-generated: "2026-09-19T16:36:56.535044361Z"
+generated: "2026-09-19T17:14:59.082686811Z"

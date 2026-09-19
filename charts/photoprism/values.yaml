@@ -1,77 +1,94 @@
 # Default values for photoprism.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+# Rendering is delegated to the `common` library chart; this file only supplies
+# the per-application data. See charts/common for the full template.
 
 replicaCount: 1
 
 image:
   repository: photoprism/photoprism
+  pullPolicy: IfNotPresent
+  # Deliberately `latest`, not "" (which would resolve to the chart's
+  # appVersion). PhotoPrism's release tags are date stamps that go stale fast,
+  # and the deployed servers track `latest`; pinning here would silently
+  # downgrade them. Set an explicit date tag if you want a reproducible deploy.
   tag: latest
-
-imagePullPolicy: IfNotPresent
 
 service:
   type: ClusterIP
   port: 2342
 
+# PhotoPrism resolves its config and assets relative to this directory.
+workingDir: /photoprism
+
 ingress:
   enabled: false
-  # Each ingress class can have its own hosts, TLS, and annotations
-  classes: []
-  # Example:
-  # classes:
-  #   - className: "nginx"
-  #     annotations:
-  #       kubernetes.io/ingress.class: nginx
-  #       cert-manager.io/cluster-issuer: "letsencrypt-prod"
-  #     hosts:
-  #       - host: tautulli.example.com
-  #         paths:
-  #           - path: /
-  #             pathType: Prefix
-  #     tls:
-  #       - secretName: tautulli-tls
-  #         hosts:
-  #           - tautulli.example.com
+  className: ""
+  annotations: {}
+  # Each entry may be `- host: name`, `- name` (bare string), or
+  # `- host: name` with a `paths:` list. Default path is "/".
+  hosts: []
+  #   - host: photoprism.example.com
+  tls: []
+  #   - hosts:
+  #       - photoprism.example.com
+  #     secretName: photoprism-tls   # optional; omit when the controller manages certs
+  # path: /            # optional, default "/"
+  # pathType: Prefix   # optional, default "Prefix"
 
 persistence:
   enabled: true
-  storageClass: "" # Use default storage class if empty
+  # Cluster default StorageClass when empty.
+  storageClass: ""
   size: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  volumes:
+    storage:
+      # Sidecar files, thumbnails, the index database and cache. This is
+      # PhotoPrism's own state — it is NOT your photo library.
+      mountPath: /photoprism/storage
+      # Empty suffix => PVC is named exactly "<release>", matching the
+      # pre-library chart so existing PVCs are reused on upgrade.
+      claimNameSuffix: ""
 
-# Node selector for pod scheduling
+resources: {}
+  # requests:
+  #   cpu: 500m
+  #   memory: 1Gi
+  # limits:
+  #   cpu: "4"
+  #   memory: 4Gi
+
+# Node selector for pod scheduling. Indexing is CPU-heavy and the storage
+# volume is ReadWriteOnce, so pinning the pod to one node is common.
 nodeSelector: {}
-  # Example:
   # kubernetes.io/os: linux
-  # node-role.kubernetes.io/worker: ""
 
-# Additional environment variables
+tolerations: []
+affinity: {}
+
+# Additional environment variables. PhotoPrism is configured almost entirely
+# through PHOTOPRISM_* vars — see https://docs.photoprism.app/getting-started/config-options/
 extraEnvs: []
-  # - name: TZ
-  #   value: "America/New_York"
-  # - name: PLEX_TOKEN
-  #   value: "your-plex-token"
+  # - name: PHOTOPRISM_SITE_URL
+  #   value: "https://photoprism.example.com/"
+  # - name: PHOTOPRISM_ORIGINALS_LIMIT
+  #   value: "5000"
 
-# Reference to existing secret (optional)
-# If provided, will load ALL keys from the secret as environment variables
+# Load ALL keys from an existing secret as environment variables. Use this for
+# PHOTOPRISM_ADMIN_PASSWORD and database credentials rather than extraEnvs.
 existingSecret:
   enabled: false
-  name: "" # Name of the existing secret
+  name: ""
 
-# Additional volumes to add to the pod
+# Mount your photo library at /photoprism/originals (and any other volumes).
+# The originals volume is intentionally not managed by this chart — it is
+# usually a pre-existing PVC, NFS export or hostPath shared with other apps.
 extraVolumes: []
-  # - name: books
-  #   nfs:
-  #     server: nfs-server.example.com
-  #     path: /mnt/books
-  # - name: config-map
-  #   configMap:
-  #     name: my-config
+  # - name: photo-volume
+  #   persistentVolumeClaim:
+  #     claimName: photo
 
-# Additional volume mounts to add to the container
 extraVolumeMounts: []
-  # - name: books
-  #   mountPath: /books
-  #   readOnly: true
-  # - name: config-map
-  #   mountPath: /config-map
+  # - name: photo-volume
+  #   mountPath: /photoprism/originals

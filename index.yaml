@@ -542,6 +542,20 @@ entries:
   photoprism:
   - apiVersion: v2
     appVersion: "260129"
+    created: "2026-09-19T10:46:41.581564978Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.2.2
+    description: A Helm chart for Kubernetes
+    digest: 04e43c58fd969a6f4a8c7ae1246a3c13ff73f801c6c4e30d3e49a9443b0ebb60
+    name: photoprism
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/photoprism-0.1.0/photoprism-0.1.0.tgz
+    version: 0.1.0
+  - apiVersion: v2
+    appVersion: "260129"
     created: "2026-01-31T15:16:58.746649058Z"
     description: A Helm chart for Kubernetes
     digest: b3c08a99c658193dcfc7b1b68da3b0fc5514f3469e339369712b73939c98a3c7
@@ -895,4 +909,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.1.0/xteve-0.1.0.tgz
     version: 0.1.0
-generated: "2026-09-19T08:20:21.201375064Z"
+generated: "2026-09-19T10:46:41.581656774Z"

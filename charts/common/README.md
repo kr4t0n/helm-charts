@@ -62,6 +62,8 @@ charts depend on it and call its named templates from one-line stubs.
 | `existingSecret.{enabled,name}` | `envFrom` a pre-existing Secret                     | disabled       |
 | `extraEnvs`                  | Additional `env` entries                               | `[]`           |
 | `probes.{startup,liveness,readiness}` | Verbatim container probes             | unset          |
+| `podSecurityContext`         | Pod-level `securityContext`                             | unset          |
+| `securityContext`            | Container-level `securityContext`                       | unset          |
 | `persistence.enabled`        | Create PVCs and mount them                             | `true`         |
 | `persistence.storageClass`   | Default StorageClass (empty ⇒ cluster default)         | `""`           |
 | `persistence.accessModes`    | Default access modes                                   | `[ReadWriteOnce]` |
@@ -94,6 +96,49 @@ extraInitContainers:
       - name: data-volume   # <key>-volume
         mountPath: /root
 ```
+
+### Security contexts
+
+Two separate API objects, following the `helm create` naming convention:
+
+- `podSecurityContext` → `spec.template.spec.securityContext` (pod-level:
+  `runAsUser`, `runAsGroup`, `fsGroup`, `fsGroupChangePolicy`, `supplementalGroups`…)
+- `securityContext` → the container's `securityContext` (container-level:
+  `allowPrivilegeEscalation`, `capabilities`, `readOnlyRootFilesystem`…)
+
+Both are passed through verbatim and are independently optional.
+
+```yaml
+podSecurityContext:
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+  fsGroupChangePolicy: OnRootMismatch
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: [ALL]
+```
+
+Three things that bite in practice:
+
+- **`fsGroup` recursively chowns the volume on every mount.** On a large library
+  volume that can add minutes to pod start, and the pod is not Ready in the
+  meantime. Set `fsGroupChangePolicy: OnRootMismatch` so the kubelet only walks
+  the tree when the top-level ownership is actually wrong. `fsGroup` is the
+  clean alternative to a root init container that `chown`s the mount.
+- **`runAsNonRoot: true` fails closed.** If the image's default user is root
+  and no `runAsUser` is given, the kubelet refuses to start the container with
+  `CreateContainerConfigError` rather than running it. Set `runAsUser`
+  alongside it, and check the image actually supports that uid.
+- **`readOnlyRootFilesystem: true` needs writable scratch space.** Most images
+  write to `/tmp` at minimum; add an `emptyDir` via `extraVolumes` /
+  `extraVolumeMounts` for each path the app writes to outside its data volume.
+
+Fields set at both levels are resolved by Kubernetes, not this library: the
+container-level value wins for the container, while `fsGroup` is pod-only and
+has no container-level equivalent.
 
 ### Update strategy
 

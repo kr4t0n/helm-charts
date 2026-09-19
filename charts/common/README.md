@@ -12,9 +12,13 @@ charts depend on it and call its named templates from one-line stubs.
    ```yaml
    dependencies:
      - name: common
-       version: 0.1.0
+       version: ">=0.2.2 <1.0.0"
        repository: file://../common
    ```
+
+   Use a range, not an exact pin. An exact pin makes every library bump fail
+   `helm dependency update` for that chart until it is edited, which breaks CI
+   for the whole repo at once.
 
 2. Vendor it: `helm dependency build charts/<app>`.
 
@@ -56,6 +60,7 @@ charts depend on it and call its named templates from one-line stubs.
 | `resources`                  | Resource requests/limits                               | `{}`           |
 | `existingSecret.{enabled,name}` | `envFrom` a pre-existing Secret                     | disabled       |
 | `extraEnvs`                  | Additional `env` entries                               | `[]`           |
+| `probes.{startup,liveness,readiness}` | Verbatim container probes             | unset          |
 | `persistence.enabled`        | Create PVCs and mount them                             | `true`         |
 | `persistence.storageClass`   | Default StorageClass (empty ⇒ cluster default)         | `""`           |
 | `persistence.accessModes`    | Default access modes                                   | `[ReadWriteOnce]` |
@@ -88,6 +93,44 @@ extraInitContainers:
       - name: data-volume   # <key>-volume
         mountPath: /root
 ```
+
+### Probes
+
+Each of `probes.startup`, `probes.liveness` and `probes.readiness` is a verbatim
+Kubernetes probe object, passed straight through. Any probe kind works —
+`httpGet`, `exec`, `tcpSocket`, `grpc` — because the library does not interpret
+the contents. All three are independently optional; omit `probes` entirely and
+the rendered Deployment is unchanged.
+
+```yaml
+probes:
+  startup:
+    httpGet: { path: /api/v1/status, port: http }
+    periodSeconds: 5
+    failureThreshold: 120     # tolerate a 10-minute first boot
+  readiness:
+    httpGet: { path: /api/v1/status, port: http }
+    periodSeconds: 10
+  liveness:
+    httpGet: { path: /api/v1/status, port: http }
+    periodSeconds: 30
+```
+
+**A readiness probe is the difference between a slow start and an outage.**
+Without one, a pod reports `Ready` the moment its process is created, so the
+Service routes traffic to a port nothing is listening on yet and callers get
+connection refused. With one, the pod stays out of the Service until it answers,
+and shows `0/1 Running` so the cause is visible.
+
+**Set `startup` whenever you set `liveness` on an app with a slow first boot.**
+Liveness begins counting immediately, so on an app that migrates a database or
+builds an index at startup it will kill the container mid-migration and retry
+forever against half-applied state. The startup probe holds liveness off until
+the app answers once; size its `failureThreshold × periodSeconds` to the worst
+first boot you expect, not the typical one.
+
+Port names work in probes (`port: http` above) because the container's primary
+port is always named `http`.
 
 ## Backward compatibility (in-place upgrades)
 

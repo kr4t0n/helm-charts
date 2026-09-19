@@ -11,11 +11,22 @@ application chart. Per-app variation is driven entirely by values:
   resources                           optional resource requests/limits
   existingSecret.{enabled,name}       optional envFrom secretRef
   extraEnvs                           optional env list
+  probes.{startup,liveness,readiness} verbatim container probes (see below)
   persistence.{enabled,volumes}       map of named PVC-backed volumes
   extraVolumes / extraVolumeMounts    free-form additions
   extraInitContainers                 free-form initContainers (list)
   podAnnotations / imagePullSecrets   optional pod-level settings
   nodeSelector / tolerations / affinity
+
+Probes are passed through verbatim, so any probe kind works (httpGet, exec,
+tcpSocket, grpc) without this template knowing about it. Each of the three is
+independently optional; a chart that sets no `probes` renders exactly as before
+they existed.
+
+Define `startup` whenever `liveness` is set on an app with a slow first boot.
+Without it, liveness starts counting immediately and will kill a container that
+is still migrating a database or building an index — turning a slow start into
+a crash loop against half-applied state.
 */}}
 {{- define "common.deployment" -}}
 apiVersion: apps/v1
@@ -80,6 +91,20 @@ spec:
           {{- with .Values.extraEnvs }}
           env:
             {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.probes }}
+          {{- with .startup }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .liveness }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .readiness }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- end }}
           {{- if or (and .Values.persistence .Values.persistence.enabled .Values.persistence.volumes) .Values.extraVolumeMounts }}
           volumeMounts:

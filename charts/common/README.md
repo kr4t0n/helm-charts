@@ -52,6 +52,7 @@ charts depend on it and call its named templates from one-line stubs.
 | `image.tag`                  | Image tag; falls back to `Chart.appVersion` when empty  | `""`           |
 | `image.pullPolicy`           | Pull policy                                              | `IfNotPresent` |
 | `replicaCount`               | Replicas                                                | `1`            |
+| `strategy`                   | Verbatim Deployment update strategy                     | unset          |
 | `service.{type,port}`        | Service type and primary `http` port                    | —              |
 | `service.hostPort`           | Bind `http` on the host as well                         | `false`        |
 | `service.extraPorts`         | Extra Service ports                                     | `[]`           |
@@ -93,6 +94,51 @@ extraInitContainers:
       - name: data-volume   # <key>-volume
         mountPath: /root
 ```
+
+### Update strategy
+
+`strategy` is passed through verbatim to `spec.strategy`. Left unset, Kubernetes
+applies its default (`RollingUpdate` with `maxSurge: 25%`,
+`maxUnavailable: 25%`).
+
+```yaml
+strategy:
+  type: Recreate
+```
+
+**Set `Recreate` for any singleton app on a ReadWriteOnce volume or a hostPort.**
+At `replicaCount: 1` the default percentages round to `maxSurge: 1` (up) and
+`maxUnavailable: 0` (down) — "keep one pod available, you may briefly run two".
+So Kubernetes starts the replacement *before* retiring the old pod, while the
+old pod still holds the volume. What follows depends on scheduling, and neither
+branch is good:
+
+- **Different node** — `Multi-Attach error`; the new pod is stuck and the old
+  one may not be removed, so the rollout deadlocks until
+  `progressDeadlineSeconds` (600s) marks it failed. The old pod keeps serving,
+  so this is easy to miss.
+- **Same node** — ReadWriteOnce is per *node*, not per pod, so the new pod
+  mounts the volume successfully and two instances run against the same state.
+
+`Recreate` terminates the old pod first, releasing the volume before the
+replacement needs it, at the cost of a short downtime window. That is the right
+trade for a self-hosted singleton; it is the wrong trade for a stateless
+replicated service, which is why this is opt-in rather than the library default.
+
+Rolling update parameters can be tuned explicitly instead:
+
+```yaml
+strategy:
+  type: RollingUpdate
+  rollingUpdate: { maxSurge: 1, maxUnavailable: 0 }
+```
+
+Kubernetes rejects `rollingUpdate` when `type: Recreate`; the library passes the
+value through unvalidated, so that pairing is the chart's responsibility.
+
+Because `strategy` sits outside the pod template, changing it alone never
+triggers a rollout — and when a chart adopts it, the new strategy and the new
+pod template land in the same apply, so the first rollout already uses it.
 
 ### Probes
 

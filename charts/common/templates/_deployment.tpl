@@ -4,6 +4,7 @@ application chart. Per-app variation is driven entirely by values:
 
   image.{repository,tag,pullPolicy}   container image
   replicaCount                        replica count (default 1)
+  strategy                            verbatim update strategy (see below)
   service.port                        primary container port (named "http")
   service.hostPort                    when true, also bind http on the host
   extraPorts                          additional container ports (list)
@@ -23,6 +24,13 @@ tcpSocket, grpc) without this template knowing about it. Each of the three is
 independently optional; a chart that sets no `probes` renders exactly as before
 they existed.
 
+`strategy` is likewise verbatim. Leave it unset for the Kubernetes default
+(RollingUpdate 25%/25%); set `type: Recreate` for a singleton app on a
+ReadWriteOnce volume or a hostPort. At replicaCount 1 the default rounds to
+maxSurge 1 / maxUnavailable 0, i.e. "create the replacement before retiring the
+old pod" — which deadlocks against a volume the old pod still holds, or silently
+runs two instances against the same state if both land on one node.
+
 Define `startup` whenever `liveness` is set on an app with a slow first boot.
 Without it, liveness starts counting immediately and will kill a container that
 is still migrating a database or building an index — turning a slow start into
@@ -38,6 +46,10 @@ metadata:
     {{- include "common.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount | default 1 }}
+  {{- with .Values.strategy }}
+  strategy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   selector:
     matchLabels:
       {{- include "common.selectorLabels" . | nindent 6 }}

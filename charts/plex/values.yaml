@@ -1,76 +1,118 @@
 # Default values for plex.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+# Rendering is delegated to the `common` library chart; this file only supplies
+# the per-application data. See charts/common for the full template.
 
 replicaCount: 1
 
 image:
   repository: plexinc/pms-docker
-
-imagePullPolicy: IfNotPresent
+  pullPolicy: IfNotPresent
+  # Empty => the chart's appVersion is used (pins the deploy).
+  tag: ""
 
 service:
   type: ClusterIP
+  # Plex Media Server web UI / API port.
   port: 32400
+  # Bind the web UI port on the host as well. Plex's client discovery and
+  # direct-play expect to reach the server on the node address, so the
+  # pre-library chart set hostPort on this port — keep it on by default.
+  hostPort: true
+
+# Extra container ports beyond the web UI. These are declared on the pod only;
+# none of them are added to the Service (matches the pre-library chart). Add
+# matching `service.extraPorts` entries if you need them routed through the
+# Service.
+extraPorts:
+  # DLNA server (SSDP discovery).
+  - containerPort: 1900
+    protocol: UDP
+  # Bonjour / Avahi network discovery.
+  - containerPort: 5353
+    protocol: UDP
+  # Plex Companion / older Roku clients.
+  - containerPort: 8234
+    protocol: TCP
+  # GDM network discovery.
+  - containerPort: 32410
+    protocol: UDP
+  - containerPort: 32412
+    protocol: UDP
+  - containerPort: 32413
+    protocol: UDP
+  - containerPort: 32414
+    protocol: UDP
+  # DLNA server (HTTP).
+  - name: dlna
+    containerPort: 32469
+    protocol: TCP
 
 ingress:
   enabled: false
-  # Each ingress class can have its own hosts, TLS, and annotations
-  classes: []
-  # Example:
-  # classes:
-  #   - className: "nginx"
-  #     annotations:
-  #       kubernetes.io/ingress.class: nginx
-  #       cert-manager.io/cluster-issuer: "letsencrypt-prod"
-  #     hosts:
-  #       - host: tautulli.example.com
-  #         paths:
-  #           - path: /
-  #             pathType: Prefix
-  #     tls:
-  #       - secretName: tautulli-tls
-  #         hosts:
-  #           - tautulli.example.com
+  className: ""
+  annotations: {}
+  # Each entry may be `- host: name`, `- name` (bare string), or
+  # `- host: name` with a `paths:` list. Default path is "/".
+  hosts: []
+  #   - host: plex.example.com
+  tls: []
+  #   - hosts:
+  #       - plex.example.com
+  #     secretName: plex-tls   # optional; omit when the controller manages certs
+  # path: /            # optional, default "/"
+  # pathType: Prefix   # optional, default "Prefix"
 
 persistence:
   enabled: true
-  storageClass: "" # Use default storage class if empty
+  # Cluster default StorageClass when empty.
+  storageClass: ""
   size: 8Gi
+  accessModes:
+    - ReadWriteOnce
+  volumes:
+    config:
+      mountPath: /config
+      # Empty suffix => PVC is named exactly "<release>", matching the
+      # pre-library chart so existing PVCs are reused on upgrade.
+      claimNameSuffix: ""
 
-# Node selector for pod scheduling
+resources: {}
+  # requests:
+  #   cpu: 500m
+  #   memory: 1Gi
+  # limits:
+  #   cpu: "4"
+  #   memory: 8Gi
+
+# Node selector for pod scheduling. Plex config lives on a ReadWriteOnce PVC
+# and hostPort binds a node port, so pinning the pod to one node is common.
 nodeSelector: {}
-  # Example:
-  # kubernetes.io/os: linux
-  # node-role.kubernetes.io/worker: ""
+  # kubernetes.io/hostname: nas
 
-# Additional environment variables
+tolerations: []
+affinity: {}
+
+# Additional environment variables (e.g. TZ, ADVERTISE_IP, PLEX_UID/PLEX_GID).
 extraEnvs: []
   # - name: TZ
   #   value: "America/New_York"
-  # - name: PLEX_TOKEN
-  #   value: "your-plex-token"
+  # - name: ADVERTISE_IP
+  #   value: "http://192.168.1.10:32400/"
 
-# Reference to existing secret (optional)
-# If provided, will load ALL keys from the secret as environment variables
+# Load ALL keys from an existing secret as environment variables. Use this for
+# PLEX_CLAIM rather than putting the claim token in values.
 existingSecret:
   enabled: false
-  name: "" # Name of the existing secret
+  name: ""
 
-# Additional volumes to add to the pod
+# Mount your media library (and any other volumes) into the pod.
 extraVolumes: []
-  # - name: books
+  # - name: media
   #   nfs:
   #     server: nfs-server.example.com
-  #     path: /mnt/books
-  # - name: config-map
-  #   configMap:
-  #     name: my-config
+  #     path: /mnt/media
 
-# Additional volume mounts to add to the container
 extraVolumeMounts: []
-  # - name: books
-  #   mountPath: /books
+  # - name: media
+  #   mountPath: /media
   #   readOnly: true
-  # - name: config-map
-  #   mountPath: /config-map

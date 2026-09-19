@@ -7,11 +7,15 @@ replicaCount: 1
 image:
   repository: photoprism/photoprism
   pullPolicy: IfNotPresent
-  # Deliberately `latest`, not "" (which would resolve to the chart's
-  # appVersion). PhotoPrism's release tags are date stamps that go stale fast,
-  # and the deployed servers track `latest`; pinning here would silently
-  # downgrade them. Set an explicit date tag if you want a reproducible deploy.
-  tag: latest
+  # Empty => the chart's appVersion (260728) is used.
+  #
+  # Deliberately NOT `latest`. PhotoPrism's release tags are date stamps, and a
+  # mutable `latest` combined with `pullPolicy: IfNotPresent` means the version
+  # you get depends on which node the pod lands on and what that node has
+  # cached. A reschedule then silently jumps the server forward by months and
+  # runs irreversible schema migrations on startup, during which PhotoPrism does
+  # not bind its HTTP port at all. Pin the tag so upgrades are a deliberate act.
+  tag: ""
 
 service:
   type: ClusterIP

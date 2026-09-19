@@ -24,7 +24,7 @@ kubectl -n media port-forward svc/photoprism 2342:2342
 | Key | Description | Default |
 |---|---|---|
 | `image.repository` | Image | `photoprism/photoprism` |
-| `image.tag` | Tag | `latest` |
+| `image.tag` | Tag (empty ⇒ chart `appVersion`) | `""` |
 | `service.port` | Web UI port | `2342` |
 | `workingDir` | Container working directory | `/photoprism` |
 | `persistence.size` | Storage volume (`/photoprism/storage`) size | `10Gi` |
@@ -44,10 +44,14 @@ See [`values.yaml`](./values.yaml) for the full list.
   here**: mount it at `/photoprism/originals` via `extraVolumes` /
   `extraVolumeMounts`, since it is usually a pre-existing PVC or NFS export
   shared with other apps.
-- **`image.tag` is `latest` on purpose.** PhotoPrism's release tags are date
-  stamps that go stale quickly, and deployed servers track `latest`. Leaving it
-  empty would resolve to the chart's `appVersion` and silently downgrade the
-  server. Set an explicit date tag if you want a reproducible deploy.
+- **The image is pinned, not `latest`.** PhotoPrism's release tags are date
+  stamps. A mutable `latest` plus `pullPolicy: IfNotPresent` makes the running
+  version depend on which node the pod lands on and what that node has cached —
+  a reschedule can jump the server forward by months without warning. Because
+  PhotoPrism runs schema migrations at startup and does **not** bind its HTTP
+  port until they finish, that shows up as minutes of connection-refused errors
+  from whatever fronts it. Bump `appVersion` to upgrade deliberately, and expect
+  a migration window the first time you move to a much newer release.
 - **Secrets**: put `PHOTOPRISM_ADMIN_PASSWORD` and any database credentials in a
   Secret and reference it via `existingSecret`, not in `extraEnvs`.
 - **`workingDir: /photoprism`** is required — PhotoPrism resolves its config and

@@ -18,9 +18,9 @@ open http://127.0.0.1:8000
 
 - Kubernetes 1.24+
 - Helm 3.10+
-- A `ReadWriteOnce` storage class (PVC is required by default for
-  persistence). Disable with `--set persistence.enabled=false` if you
-  just want an ephemeral demo.
+- A `ReadWriteOnce` storage class. `persistence.enabled: false` renders no
+  data volume at all — see *Ephemeral `/data`* below if you want a demo
+  install without a PVC.
 - The published image is **multi-arch** (`linux/amd64` + `linux/arm64`),
   so any modern Kubernetes cluster will pull the right variant
   automatically.
@@ -47,13 +47,14 @@ strategy.
 | `ingress.hosts`           | Ingress host rules                                            | `[javalin.local /]`   |
 | `ingress.tls`             | TLS blocks                                                    | `[]`                  |
 | `persistence.enabled`     | Mount a PVC at `/data`                                        | `true`                |
-| `persistence.existingClaim` | Use an existing PVC instead of creating one                 | `""`                  |
+| `persistence.volumes.data.existingClaim` | Use an existing PVC instead of creating one    | unset                 |
 | `persistence.size`        | PVC requested size                                            | `10Gi`                |
 | `persistence.storageClass`| PVC storage class                                             | `""`                  |
-| `env.JAVALIN_DATA`        | Path the backend uses for inputs/outputs                      | `/data`               |
-| `proxy.http`              | `HTTP_PROXY` / `http_proxy` env value                         | `""`                  |
-| `proxy.https`             | `HTTPS_PROXY` / `https_proxy` env value                       | `""`                  |
-| `proxy.noProxy`           | `NO_PROXY` / `no_proxy` env value                             | `""`                  |
+| `persistence.volumes.data.mountPath` | Where the data PVC lands (match `JAVALIN_DATA`)    | `/data`               |
+| `extraEnvs`               | Container env, incl. `JAVALIN_DATA` and any proxy vars        | `JAVALIN_DATA=/data`  |
+| `probes.{startup,liveness,readiness}` | Health probes against `/api/outputs`              | enabled               |
+| `strategy`                | Deployment update strategy                                    | `Recreate`            |
+| `podSecurityContext` / `securityContext` | Pod- and container-level security context  | uid 1000, gid 100     |
 | `extraEnv`                | Extra env entries (full Kubernetes shape)                     | `[]`                  |
 | `resources`               | Pod resource requests/limits                                  | `{}`                  |
 | `nodeSelector`            | Node selectors                                                | `{}`                  |
@@ -88,7 +89,7 @@ ingress:
 ```yaml
 persistence:
   enabled: true
-  existingClaim: my-existing-media-pvc
+      existingClaim: my-existing-media-pvc
 ```
 
 ### Use different uid/gid
@@ -115,21 +116,46 @@ without manual chown.
 ### Route traffic through an HTTP proxy
 
 When the cluster's egress can't reach `javdb.com` directly (common in
-restricted regions or corporate networks), set both `http` and `https`
-to the same proxy URL. The chart injects upper- *and* lower-case
-variants of `HTTP_PROXY`/`HTTPS_PROXY`/`NO_PROXY` so libcurl and any
-Python HTTP client downstream pick them up.
+restricted regions or corporate networks), add the proxy variables to
+`extraEnvs`. Set the upper- *and* lower-case spellings so libcurl and any
+Python HTTP client downstream both pick them up:
 
 ```yaml
-proxy:
-  http: "http://proxy.corp.example.com:8080"
-  https: "http://proxy.corp.example.com:8080"
+extraEnvs:
+  - name: JAVALIN_DATA
+    value: /data
+  - name: HTTP_PROXY
+    value: "http://proxy.corp.example.com:8080"
+  - name: http_proxy
+    value: "http://proxy.corp.example.com:8080"
+  - name: HTTPS_PROXY
+    value: "http://proxy.corp.example.com:8080"
+  - name: https_proxy
+    value: "http://proxy.corp.example.com:8080"
   # Bypass the proxy for in-cluster traffic.
-  noProxy: "localhost,127.0.0.1,.svc,.svc.cluster.local,.cluster.local"
+  - name: NO_PROXY
+    value: "localhost,127.0.0.1,.svc,.svc.cluster.local,.cluster.local"
+  - name: no_proxy
+    value: "localhost,127.0.0.1,.svc,.svc.cluster.local,.cluster.local"
 ```
 
-`--set proxy.http=http://...` works too if you'd rather not maintain
-a values file just for this.
+`extraEnvs` replaces the whole list, so keep `JAVALIN_DATA` when you add to it.
+
+### Ephemeral `/data`
+
+`persistence.enabled: false` renders no data volume at all. For a demo install
+with scratch space that is wiped on pod restart, mount an `emptyDir` yourself:
+
+```yaml
+persistence:
+  enabled: false
+extraVolumes:
+  - name: data
+    emptyDir: {}
+extraVolumeMounts:
+  - name: data
+    mountPath: /data
+```
 
 ## Uninstall
 

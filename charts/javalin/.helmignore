@@ -1,5 +1,6 @@
 # Patterns to ignore when packaging Helm charts.
-# Operates on the Chart's own directory.
+# NOTE: do not ignore *.tgz here — it would exclude the vendored `common`
+# dependency under charts/ and break rendering.
 .DS_Store
 .git/
 .gitignore
@@ -10,6 +11,3 @@
 *.swo
 *.bak
 *.orig
-*.tgz
-.project
-README.md.bak

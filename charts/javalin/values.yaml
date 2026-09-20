@@ -1,31 +1,34 @@
 # Default values for javalin.
-# This is a YAML-formatted file. Override anything by passing
-# `--set foo.bar=baz` or with a `-f my-values.yaml` file.
+# Rendering is delegated to the `common` library chart; this file only supplies
+# the per-application data. See charts/common for the full template.
+
+replicaCount: 1
 
 image:
   repository: kr4t0n/javalin
   pullPolicy: IfNotPresent
-  # When empty, the chart's appVersion is used.
+  # Empty => the chart's appVersion is used. The published image also carries
+  # immutable `sha-<short>` tags; pin one of those to keep a deploy identical
+  # across restarts.
   tag: ""
 
 imagePullSecrets: []
 
-# javalin's job state lives in the FastAPI process and the curl_cffi
-# session it owns is not thread-safe. Always run with one replica; the
-# Deployment's strategy is Recreate so a rolling update never temporarily
-# brings up a second instance racing for the same PVC.
-replicaCount: 1
-
 nameOverride: ""
 fullnameOverride: ""
 
-podAnnotations: {}
+# javalin's job store and its curl_cffi session live in the FastAPI process and
+# are not designed to share state, so this chart runs a single replica.
+# `Recreate` is what makes that safe on upgrade: the default rolling update
+# would start the replacement before retiring the old pod, and the two would
+# race for the same ReadWriteOnce volume.
+strategy:
+  type: Recreate
 
 podSecurityContext:
-  # Defaults track the Docker image's baked-in user (uid 1000, gid 100)
-  # which is the standard NAS / home-server convention. Override these
-  # if your host filesystem uses different numbering — fsGroup must
-  # match the gid that owns the mounted PVC.
+  # Defaults track the image's baked-in user (uid 1000, gid 100) which is the
+  # standard NAS / home-server convention. Override if your host filesystem
+  # numbers differently — fsGroup must match the gid that owns the mounted PVC.
   runAsUser: 1000
   runAsGroup: 100
   fsGroup: 100
@@ -59,18 +62,19 @@ ingress:
   #   hosts:
   #     - javalin.example.com
 
-resources: {}
-  # limits:
-  #   cpu: 500m
-  #   memory: 512Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
-
-# Liveness and readiness probes both ping /api/outputs — it's the same
-# cheap heartbeat the SPA uses for its top-bar status pill and the same
-# endpoint the Dockerfile's HEALTHCHECK targets.
+# All three probes ping /api/outputs — the same cheap heartbeat the SPA uses for
+# its top-bar status pill and the same endpoint the Dockerfile's HEALTHCHECK
+# targets. The startup probe is what makes the liveness probe safe: liveness
+# counts from container start, so without it a slow first boot would be killed
+# and retried rather than waited out.
 probes:
+  startup:
+    httpGet:
+      path: /api/outputs
+      port: http
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    failureThreshold: 12
   liveness:
     httpGet:
       path: /api/outputs
@@ -87,57 +91,65 @@ probes:
     periodSeconds: 10
     timeoutSeconds: 3
     failureThreshold: 3
-  startup:
-    httpGet:
-      path: /api/outputs
-      port: http
-    initialDelaySeconds: 5
-    periodSeconds: 5
-    failureThreshold: 12
 
-# Persistent volume for /data (inputs/ + outputs/ live here).
-# Disable to use an emptyDir (everything is wiped on pod restart — useful
-# for ephemeral demos but not for actual library curation).
+# Persistent volume for the data directory (inputs/ and outputs/ live here).
 persistence:
   enabled: true
-  # Existing PVC name — when set, the chart skips creating a new PVC and
-  # mounts this one instead.
-  existingClaim: ""
+  # Cluster default StorageClass when empty.
   storageClass: ""
+  size: 10Gi
   accessModes:
     - ReadWriteOnce
-  size: 10Gi
-  annotations: {}
+  volumes:
+    data:
+      # Must match JAVALIN_DATA in extraEnvs below.
+      mountPath: /data
+      # Empty suffix => PVC is named exactly "<release>".
+      claimNameSuffix: ""
+      # Mount a pre-existing claim instead of creating one:
+      # existingClaim: my-javalin-data
+      # annotations: {}
 
-# Extra environment variables passed to the container.
-# JAVALIN_DATA is set by default to match where persistence mounts.
-env:
-  JAVALIN_DATA: /data
+resources: {}
+  # limits:
+  #   cpu: 500m
+  #   memory: 512Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
 
-# HTTP/HTTPS proxy configuration. javalin's scraper uses curl_cffi
-# (libcurl), which honours these env vars natively; setting any of the
-# fields below injects both UPPER- and lower-case variants on the pod
-# so other Python HTTP libraries pick them up too.
+# Environment for the container. JAVALIN_DATA must agree with the mountPath of
+# the `data` volume above.
 #
-# Useful when javdb.com is unreachable from the cluster's egress and
-# traffic must be routed through a corporate or regional proxy.
-# Leave fields empty (the default) to skip injection entirely — the env
-# list stays clean if you don't need a proxy.
-proxy:
-  http: ""        # e.g. "http://proxy.corp.example.com:8080"
-  https: ""       # e.g. "http://proxy.corp.example.com:8080"
-  # Comma-separated list of hosts/CIDRs to bypass the proxy for.
-  # Inside a Kubernetes cluster you usually want at least the in-cluster
-  # service network; the value below is a sensible starting point that
-  # only matters when proxy.http or proxy.https is set:
-  #   "localhost,127.0.0.1,.svc,.svc.cluster.local,.cluster.local"
-  noProxy: ""
+# javalin's scraper uses curl_cffi (libcurl), which honours the standard proxy
+# variables natively. Set both the upper- and lower-case spellings so other
+# Python HTTP libraries pick them up too — useful when javdb.com is unreachable
+# from the cluster's egress. Inside a cluster you usually also want
+# NO_PROXY/no_proxy set to at least
+# "localhost,127.0.0.1,.svc,.svc.cluster.local,.cluster.local".
+extraEnvs:
+  - name: JAVALIN_DATA
+    value: /data
+  # - name: HTTP_PROXY
+  #   value: "http://proxy.example.com:8080"
+  # - name: http_proxy
+  #   value: "http://proxy.example.com:8080"
+  # - name: HTTPS_PROXY
+  #   value: "http://proxy.example.com:8080"
+  # - name: https_proxy
+  #   value: "http://proxy.example.com:8080"
+  # - name: NO_PROXY
+  #   value: "localhost,127.0.0.1,.svc,.svc.cluster.local,.cluster.local"
+  # - name: no_proxy
+  #   value: "localhost,127.0.0.1,.svc,.svc.cluster.local,.cluster.local"
 
-# Free-form extra env entries (envFrom / valueFrom). Rendered after the
-# proxy block, so anything you put here can override proxy values too.
-extraEnv: []
-  # - name: SOMETHING
-  #   value: "value"
+# Load ALL keys of an existing Secret as environment variables.
+existingSecret:
+  enabled: false
+  name: ""
+
+extraVolumes: []
+extraVolumeMounts: []
 
 nodeSelector: {}
   # Image is multi-arch (amd64 + arm64); set this only if you want to

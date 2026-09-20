@@ -81,6 +81,33 @@ entries:
   climage:
   - apiVersion: v2
     appVersion: latest
+    created: "2026-09-20T06:32:26.445765043Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: '>=0.2.2 <1.0.0'
+    description: A long-lived sandbox pod running the climage image for CLI coding
+      agents.
+    digest: 7b241a4a90621520964cfde02d56693fba105b7ec2c32f83b731291b79e3232b
+    home: https://github.com/kr4t0n/climage
+    keywords:
+    - agent
+    - cli
+    - sandbox
+    - claude-code
+    - codex
+    maintainers:
+    - name: kr4t0n
+      url: https://github.com/kr4t0n
+    name: climage
+    sources:
+    - https://github.com/kr4t0n/climage
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/climage-0.1.1/climage-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: latest
     created: "2026-09-08T14:15:50.341805494Z"
     dependencies:
     - name: common
@@ -195,6 +222,20 @@ entries:
     - https://github.com/kr4t0n/helm-charts/releases/download/comfyui-0.1.0/comfyui-0.1.0.tgz
     version: 0.1.0
   common:
+  - apiVersion: v2
+    created: "2026-09-20T06:32:26.641105276Z"
+    description: Shared template library for kr4t0n's self-hosted application charts.
+      Provides the deployment / service / ingress / pvc / labels boilerplate so each
+      application chart only has to supply values. Not installable on its own.
+    digest: 42f674bd8c5380e3e839f769d35b0d3733b10b1a89df91c98a015ea96f4a131a
+    maintainers:
+    - name: kr4t0n
+      url: https://github.com/kr4t0n
+    name: common
+    type: library
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/common-0.5.1/common-0.5.1.tgz
+    version: 0.5.1
   - apiVersion: v2
     created: "2026-09-19T17:14:59.082510444Z"
     description: Shared template library for kr4t0n's self-hosted application charts.
@@ -936,4 +977,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.1.0/xteve-0.1.0.tgz
     version: 0.1.0
-generated: "2026-09-20T03:33:01.659459749Z"
+generated: "2026-09-20T06:32:26.641210204Z"

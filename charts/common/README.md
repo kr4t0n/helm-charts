@@ -123,11 +123,26 @@ securityContext:
 
 Three things that bite in practice:
 
-- **`fsGroup` recursively chowns the volume on every mount.** On a large library
-  volume that can add minutes to pod start, and the pod is not Ready in the
-  meantime. Set `fsGroupChangePolicy: OnRootMismatch` so the kubelet only walks
-  the tree when the top-level ownership is actually wrong. `fsGroup` is the
-  clean alternative to a root init container that `chown`s the mount.
+- **`fsGroup` grants group access to every file on every mounted volume.** It is
+  not just a chown: the kubelet ORs permission bits in — `0660` on files, `0770`
+  plus setgid on directories — and never removes any. A `0600` private key
+  becomes `0660`, which OpenSSH then refuses; a `0700` directory becomes `2770`.
+  That is the right trade for a volume holding data and the wrong one for a
+  volume holding credentials, where a targeted init container that chowns a
+  single path is safer. `fsGroup` is also pod-wide and cannot be scoped to one
+  volume, so every extra mount — including a shared NFS export — gets the same
+  treatment.
+- **`fsGroup` recursively walks the volume on every mount.** On a large volume
+  that can add minutes to pod start, and the pod is not Ready in the meantime.
+  Set `fsGroupChangePolicy: OnRootMismatch` so the kubelet only walks when the
+  root does not already match. Note the match test covers the setgid bit and
+  group rwx, not just the gid — a volume at mode `0755` is a mismatch even when
+  its group is already correct, so the first walk happens regardless.
+- **Whether `fsGroup` applies at all depends on the CSI driver.** Check
+  `kubectl get csidrivers -o custom-columns=NAME:.metadata.name,P:.spec.fsGroupPolicy`.
+  `File` applies it unconditionally; `ReadWriteOnceWithFSType` applies it only to
+  RWO volumes that declare an `fsType`, so a raw-block PV is silently skipped;
+  the in-tree NFS plugin ignores it entirely.
 - **`runAsNonRoot: true` fails closed.** If the image's default user is root
   and no `runAsUser` is given, the kubelet refuses to start the container with
   `CreateContainerConfigError` rather than running it. Set `runAsUser`

@@ -29,6 +29,7 @@ kubectl -n media port-forward svc/photoprism 2342:2342
 | `workingDir` | Container working directory | `/photoprism` |
 | `persistence.size` | Storage volume (`/photoprism/storage`) size | `10Gi` |
 | `persistence.storageClass` | StorageClass (empty ⇒ cluster default) | `""` |
+| `probes.{startup,readiness}` | Health probes against `/healthz` and `/readyz` | enabled |
 | `extraEnvs` | `PHOTOPRISM_*` config vars | `[]` |
 | `existingSecret.*` | Load all keys of a secret as env (admin password, DB creds) | disabled |
 | `extraVolumes` / `extraVolumeMounts` | Mount your photo library at `/photoprism/originals` | `[]` |
@@ -52,6 +53,15 @@ See [`values.yaml`](./values.yaml) for the full list.
   port until they finish, that shows up as minutes of connection-refused errors
   from whatever fronts it. Bump `appVersion` to upgrade deliberately, and expect
   a migration window the first time you move to a much newer release.
+- **Health probes are on by default.** PhotoPrism binds its HTTP port only after
+  finishing any schema migrations the running version needs, so without a
+  readiness probe the pod reports `Ready` while nothing is listening and callers
+  get connection refused for the whole migration window. The startup probe
+  tolerates a ~15 minute first boot (`periodSeconds: 10 × failureThreshold: 90`)
+  — raise it if you jump across many releases at once, since every intervening
+  schema change is replayed. There is deliberately **no liveness probe**: long
+  indexing passes can stop answering promptly, and a liveness failure would
+  restart the container mid-pass.
 - **Secrets**: put `PHOTOPRISM_ADMIN_PASSWORD` and any database credentials in a
   Secret and reference it via `existingSecret`, not in `extraEnvs`.
 - **`workingDir: /photoprism`** is required — PhotoPrism resolves its config and

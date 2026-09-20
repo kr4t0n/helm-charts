@@ -46,7 +46,8 @@ First start pulls ~2GB (~1.4GB for `image.tag: slim`), so expect a few minutes i
 | `existingSecret.{enabled,name}` | `envFrom` a Secret holding agent API keys | disabled |
 | `extraEnvs` | Extra env vars (`TZ`, `CLIMAGE_INIT`, proxies) | `[]` |
 | `extraVolumes` / `extraVolumeMounts` | Bootstrap ConfigMap, SSH key, NFS share | `[]` |
-| `extraInitContainers` | Ownership fix-up (see below), workspace seeding | `[]` |
+| `podSecurityContext` | Volume ownership via `fsGroup` (see below) | `{}` |
+| `extraInitContainers` | Pre-start setup: credential seeding, workspace bootstrap | `[]` |
 | `resources` | Requests / limits | `{}` |
 | `ingress.*` | See [`common`](../common) (className / hosts / tls) | disabled |
 
@@ -131,12 +132,34 @@ Or point the Service at it by setting `service.port: 3000`.
   built from climage *after* that change; older tags default to `bash`, which
   exits on EOF and lands in `CrashLoopBackOff`.
 - **Volume ownership is the one thing to check.** The container is uid/gid 1000
-  and the `common` library has no `securityContext`/`fsGroup` support, so a
-  provisioner that hands out `root`-owned volumes leaves the agent unable to
-  write its own home. Provisioners that create world-writable volumes (rancher
-  local-path, most NFS provisioners) are fine as-is; otherwise uncomment the
-  `extraInitContainers` chown snippet in [`values.yaml`](./values.yaml), or
+  while a freshly provisioned PVC is usually `root`-owned, leaving the agent
+  unable to write its own home. Provisioners that create world-writable volumes
+  (rancher local-path, most NFS provisioners) are fine as-is; otherwise uncomment
+  the `extraInitContainers` chown snippet in [`values.yaml`](./values.yaml), or
   chown the export to `1000:1000` on the storage server.
+- **Use an init container here, not `fsGroup`.** `podSecurityContext.fsGroup` is
+  the tidier mechanism in general — no root container, so it works under a
+  restricted PodSecurity policy — but it is the wrong trade for *this* volume.
+  `fsGroup` does not only chown: the kubelet ORs permission bits in, `0660` on
+  every file and `0770` plus setgid on every directory, and never removes any.
+  On a home directory that means:
+
+  | Path | Before | After `fsGroup` |
+  |---|---|---|
+  | `~/.ssh` | `700` | `2770` |
+  | `~/.ssh/id_ed25519` | `600` | `660` |
+
+  So every agent credential under `$HOME` — `~/.claude.json`, `~/.codex`, SSH
+  keys — becomes readable and writable by that group, and OpenSSH will refuse a
+  key at `0660` outright. `fsGroup` is right for a volume holding data; a climage
+  home holds secrets. The init container is targeted, so it fixes the one path
+  that needs it and leaves everything else alone.
+
+  If you do enable it anyway, note it is pod-wide and cannot be scoped to one
+  volume, so every extra mount gets the same treatment — including a shared NFS
+  export, which may also fail under `root_squash`. And `OnRootMismatch` compares
+  the setgid bit and group rwx as well as the gid, so a volume at mode `0755` is
+  a mismatch even when its group is already correct.
 - **Mounting `$HOME` hides part of the image — harmlessly.** `~/.npm-global` and
   `~/.cache` as created in the build disappear behind the volume and are
   recreated. The toolchain is unaffected: uv interpreters and `uv tool` installs

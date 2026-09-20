@@ -136,12 +136,42 @@ extraVolumeMounts: []
   #   readOnly: true
 
 # The container runs as uid/gid 1000 while a freshly provisioned PVC is usually
-# owned by root — on those provisioners the agent cannot write its own home.
-# The library chart has no securityContext/fsGroup support, so fix ownership
-# once with a root init container. Not enabled by default: provisioners that
-# hand out world-writable volumes (rancher local-path, most NFS provisioners)
-# do not need it, and clusters with a restricted PodSecurity policy will not
-# admit a root container. The volume name is "<key>-volume", i.e. home-volume.
+# owned by root, so on those provisioners the agent cannot write its own home.
+# `fsGroup` fixes that at mount time with no root container involved, which also
+# works under a restricted PodSecurity policy.
+#
+# Deliberately not the default for THIS chart, and think before enabling it:
+# fsGroup does not only chown. The kubelet ORs permission bits in — 0660 on every
+# file, 0770 plus setgid on every directory — and never removes any. On this
+# volume that means ~/.ssh goes 0700 -> 2770 and a private key 0600 -> 0660, so
+# every agent credential under $HOME becomes readable and writable by that group.
+# That is fine for a volume holding data; it is the wrong trade for one holding
+# secrets, which is what a climage home directory is. Prefer the targeted init
+# container below, which fixes only the path that needs it.
+#
+# Also note fsGroup is pod-wide: it cannot be scoped to one volume, so every
+# extra mount gets the same treatment.
+podSecurityContext: {}
+  # fsGroup: 1000
+  # # Only walk the tree when the volume root does not already match. Without
+  # # this the kubelet recursively chowns on *every* mount, which on a home full
+  # # of npm and uv caches adds real time to each start. Note the match test
+  # # covers the setgid bit and group rwx too, not just the gid — a volume at
+  # # mode 0755 is a mismatch even when its group is already correct.
+  # fsGroupChangePolicy: OnRootMismatch
+
+# Container-level hardening. Left empty because an agent sandbox legitimately
+# installs packages and writes across its filesystem; `readOnlyRootFilesystem`
+# in particular will break it.
+securityContext: {}
+  # allowPrivilegeEscalation: false
+
+# The recommended way to fix ownership on this chart's home volume, precisely
+# because it is targeted: it chowns the one path that needs it and leaves every
+# credential under $HOME at its original mode, which `podSecurityContext.fsGroup`
+# above would not. An init container is also the only option when something must
+# *happen* before the agent starts, such as seeding a file or materialising a
+# credential. The volume name is "<key>-volume", i.e. home-volume.
 extraInitContainers: []
   # - name: fix-home-ownership
   #   image: busybox:1.37

@@ -55,6 +55,37 @@ persistence:
       # pre-library chart so existing PVCs are reused on upgrade.
       claimNameSuffix: ""
 
+# PhotoPrism binds its HTTP port only *after* it finishes any schema migrations
+# the running version requires. Without a readiness probe the pod reports Ready
+# as soon as the process starts, so the Service routes traffic to a closed port
+# and callers see connection refused for the whole migration window (observed:
+# ~8.5 minutes on a version jump). These probes keep the pod out of the Service
+# until it actually answers.
+#
+# `/readyz` and `/healthz` are PhotoPrism's own unauthenticated health
+# endpoints, so they work with PHOTOPRISM_AUTH_MODE=password.
+probes:
+  # Tolerates a ~15 minute first boot before the pod is declared failed. Size
+  # this to the worst migration you expect, not the typical start: a jump
+  # across several releases replays every intervening schema change.
+  startup:
+    httpGet:
+      path: /healthz
+      port: http
+    periodSeconds: 10
+    failureThreshold: 90
+  readiness:
+    httpGet:
+      path: /readyz
+      port: http
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  # No liveness probe on purpose. PhotoPrism runs long indexing and face
+  # recognition passes that can stop answering promptly under load, and a
+  # liveness failure would restart the container mid-pass. Add one only if you
+  # actually observe hangs — the startup probe above already guards it.
+
 resources: {}
   # requests:
   #   cpu: 500m

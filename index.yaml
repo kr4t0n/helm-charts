@@ -390,6 +390,34 @@ entries:
   javalin:
   - apiVersion: v2
     appVersion: 0.1.0
+    created: "2026-09-21T04:06:04.706782709Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: '>=0.2.2 <1.0.0'
+    description: A self-hosted JavDB scraper that emits Kodi/Jellyfin NFO + artwork.
+    digest: 49d6da8a557b9a0e935ec5717f73b48ffd8c00fa371d2b46f3bf64ee63cebbb2
+    home: https://github.com/kr4t0n/javalin
+    icon: https://raw.githubusercontent.com/kr4t0n/javalin/main/frontend/public/favicon.svg
+    keywords:
+    - javdb
+    - scraper
+    - kodi
+    - jellyfin
+    - nfo
+    - self-hosted
+    maintainers:
+    - name: kr4t0n
+      url: https://github.com/kr4t0n
+    name: javalin
+    sources:
+    - https://github.com/kr4t0n/javalin
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/javalin-0.3.0/javalin-0.3.0.tgz
+    version: 0.3.0
+  - apiVersion: v2
+    appVersion: 0.1.0
     created: "2026-05-04T03:09:17.681246472Z"
     description: A self-hosted JavDB scraper that emits Kodi/Jellyfin NFO + artwork.
     digest: ed6d6aaf61614efdbd09a71c1f874e5b069494b369595562f4bc86dfb8f31742
@@ -977,4 +1005,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.1.0/xteve-0.1.0.tgz
     version: 0.1.0
-generated: "2026-09-20T06:32:26.641210204Z"
+generated: "2026-09-21T04:06:04.706911599Z"

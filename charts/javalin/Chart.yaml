@@ -5,7 +5,7 @@ type: application
 # Chart version — bump on every PR that changes anything under helm/.
 # chart-releaser-action only publishes a new release when this version is
 # incremented and no GitHub Release exists for the corresponding tag yet.
-version: 0.2.0
+version: 0.3.0
 # Application version — should track the javalin image's release tag.
 appVersion: "0.1.0"
 home: https://github.com/kr4t0n/javalin
@@ -22,3 +22,8 @@ keywords:
 maintainers:
   - name: kr4t0n
     url: https://github.com/kr4t0n
+
+dependencies:
+  - name: common
+    version: ">=0.2.2 <1.0.0"
+    repository: file://../common

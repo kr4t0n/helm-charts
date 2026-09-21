@@ -14,19 +14,19 @@ Get the application URL by running these commands:
 {{- end }}
 {{- else if contains "NodePort" .Values.service.type }}
 
-  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "javalin.fullname" . }})
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "common.fullname" . }})
   export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
   echo "http://$NODE_IP:$NODE_PORT"
 {{- else if contains "LoadBalancer" .Values.service.type }}
 
   echo "It may take a few minutes for the LoadBalancer IP to be available."
-  echo "Watch with: kubectl get svc -w {{ include "javalin.fullname" . }} -n {{ .Release.Namespace }}"
-  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "javalin.fullname" . }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+  echo "Watch with: kubectl get svc -w {{ include "common.fullname" . }} -n {{ .Release.Namespace }}"
+  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "common.fullname" . }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
   echo "http://$SERVICE_IP:{{ .Values.service.port }}"
 {{- else if contains "ClusterIP" .Values.service.type }}
 
   export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} \
-    -l "app.kubernetes.io/name={{ include "javalin.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" \
+    -l "app={{ include "common.fullname" . }}" \
     -o jsonpath="{.items[0].metadata.name}")
   echo "Visit http://127.0.0.1:8000 — Ctrl-C to stop."
   kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8000:{{ .Values.service.port }}
@@ -35,6 +35,6 @@ Get the application URL by running these commands:
 To drop MP4s into inputs/ for batch processing:
 
   kubectl --namespace {{ .Release.Namespace }} cp ./my-video.mp4 \
-    $POD_NAME:{{ .Values.env.JAVALIN_DATA }}/inputs/my-video.mp4
+    $POD_NAME:{{ .Values.persistence.volumes.data.mountPath }}/inputs/my-video.mp4
 
 Then call POST /api/batch from the SPA or with curl.

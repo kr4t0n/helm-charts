@@ -42,6 +42,8 @@ See [`values.yaml`](./values.yaml) for the full list.
 - **Persistence** creates two PVCs: `<release>` (`/config`, config + data,
   `4Gi`) and `<release>-playwright` (`/moviepilot/.cache/ms-playwright`, the
   Playwright/Chromium cache, `1Gi`).
-- **Image version**: kept at the chart's existing `appVersion` pin; upstream is
-  much newer, so bump `appVersion` (or set `image.tag`) deliberately to upgrade.
+- **Image version**: pinned to `appVersion` 2.15.6, the final release of the
+  `moviepilot-v2` image. MoviePilot V3 is published as a separate image
+  (`jxxghp/moviepilot-v3`) and migrates the database on first start, so it is
+  not reachable by bumping the tag here.
 - **Time zone**: set `TZ` via `extraEnvs`.

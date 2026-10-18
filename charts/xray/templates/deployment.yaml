@@ -1,0 +1,21 @@
+{{- /*
+The config volume and its checksum belong to the chart, so they reach
+common.deployment through a copy of the values: merge keeps the keys set here
+(prepending to the user's extraVolumes / extraVolumeMounts, adding to their
+podAnnotations) and fills in the rest from .Values, which stays untouched.
+*/ -}}
+{{- $sources := list -}}
+{{- if .Values.config -}}
+{{- $sources = append $sources (dict "secret" (dict "name" (include "xray.configSecretName" .))) -}}
+{{- end -}}
+{{- with .Values.existingConfigSecret -}}
+{{- $sources = append $sources (dict "secret" (dict "name" .)) -}}
+{{- end -}}
+{{- if not $sources -}}
+{{- fail "xray: set config, existingConfigSecret, or both" -}}
+{{- end -}}
+{{- $volumes := prepend (.Values.extraVolumes | default list) (dict "name" "config" "projected" (dict "sources" $sources)) -}}
+{{- $mounts := prepend (.Values.extraVolumeMounts | default list) (dict "name" "config" "mountPath" "/usr/local/etc/xray" "readOnly" true) -}}
+{{- $annotations := dict "checksum/config" (include (print .Template.BasePath "/secret.yaml") . | sha256sum) -}}
+{{- $values := merge (dict "extraVolumes" $volumes "extraVolumeMounts" $mounts "podAnnotations" $annotations) .Values -}}
+{{- include "common.deployment" (dict "Values" $values "Release" .Release "Chart" .Chart "Capabilities" .Capabilities "Template" .Template "Files" .Files) }}

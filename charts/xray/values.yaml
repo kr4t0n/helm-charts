@@ -1,0 +1,137 @@
+# Default values for xray.
+# Rendering is delegated to the `common` library chart; this file only supplies
+# the per-application data. See charts/common for the full template.
+#
+# The official image runs `xray -confdir /usr/local/etc/xray/`, which loads every
+# *.json file in that directory and merges them in filename order. This chart
+# mounts the directory from up to two Secrets:
+#
+#   config                 rendered by this chart as 00_config.json
+#   existingConfigSecret   a Secret you manage (e.g. via External Secrets); name
+#                          its keys 10_*.json and up so they merge after config
+#
+# Inbounds and outbounds merge by tag — a later file's element replaces an
+# earlier one with the same tag — so the natural split is credentials (client
+# ids, the REALITY private key) in existingConfigSecret and everything else in
+# config. The mount hides the image's own placeholder files, including the
+# 00_log.json that would send the error log to a file instead of stdout.
+
+replicaCount: 1
+
+image:
+  repository: ghcr.io/xtls/xray-core
+  pullPolicy: IfNotPresent
+  # Set explicitly (not left to appVersion) so a stale appVersion can't
+  # downgrade it. Tags are bare versions, without the GitHub release's "v".
+  tag: "26.3.27"
+
+# The inbound in the Xray config must listen on service.port — nothing derives
+# one from the other. Keep it above 1024: the image runs as uid 65532. The
+# container port is named `http` by the common library whatever the protocol.
+service:
+  type: ClusterIP
+  port: 8443
+  # Also bind service.port on the node, for exposure without an ingress
+  # controller. Pair it with `strategy.type: Recreate` below.
+  hostPort: false
+  extraPorts: []
+    # - name: hy2
+    #   port: 8444
+    #   targetPort: hy2
+    #   protocol: UDP
+
+# Additional container ports, e.g. a second inbound on UDP.
+extraPorts: []
+  # - name: hy2
+  #   containerPort: 8444
+  #   protocol: UDP
+
+# Unset = Kubernetes' default RollingUpdate. Required as Recreate with
+# service.hostPort: the replacement pod cannot bind the port while the old one
+# holds it, so a rolling update on a pinned node never completes.
+strategy: {}
+  # type: Recreate
+
+# Non-secret configuration, rendered to JSON. The default has no inbound: Xray
+# starts and serves nothing until one is added here or in existingConfigSecret.
+config:
+  log:
+    loglevel: warning
+  outbounds:
+    # The first outbound is the default route.
+    - tag: direct
+      protocol: freedom
+    - tag: block
+      protocol: blackhole
+  routing:
+    # Resolve domain destinations before matching IP rules, so a name that
+    # points at a private address (e.g. kubernetes.default.svc) is caught too.
+    domainStrategy: IPIfNonMatch
+    rules:
+      # The pod sits on the cluster network: without this, any client could use
+      # the proxy to reach Services, pods and whatever else the node can route
+      # to. geoip:private covers RFC 1918, CGNAT 100.64/10, loopback, link-local
+      # and their IPv6 counterparts.
+      - ip: ["geoip:private"]
+        outboundTag: block
+
+# Name of an existing Secret whose keys are mounted next to 00_config.json. Its
+# changes do not roll the pod (Xray does not hot-reload) — restart it yourself.
+existingConfigSecret: ""
+
+# For transports that ride HTTP (XHTTP, WebSocket, gRPC) behind an ingress that
+# terminates TLS. Not for REALITY, which has to see the raw TLS handshake: route
+# that with a TCP passthrough instead (e.g. a Traefik IngressRouteTCP).
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts: []
+  #   - host: xray.example.com
+  tls: []
+
+# Xray's footprint is small, and memory grows with concurrent connections.
+resources: {}
+  # requests:
+  #   cpu: 50m
+  #   memory: 64Mi
+  # limits:
+  #   memory: 256Mi
+
+# No probes by default. A TCP probe only proves the listener exists, and against
+# a REALITY inbound each probe also makes Xray dial the REALITY target, because
+# REALITY connects to the target before it reads the ClientHello. Xray starts
+# in well under a second and exits on a bad config, so the pod's state is
+# already an honest signal.
+probes: {}
+  # readiness:
+  #   tcpSocket: { port: http }
+  #   periodSeconds: 30
+
+# The image already runs as uid 65532 (distroless nonroot). Xray writes nothing
+# to disk unless the config names a log file, so the root filesystem can stay
+# read-only; add an emptyDir via extraVolumes for any path it must write.
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  runAsGroup: 65532
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: [ALL]
+
+extraEnvs: []
+
+# Appended after the chart's own `config` volume.
+extraVolumes: []
+extraVolumeMounts: []
+
+podAnnotations: {}
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

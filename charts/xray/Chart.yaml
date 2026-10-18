@@ -1,0 +1,26 @@
+apiVersion: v2
+name: xray
+description: Xray-core proxy server (VLESS, REALITY, XHTTP and friends) using the official image.
+
+type: application
+version: 0.1.0
+# XTLS publishes most releases as GitHub pre-releases and promotes one to
+# "Latest" every few months; appVersion tracks that latest stable release.
+appVersion: "26.3.27"
+home: https://github.com/XTLS/Xray-core
+sources:
+  - https://github.com/XTLS/Xray-core
+keywords:
+  - xray
+  - proxy
+  - vless
+  - reality
+maintainers:
+  - name: kr4t0n
+    url: https://github.com/kr4t0n
+
+dependencies:
+  - name: common
+    # 0.5.0 added the podSecurityContext / securityContext passthrough.
+    version: ">=0.5.0 <1.0.0"
+    repository: file://../common

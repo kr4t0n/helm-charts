@@ -1,0 +1,113 @@
+# Default values for derper.
+# Rendering is delegated to the `common` library chart; templates/deployment.yaml
+# adds derper's flags, host networking, the certificate and state volumes, and
+# the certificate reloader sidecar.
+#
+# derper runs on the node's network, so clients reach it at the node's public
+# address: open service.port (TCP) and stun.port (UDP) in the node's firewall or
+# security group. Run one release per node. Each needs its own hostname, which
+# is also the HostName of its entry in the tailnet's DERP map.
+
+image:
+  repository: kr4t0n/derper
+  pullPolicy: IfNotPresent
+  # Set explicitly (not left to appVersion) so a stale appVersion can't
+  # downgrade it. Tags are bare Tailscale versions.
+  tag: "1.104.1"
+
+# Public DNS name of this DERP node. Required: derper only completes TLS
+# handshakes whose SNI matches it, and the certificate is issued for it.
+hostname: ""
+
+# DERP over TLS (derper -a). Keep it above 1024: the image runs as uid 65532.
+# The common library names the container port `http` whatever the protocol. No
+# Service is rendered; clients connect to the node directly.
+service:
+  port: 56443
+
+stun:
+  enabled: true
+  port: 3478
+
+# Admit only clients the node's tailscaled knows, i.e. devices in its tailnet.
+# Mounts the host's tailscaled socket, so the node must run tailscaled.
+verifyClients:
+  enabled: true
+  socket: /var/run/tailscale/tailscaled.sock
+
+# The certificate derper serves for `hostname`. With create, a cert-manager
+# Certificate is rendered (issuerRef required); otherwise set existingSecret to a
+# kubernetes.io/tls Secret in the release namespace.
+certificate:
+  create: true
+  issuerRef: {}
+    # kind: ClusterIssuer
+    # name: letsencrypt-prod
+  existingSecret: ""
+
+# derper loads its certificate once, at startup. This sidecar polls the mounted
+# Secret and, when the certificate changes, kills derper through the shared PID
+# namespace; the kubelet then restarts it with the renewed certificate.
+certReloader:
+  enabled: true
+  image:
+    repository: busybox
+    tag: "1.37"
+    pullPolicy: IfNotPresent
+  intervalSeconds: 60
+  resources:
+    requests:
+      cpu: 1m
+      memory: 8Mi
+    limits:
+      memory: 32Mi
+
+# Appended to the flags the chart sets: -hostname, -a, -http-port=-1,
+# -certmode=manual, -certdir, -c, -stun, -stun-port, -verify-clients.
+extraArgs: []
+  # - -home=blank
+
+# derper is small; memory grows with connected clients and relayed traffic.
+resources: {}
+  # requests:
+  #   cpu: 50m
+  #   memory: 64Mi
+  # limits:
+  #   memory: 256Mi
+
+# No probes by default: a TCP probe only proves the listener exists, and derper
+# exits on a bad flag, certificate or port, so the pod's state is already an
+# honest signal.
+probes: {}
+  # liveness:
+  #   tcpSocket: { port: http }
+  #   periodSeconds: 30
+
+priorityClassName: ""
+
+# The image runs as uid 65532. derper writes only its node key, kept on an
+# emptyDir at /var/lib/derper, so the root filesystem stays read-only.
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  runAsGroup: 65532
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: [ALL]
+
+extraEnvs: []
+
+# Appended after the chart's own volumes and mounts.
+extraVolumes: []
+extraVolumeMounts: []
+
+podAnnotations: {}
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

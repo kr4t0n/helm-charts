@@ -1,0 +1,85 @@
+{{- /*
+derper's flags, host networking and volumes belong to the chart, so they reach
+common.deployment through a copy of the values: merge keeps the keys set here
+(prepending to the user's extraVolumes / extraVolumeMounts / extraArgs) and fills
+in the rest from .Values, which stays untouched.
+*/ -}}
+{{- $hostname := required "derper: set hostname" .Values.hostname -}}
+{{- $certFile := include "derper.certFileName" . -}}
+
+{{- $args := list
+  (printf "-hostname=%s" $hostname)
+  (printf "-a=:%v" .Values.service.port)
+  "-http-port=-1"
+  "-certmode=manual"
+  "-certdir=/certs"
+  "-c=/var/lib/derper/derper.key"
+  (printf "-stun=%t" .Values.stun.enabled)
+  (printf "-verify-clients=%t" .Values.verifyClients.enabled) -}}
+{{- if .Values.stun.enabled -}}
+{{- $args = append $args (printf "-stun-port=%v" .Values.stun.port) -}}
+{{- end -}}
+{{- $args = concat $args (.Values.extraArgs | default list) -}}
+
+{{- $volumes := list
+  (dict "name" "certs" "secret" (dict
+    "secretName" (include "derper.certSecretName" .)
+    "items" (list
+      (dict "key" "tls.crt" "path" (printf "%s.crt" $certFile))
+      (dict "key" "tls.key" "path" (printf "%s.key" $certFile)))))
+  (dict "name" "state" "emptyDir" (dict)) -}}
+{{- $mounts := list
+  (dict "name" "certs" "mountPath" "/certs" "readOnly" true)
+  (dict "name" "state" "mountPath" "/var/lib/derper") -}}
+{{- if .Values.verifyClients.enabled -}}
+{{- $volumes = append $volumes (dict "name" "tailscaled" "hostPath" (dict "path" .Values.verifyClients.socket "type" "Socket")) -}}
+{{- $mounts = append $mounts (dict "name" "tailscaled" "mountPath" "/var/run/tailscale/tailscaled.sock") -}}
+{{- end -}}
+{{- $volumes = concat $volumes (.Values.extraVolumes | default list) -}}
+{{- $mounts = concat $mounts (.Values.extraVolumeMounts | default list) -}}
+
+{{- $ports := list -}}
+{{- if .Values.stun.enabled -}}
+{{- $ports = append $ports (dict "name" "stun" "containerPort" .Values.stun.port "protocol" "UDP") -}}
+{{- end -}}
+
+{{- /*
+busybox `pkill -x derper` does not match the process; `pidof` does. derper exits
+cleanly on SIGTERM, and the kubelet restarts the container. It is never PID 1
+here (the pause container is), so the signal is not ignored.
+*/ -}}
+{{- $containers := list -}}
+{{- if .Values.certReloader.enabled -}}
+{{- $r := .Values.certReloader -}}
+{{- $script := printf `sum() { cat /certs/* | md5sum; }
+last=$(sum)
+while sleep %v; do
+  cur=$(sum)
+  if [ "$cur" != "$last" ]; then
+    echo "certificate changed; restarting derper"
+    if pids=$(pidof derper); then kill $pids; fi
+    last=$cur
+  fi
+done` $r.intervalSeconds -}}
+{{- $containers = append $containers (dict
+  "name" "cert-reloader"
+  "image" (printf "%s:%s" $r.image.repository $r.image.tag)
+  "imagePullPolicy" ($r.image.pullPolicy | default "IfNotPresent")
+  "command" (list "sh" "-c" $script)
+  "securityContext" .Values.securityContext
+  "resources" $r.resources
+  "volumeMounts" (list (dict "name" "certs" "mountPath" "/certs" "readOnly" true))) -}}
+{{- end -}}
+
+{{- $chart := dict
+  "args" $args
+  "hostNetwork" true
+  "dnsPolicy" "ClusterFirstWithHostNet"
+  "strategy" (dict "type" "Recreate")
+  "shareProcessNamespace" .Values.certReloader.enabled
+  "extraPorts" $ports
+  "extraContainers" $containers
+  "extraVolumes" $volumes
+  "extraVolumeMounts" $mounts -}}
+{{- $values := merge $chart .Values -}}
+{{- include "common.deployment" (dict "Values" $values "Release" .Release "Chart" .Chart "Capabilities" .Capabilities "Template" .Template "Files" .Files) }}

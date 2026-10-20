@@ -18,6 +18,11 @@ application chart. Per-app variation is driven entirely by values:
   persistence.{enabled,volumes}       map of named PVC-backed volumes
   extraVolumes / extraVolumeMounts    free-form additions
   extraInitContainers                 free-form initContainers (list)
+  extraContainers                     free-form sidecar containers (list)
+  command / args                      optional container command / args
+  hostNetwork / dnsPolicy             optional pod networking
+  shareProcessNamespace               optional; lets sidecars signal the app
+  priorityClassName                   optional pod priority class
   podAnnotations / imagePullSecrets   optional pod-level settings
   nodeSelector / tolerations / affinity
 
@@ -77,6 +82,18 @@ spec:
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with .Values.priorityClassName }}
+      priorityClassName: {{ . }}
+      {{- end }}
+      {{- if .Values.hostNetwork }}
+      hostNetwork: true
+      {{- end }}
+      {{- with .Values.dnsPolicy }}
+      dnsPolicy: {{ . }}
+      {{- end }}
+      {{- if .Values.shareProcessNamespace }}
+      shareProcessNamespace: true
+      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -95,6 +112,14 @@ spec:
           {{- end }}
           {{- with .Values.workingDir }}
           workingDir: {{ . }}
+          {{- end }}
+          {{- with .Values.command }}
+          command:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.args }}
+          args:
+            {{- toYaml . | nindent 12 }}
           {{- end }}
           ports:
             - name: http
@@ -148,6 +173,9 @@ spec:
             {{- toYaml . | nindent 12 }}
             {{- end }}
           {{- end }}
+        {{- with .Values.extraContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       {{- if or (and .Values.persistence .Values.persistence.enabled .Values.persistence.volumes) .Values.extraVolumes }}
       volumes:
         {{- if and .Values.persistence .Values.persistence.enabled }}

@@ -30,10 +30,15 @@ jobs:
             if grep -qE '^dependencies:' "${chart}Chart.yaml"; then
               helm dependency update "$chart" || { echo "::error::dependency build failed for $name"; fail=1; }
             fi
-            helm lint "$chart" || { echo "::error::helm lint failed for $name"; fail=1; }
+            # Charts with required values (no usable defaults) ship ci/*.yaml.
+            values=()
+            for f in "${chart}"ci/*.yaml; do
+              if [ -f "$f" ]; then values+=(-f "$f"); fi
+            done
+            helm lint "$chart" "${values[@]}" || { echo "::error::helm lint failed for $name"; fail=1; }
             # Library charts can't be rendered standalone; only template apps.
             if ! grep -qE '^type:[[:space:]]*library' "${chart}Chart.yaml"; then
-              helm template "$name" "$chart" >/dev/null || { echo "::error::helm template failed for $name"; fail=1; }
+              helm template "$name" "$chart" "${values[@]}" >/dev/null || { echo "::error::helm template failed for $name"; fail=1; }
             fi
             echo "::endgroup::"
           done

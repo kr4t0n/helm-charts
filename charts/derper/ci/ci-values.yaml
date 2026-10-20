@@ -1,0 +1,6 @@
+# Values for CI rendering: derper has no usable defaults for hostname or issuer.
+hostname: derp.example.com
+certificate:
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt-staging

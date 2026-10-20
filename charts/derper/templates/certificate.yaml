@@ -1,0 +1,18 @@
+{{- if .Values.certificate.create }}
+{{- if not .Values.certificate.issuerRef.name }}
+{{- fail "derper: set certificate.issuerRef, or certificate.create: false with certificate.existingSecret" }}
+{{- end }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "common.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+spec:
+  secretName: {{ include "derper.certSecretName" . }}
+  dnsNames:
+    - {{ required "derper: set hostname" .Values.hostname }}
+  issuerRef:
+    {{- toYaml .Values.certificate.issuerRef | nindent 4 }}
+{{- end }}

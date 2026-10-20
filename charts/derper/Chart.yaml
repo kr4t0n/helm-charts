@@ -1,0 +1,26 @@
+apiVersion: v2
+name: derper
+description: Tailscale DERP relay server, from the kr4t0n/derper image built in this repo.
+
+type: application
+version: 0.1.0
+# Tracks images/derper/VERSION, the Tailscale release the image is built from.
+appVersion: "1.104.1"
+home: https://tailscale.com/kb/1118/custom-derp-servers
+sources:
+  - https://github.com/tailscale/tailscale/tree/main/cmd/derper
+  - https://github.com/kr4t0n/helm-charts/tree/main/images/derper
+keywords:
+  - tailscale
+  - derp
+  - stun
+  - relay
+maintainers:
+  - name: kr4t0n
+    url: https://github.com/kr4t0n
+
+dependencies:
+  - name: common
+    # 0.6.0 added hostNetwork, args, extraContainers and shareProcessNamespace.
+    version: ">=0.6.0 <1.0.0"
+    repository: file://../common

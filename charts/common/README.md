@@ -72,6 +72,11 @@ charts depend on it and call its named templates from one-line stubs.
 | `extraInitContainers`        | Init containers to run before the app container         | `[]`           |
 | `podAnnotations` / `imagePullSecrets` | Pod-level settings                            | unset          |
 | `nodeSelector` / `tolerations` / `affinity` | Scheduling                              | unset          |
+| `extraContainers`            | Sidecar containers after the app container (0.6.0)      | `[]`           |
+| `command` / `args`           | Container `command` / `args`, verbatim (0.6.0)           | unset          |
+| `hostNetwork` / `dnsPolicy`  | Pod networking (0.6.0)                                  | unset          |
+| `shareProcessNamespace`      | One PID namespace for all containers (0.6.0)            | unset          |
+| `priorityClassName`          | Pod priority class (0.6.0)                              | unset          |
 
 ### Init containers
 
@@ -96,6 +101,19 @@ extraInitContainers:
       - name: data-volume   # <key>-volume
         mountPath: /root
 ```
+
+### Sidecars and host networking
+
+`extraContainers` is a raw list of container specs appended after the app
+container, like `extraInitContainers` (mounts are not injected).
+`shareProcessNamespace: true` puts every container in one PID namespace, so a
+sidecar running as the app's uid can signal it — e.g. to restart an app that only
+reads its certificate at startup.
+
+`hostNetwork: true` puts the pod on the node's network. Pair it with
+`dnsPolicy: ClusterFirstWithHostNet` if the app resolves cluster names, and with
+`strategy.type: Recreate`, because the replacement pod cannot bind the node's
+ports while the old pod holds them.
 
 ### Security contexts
 

@@ -26,6 +26,7 @@ kubectl -n media port-forward svc/plex 32400:32400
 | `image.tag` | Tag (empty ⇒ chart `appVersion`) | `""` |
 | `service.port` | Web UI / API port | `32400` |
 | `service.hostPort` | Also bind the web UI port on the node | `true` |
+| `strategy` | Deployment update strategy, verbatim | `type: Recreate` |
 | `extraPorts` | Discovery / DLNA / Companion container ports | see `values.yaml` |
 | `persistence.size` | Config volume (`/config`) size | `8Gi` |
 | `persistence.storageClass` | StorageClass (empty ⇒ cluster default) | `""` |
@@ -50,6 +51,21 @@ See [`values.yaml`](./values.yaml) for the full list.
 - **Discovery ports** (GDM, Bonjour, DLNA) are declared on the pod only and are
   *not* published through the Service — matching the pre-library chart. Add
   matching `service.extraPorts` entries if you need them routed.
+- **`strategy`** defaults to `Recreate`: the old pod holds the hostPort and the
+  ReadWriteOnce config volume, so a rolling update's replacement can never
+  start. Expect a short outage on every upgrade. See
+  [`common`](../common#update-strategy) for the trade-off.
+
+## Upgrading from 0.1.x
+
+`0.2.0` moves Plex Media Server from `1.43.0.10492` to `1.43.4.10903`. Builds
+before `1.43.3.10861` are vulnerable to the Plex2Shell chain
+(CVE-2026-96652, CVE-2026-96654, CVE-2026-96655, CVE-2026-96656), which allows
+unauthenticated remote code execution; upgrade any release still on `0.1.x`.
+
+It also sets `strategy.type: Recreate` by default. The upgrade itself already
+rolls out under the new strategy, so it no longer needs a manual scale to zero.
+No values changes are required.
 
 ## Upgrading from 0.0.x
 

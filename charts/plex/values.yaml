@@ -19,6 +19,14 @@ service:
   # pre-library chart set hostPort on this port — keep it on by default.
   hostPort: true
 
+# Recreate rather than Kubernetes' default RollingUpdate: the replacement pod
+# can neither bind service.hostPort nor attach the ReadWriteOnce config volume
+# while the old pod holds them, so a rolling update never completes. Set
+# `strategy: null` in an override to fall back to the Kubernetes default
+# (`{}` does not clear it — Helm merges maps).
+strategy:
+  type: Recreate
+
 # Extra container ports beyond the web UI. These are declared on the pod only;
 # none of them are added to the Service (matches the pre-library chart). Add
 # matching `service.extraPorts` entries if you need them routed through the

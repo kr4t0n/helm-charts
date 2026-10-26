@@ -18,16 +18,20 @@
 > | Chart last changed upstream | `7abb7888` — *fix(deploy): align Docker defaults with GHCR releases (#4327)*, 2026-06-17 |
 > | License | Apache-2.0 — see [`LICENSE`](./LICENSE) |
 >
-> **Local modifications** (kept minimal, additive, and off-by-default):
+> **Local modifications** (kept minimal):
 > 1. This provenance banner.
 > 2. `extraEnvs`, `extraVolumes`, `extraVolumeMounts` passthroughs on the **main**
 >    container (`templates/deployment.yaml` + `values.yaml`). Upstream has no
 >    generic env/volume hook; these let agents like Codex get a persistent
 >    `$CODEX_HOME` (rootfs is read-only, so agent state must live on a mount).
 >    Default `[]` → renders nothing → no change unless you set them.
+> 3. `authProxy.image` pinned to `nginxinc/nginx-unprivileged:1.30.6-alpine-slim`
+>    (`values.yaml` + the parameter table below). Upstream still ships
+>    `1.25-alpine-slim`, an end-of-life nginx that misses the security fixes
+>    released since 1.25.5. On a sync, keep whichever pin is newer.
 >
 > **To sync:** re-copy `charts/open-design/` from upstream at a newer commit,
-> re-apply the two local modifications above, update the commit + upstream
+> re-apply the local modifications above, update the commit + upstream
 > version here, and bump this chart's `version` (ahead of upstream's) so
 > chart-releaser publishes it.
 
@@ -133,7 +137,7 @@ This chart adheres to strict security defaults:
 
 | Name                                   | Description                                       | Value                                            |
 | -------------------------------------- | ------------------------------------------------- | ------------------------------------------------ |
-| `authProxy.image`                      | NGINX proxy image                                 | `nginxinc/nginx-unprivileged:1.25-alpine-slim`   |
+| `authProxy.image`                      | NGINX proxy image                                 | `nginxinc/nginx-unprivileged:1.30.6-alpine-slim` |
 | `authProxy.port`                       | Proxy server port inside the container            | `8080`                                           |
 | `authProxy.securityContext`            | Security context for the proxy container          | `{...}`                                          |
 

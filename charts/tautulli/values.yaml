@@ -7,9 +7,8 @@ replicaCount: 1
 image:
   repository: linuxserver/tautulli
   pullPolicy: IfNotPresent
-  # Empty => the chart's appVersion (2.17.2) is used, pinning the deploy to a
-  # reproducible tag. This is the same image `latest` currently resolves to
-  # (identical digest), so it's a no-op for what runs today.
+  # Empty => the chart's appVersion is used, pinning the deploy to a
+  # reproducible tag.
   tag: ""
 
 service:

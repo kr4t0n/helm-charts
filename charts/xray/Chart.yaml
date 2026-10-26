@@ -3,10 +3,10 @@ name: xray
 description: Xray-core proxy server (VLESS, REALITY, XHTTP and friends) using the official image.
 
 type: application
-version: 0.1.0
+version: 0.2.0
 # XTLS publishes most releases as GitHub pre-releases and promotes one to
 # "Latest" every few months; appVersion tracks that latest stable release.
-appVersion: "26.3.27"
+appVersion: "26.10.21"
 home: https://github.com/XTLS/Xray-core
 sources:
   - https://github.com/XTLS/Xray-core

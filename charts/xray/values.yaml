@@ -23,7 +23,7 @@ image:
   pullPolicy: IfNotPresent
   # Set explicitly (not left to appVersion) so a stale appVersion can't
   # downgrade it. Tags are bare versions, without the GitHub release's "v".
-  tag: "26.3.27"
+  tag: "26.10.21"
 
 # The inbound in the Xray config must listen on service.port — nothing derives
 # one from the other. Keep it above 1024: the image runs as uid 65532. The

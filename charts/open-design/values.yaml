@@ -19,7 +19,11 @@ config:
   nodeOptions: "--max-old-space-size=192"
   webPort: 7456
   bindHost: "127.0.0.1"
-  apiToken: "secure-default-token-change-me"
+  # Bearer token for the daemon's /api/*, which the auth proxy adds to every
+  # /api/ request. No default (local change): set a token here, or read it
+  # from your own Secret with existingSecret below. Rendering fails if neither
+  # is set.
+  apiToken: ""
 
 service:
   type: ClusterIP

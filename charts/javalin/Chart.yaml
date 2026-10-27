@@ -2,10 +2,8 @@ apiVersion: v2
 name: javalin
 description: A self-hosted JavDB scraper that emits Kodi/Jellyfin NFO + artwork.
 type: application
-# Chart version — bump on every PR that changes anything under helm/.
-# chart-releaser-action only publishes a new release when this version is
-# incremented and no GitHub Release exists for the corresponding tag yet.
-version: 0.3.0
+# Minor follows the common library's minor; the patch counts this chart's releases.
+version: 0.6.1
 # Application version — should track the javalin image's release tag.
 appVersion: "0.1.0"
 home: https://github.com/kr4t0n/javalin
@@ -25,5 +23,5 @@ maintainers:
 
 dependencies:
   - name: common
-    version: ">=0.2.2 <1.0.0"
+    version: ">=0.6.0 <0.7.0"
     repository: file://../common

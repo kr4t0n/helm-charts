@@ -3,10 +3,11 @@ name: photoprism
 description: A Helm chart for Kubernetes
 
 type: application
-version: 0.1.3
+# Minor follows the common library's minor; the patch counts this chart's releases.
+version: 0.6.1
 appVersion: "261007"
 
 dependencies:
   - name: common
-    version: ">=0.2.2 <1.0.0"
+    version: ">=0.6.0 <0.7.0"
     repository: file://../common

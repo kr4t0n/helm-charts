@@ -3,6 +3,20 @@ entries:
   bambuddy:
   - apiVersion: v2
     appVersion: 0.2.4.7
+    created: "2026-10-27T08:34:56.559391519Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: '>=0.6.0 <0.7.0'
+    description: A Helm chart for Kubernetes
+    digest: 0106c4eddd36526a1f3149b3b91a87114744a8b019858ac01a89d7fc68510d2d
+    name: bambuddy
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/bambuddy-0.6.1/bambuddy-0.6.1.tgz
+    version: 0.6.1
+  - apiVersion: v2
+    appVersion: 0.2.4.7
     created: "2026-09-01T03:01:16.281639906Z"
     dependencies:
     - name: common
@@ -95,6 +109,33 @@ entries:
   climage:
   - apiVersion: v2
     appVersion: latest
+    created: "2026-10-27T08:34:56.714382722Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: '>=0.6.0 <0.7.0'
+    description: A long-lived sandbox pod running the climage image for CLI coding
+      agents.
+    digest: 908d0a1a534a5b733575c9d53cb9f6c824ce616a199dffaf69ff0f4c8b891606
+    home: https://github.com/kr4t0n/climage
+    keywords:
+    - agent
+    - cli
+    - sandbox
+    - claude-code
+    - codex
+    maintainers:
+    - name: kr4t0n
+      url: https://github.com/kr4t0n
+    name: climage
+    sources:
+    - https://github.com/kr4t0n/climage
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/climage-0.6.1/climage-0.6.1.tgz
+    version: 0.6.1
+  - apiVersion: v2
+    appVersion: latest
     created: "2026-09-20T06:32:26.445765043Z"
     dependencies:
     - name: common
@@ -148,6 +189,20 @@ entries:
     - https://github.com/kr4t0n/helm-charts/releases/download/climage-0.1.0/climage-0.1.0.tgz
     version: 0.1.0
   code-server:
+  - apiVersion: v2
+    appVersion: 4.143.1
+    created: "2026-10-27T08:34:56.852185463Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: '>=0.6.0 <0.7.0'
+    description: A Helm chart for Kubernetes
+    digest: 96be908746502ad97b2306fd3ca0bd6d51bfe3def60b49cb8486567ed075410e
+    name: code-server
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/code-server-0.6.1/code-server-0.6.1.tgz
+    version: 0.6.1
   - apiVersion: v2
     appVersion: 4.143.1
     created: "2026-10-27T02:51:00.68302863Z"
@@ -221,6 +276,20 @@ entries:
     - https://github.com/kr4t0n/helm-charts/releases/download/code-server-0.0.1/code-server-0.0.1.tgz
     version: 0.0.1
   comfyui:
+  - apiVersion: v2
+    appVersion: 0.33.1
+    created: "2026-10-27T08:34:56.993708433Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: '>=0.6.0 <0.7.0'
+    description: A Helm chart for Kubernetes
+    digest: 153ac546e25fec3c90905dcf5f0ea3fd5f74821b28c99711ecdfcb59b5037c68
+    name: comfyui
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/comfyui-0.6.1/comfyui-0.6.1.tgz
+    version: 0.6.1
   - apiVersion: v2
     appVersion: 0.33.1
     created: "2026-09-01T03:01:16.759508942Z"
@@ -474,6 +543,34 @@ entries:
   javalin:
   - apiVersion: v2
     appVersion: 0.1.0
+    created: "2026-10-27T08:34:57.275283956Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: '>=0.6.0 <0.7.0'
+    description: A self-hosted JavDB scraper that emits Kodi/Jellyfin NFO + artwork.
+    digest: c8faeccc35202825bf60d4befbb3e9303b6a4386169e0bc669fab0ea21681525
+    home: https://github.com/kr4t0n/javalin
+    icon: https://raw.githubusercontent.com/kr4t0n/javalin/main/frontend/public/favicon.svg
+    keywords:
+    - javdb
+    - scraper
+    - kodi
+    - jellyfin
+    - nfo
+    - self-hosted
+    maintainers:
+    - name: kr4t0n
+      url: https://github.com/kr4t0n
+    name: javalin
+    sources:
+    - https://github.com/kr4t0n/javalin
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/javalin-0.6.1/javalin-0.6.1.tgz
+    version: 0.6.1
+  - apiVersion: v2
+    appVersion: 0.1.0
     created: "2026-09-21T04:06:04.706782709Z"
     dependencies:
     - name: common
@@ -575,6 +672,20 @@ entries:
   kikoeru:
   - apiVersion: v2
     appVersion: v0.6.14-20260502
+    created: "2026-10-27T08:34:57.408794864Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: '>=0.6.0 <0.7.0'
+    description: A Helm chart for Kubernetes
+    digest: 026e152eeaf8c07abe271d87e7dae1ded088922a3544cd8d7f06776943af9119
+    name: kikoeru
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/kikoeru-0.6.1/kikoeru-0.6.1.tgz
+    version: 0.6.1
+  - apiVersion: v2
+    appVersion: v0.6.14-20260502
     created: "2026-09-01T03:01:17.229173195Z"
     dependencies:
     - name: common
@@ -622,6 +733,20 @@ entries:
     - https://github.com/kr4t0n/helm-charts/releases/download/kikoeru-0.0.1/kikoeru-0.0.1.tgz
     version: 0.0.1
   moviepilot:
+  - apiVersion: v2
+    appVersion: 2.15.6
+    created: "2026-10-27T08:34:57.541694842Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: '>=0.6.0 <0.7.0'
+    description: A Helm chart for Kubernetes
+    digest: 8db379cdd8617646d5c5b128232837dd1b9025a827c387ea9e552e9ef9fd8c63
+    name: moviepilot
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/moviepilot-0.6.1/moviepilot-0.6.1.tgz
+    version: 0.6.1
   - apiVersion: v2
     appVersion: 2.15.6
     created: "2026-09-27T05:46:27.564213516Z"
@@ -803,6 +928,20 @@ entries:
     - https://github.com/kr4t0n/helm-charts/releases/download/photoprism-0.0.1/photoprism-0.0.1.tgz
     version: 0.0.1
   plex:
+  - apiVersion: v2
+    appVersion: 1.43.4.10903-e5521bd8c
+    created: "2026-10-27T08:34:57.680252938Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: '>=0.6.0 <0.7.0'
+    description: A Helm chart for Kubernetes
+    digest: f9f15284f99c59f8c7aa902c61760d8e66a9228bc669f377ef6ce660e4620444
+    name: plex
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/plex-0.6.1/plex-0.6.1.tgz
+    version: 0.6.1
   - apiVersion: v2
     appVersion: 1.43.4.10903-e5521bd8c
     created: "2026-10-20T04:40:36.877285575Z"
@@ -1152,6 +1291,20 @@ entries:
   xteve:
   - apiVersion: v2
     appVersion: 2.2.0
+    created: "2026-10-27T08:34:57.807192694Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: '>=0.6.0 <0.7.0'
+    description: M3U proxy server for Plex, Emby and other IPTV/.M3U8 clients (xTeVe)
+    digest: 8b720560b21e402d1128ea1efb23f0f30a217b868a8ff50b2959381e9a22731b
+    name: xteve
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.6.1/xteve-0.6.1.tgz
+    version: 0.6.1
+  - apiVersion: v2
+    appVersion: 2.2.0
     created: "2026-09-01T03:01:17.956987024Z"
     dependencies:
     - name: common
@@ -1192,4 +1345,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.1.0/xteve-0.1.0.tgz
     version: 0.1.0
-generated: "2026-10-27T07:00:53.839981653Z"
+generated: "2026-10-27T08:34:57.807418648Z"

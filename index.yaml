@@ -1019,6 +1019,20 @@ entries:
     version: 0.0.1
   qbittorrent:
   - apiVersion: v2
+    appVersion: 5.3.0
+    created: "2026-10-27T09:49:51.876888775Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: '>=0.6.0 <0.7.0'
+    description: A Helm chart for Kubernetes
+    digest: 1390016ab8a4b226007de025d21e2c38527770858e97a4e082d064c07f623156
+    name: qbittorrent
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/qbittorrent-0.6.1/qbittorrent-0.6.1.tgz
+    version: 0.6.1
+  - apiVersion: v2
     appVersion: 5.1.4
     created: "2026-09-01T03:01:17.541183201Z"
     dependencies:
@@ -1189,6 +1203,20 @@ entries:
     version: 0.0.1
   tautulli:
   - apiVersion: v2
+    appVersion: 2.18.2
+    created: "2026-10-27T09:49:52.085149663Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: '>=0.6.0 <0.7.0'
+    description: A Helm chart for Kubernetes
+    digest: 112ea073f11c6b34a4933677c6808661d47530cc1cbc3b0f91a288524b4fe19c
+    name: tautulli
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/tautulli-0.6.1/tautulli-0.6.1.tgz
+    version: 0.6.1
+  - apiVersion: v2
     appVersion: 2.17.2
     created: "2026-09-01T03:01:17.812799848Z"
     dependencies:
@@ -1304,6 +1332,32 @@ entries:
     version: 0.0.1
   xray:
   - apiVersion: v2
+    appVersion: 26.10.21
+    created: "2026-10-27T09:49:52.365328041Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: '>=0.6.0 <0.7.0'
+    description: Xray-core proxy server (VLESS, REALITY, XHTTP and friends) using
+      the official image.
+    digest: 3a99dd3f1e8a1eb8ae7ebf624d0cbb73e27843bd15835193e0a7e106e8631c3f
+    home: https://github.com/XTLS/Xray-core
+    keywords:
+    - xray
+    - proxy
+    - vless
+    - reality
+    maintainers:
+    - name: kr4t0n
+      url: https://github.com/kr4t0n
+    name: xray
+    sources:
+    - https://github.com/XTLS/Xray-core
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/xray-0.6.1/xray-0.6.1.tgz
+    version: 0.6.1
+  - apiVersion: v2
     appVersion: 26.3.27
     created: "2026-10-18T08:34:28.113566782Z"
     dependencies:
@@ -1386,4 +1440,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.1.0/xteve-0.1.0.tgz
     version: 0.1.0
-generated: "2026-10-27T09:45:47.83741384Z"
+generated: "2026-10-27T09:49:52.365547535Z"

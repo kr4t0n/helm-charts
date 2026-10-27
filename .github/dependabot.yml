@@ -1,0 +1,29 @@
+# Version updates, once a month, at most one grouped pull request per ecosystem:
+# - github-actions: every action in .github/workflows. A SHA pin moves with its
+#   "# vX.Y.Z" comment, and a tag pin keeps its precision (v5 -> v6).
+# - docker: both FROM lines of images/derper/Dockerfile, tag and digest together.
+#   golang keeps its -alpineX.Y suffix, so an Alpine bump is made by hand.
+#   Merging one republishes kr4t0n/derper:<VERSION> on the new base.
+# Left out: the app images in charts/*/values.yaml and derper's busybox sidecar,
+# since a change there also needs the chart's version bumped (charts/common/README.md).
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: "ci(deps)"
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: docker
+    directory: /images/derper
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: "build(deps)"
+    groups:
+      derper-base-images:
+        patterns: ["*"]

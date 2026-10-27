@@ -143,3 +143,14 @@ extraEnvs: []
 # For a separate PVC instead, create it out-of-band and reference it here.
 extraVolumes: []
 extraVolumeMounts: []
+
+# Read the API token from a Secret managed outside this chart (for example one
+# an ExternalSecret syncs) instead of config.apiToken. When enabled, the chart
+# renders no Secret of its own and ignores config.apiToken. The app container
+# (as OD_API_TOKEN) and the auth-proxy init container (as PROXY_API_TOKEN) both
+# read `key` from Secret `name` in the release's namespace. Pods read the token
+# only at start, so restart the Deployment after the Secret's value changes.
+existingSecret:
+  enabled: false
+  name: ""
+  key: OD_API_TOKEN

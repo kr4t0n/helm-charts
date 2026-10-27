@@ -3,10 +3,7 @@ name: calibre-web
 description: A Helm chart for Kubernetes
 
 type: application
-# The minor follows the common library's minor (0.6.x ships common 0.6.x),
-# and the patch counts this chart's own releases. The range below takes any
-# common patch release. A new common minor fails `helm dependency update`
-# here, so the PR that releases it moves this range and this version's minor.
+# Minor follows the common library's minor; the patch counts this chart's releases.
 version: 0.6.1
 # Pinned to the current linuxserver tag (identical digest to `latest`). The
 # deployed tag comes from values.yaml image.tag.

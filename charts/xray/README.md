@@ -45,7 +45,7 @@ Changes to `config` roll the pod through a checksum annotation. Changes to
 
 | Key | Description | Default |
 |---|---|---|
-| `image.tag` | Bare version, without the GitHub release's `v` | `26.3.27` |
+| `image.tag` | Bare version, without the GitHub release's `v` | `26.10.21` |
 | `service.port` | Port the inbound must listen on; Service and hostPort target it | `8443` |
 | `service.hostPort` | Also bind `service.port` on the node | `false` |
 | `strategy` | Set `type: Recreate` with `hostPort` | `{}` |
@@ -64,9 +64,9 @@ See [`values.yaml`](./values.yaml) for the full list.
 Generate the credentials with the same image:
 
 ```bash
-docker run --rm ghcr.io/xtls/xray-core:26.3.27 uuid
-docker run --rm ghcr.io/xtls/xray-core:26.3.27 x25519   # PrivateKey -> server, Password (PublicKey) -> clients
-openssl rand -hex 8                                       # a shortId
+docker run --rm ghcr.io/xtls/xray-core:26.10.21 uuid
+docker run --rm ghcr.io/xtls/xray-core:26.10.21 x25519   # PrivateKey -> server, Password (PublicKey) -> clients
+openssl rand -hex 8                                      # a shortId
 ```
 
 Then provide the inbound as a Secret. With External Secrets, the values stay in

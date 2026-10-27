@@ -420,6 +420,20 @@ entries:
     version: 0.1.0
   home-assistant:
   - apiVersion: v2
+    appVersion: 2026.10.4
+    created: "2026-10-27T05:16:04.300910077Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: '>=0.6.0 <0.7.0'
+    description: A Helm chart for Kubernetes
+    digest: 0e4253a9065641d6f905bea0e0f0e424614a9454e547000c5bb8a3566240f6e3
+    name: home-assistant
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/home-assistant-0.6.1/home-assistant-0.6.1.tgz
+    version: 0.6.1
+  - apiVersion: v2
     appVersion: 2026.6.4
     created: "2026-09-01T03:01:17.083277779Z"
     dependencies:
@@ -1154,4 +1168,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.1.0/xteve-0.1.0.tgz
     version: 0.1.0
-generated: "2026-10-27T05:00:18.965659137Z"
+generated: "2026-10-27T05:16:04.301071911Z"

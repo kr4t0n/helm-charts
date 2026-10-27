@@ -3,12 +3,13 @@ name: bambuddy
 description: A Helm chart for Kubernetes
 
 type: application
-version: 0.1.1
+# Minor follows the common library's minor; the patch counts this chart's releases.
+version: 0.6.1
 # Previous appVersion 0.2.3b1 was removed from the registry; pin to the latest
 # published stable tag. The deployed tag comes from values.yaml image.tag.
 appVersion: "0.2.4.7"
 
 dependencies:
   - name: common
-    version: ">=0.2.2 <1.0.0"
+    version: ">=0.6.0 <0.7.0"
     repository: file://../common

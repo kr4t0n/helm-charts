@@ -12,11 +12,12 @@ charts depend on it and call its named templates from one-line stubs.
    ```yaml
    dependencies:
      - name: common
-       version: ">=0.2.2 <1.0.0"
+       version: ">=0.6.0 <0.7.0"
        repository: file://../common
    ```
 
-   Use a range, not an exact pin. An exact pin makes every library bump fail
+   Use the range of the library's current minor (see [Versioning](#versioning)),
+   not an exact pin. An exact pin makes every library patch release fail
    `helm dependency update` for that chart until it is edited, which breaks CI
    for the whole repo at once.
 
@@ -276,6 +277,30 @@ behaviour, or pin to a real published tag (and bump `appVersion`) deliberately.
 
 ## Versioning
 
-Bump `version` in `Chart.yaml` on any template change, then re-run
-`helm dependency build` for each consuming chart so the vendored copy and
-`Chart.lock` update.
+Bump this library's `version` in `Chart.yaml` on any template change, then
+re-run `helm dependency build` for each consuming chart so the vendored copy
+and `Chart.lock` update.
+
+Application charts on the library are numbered after it, so a chart's version
+alone tells which library it ships:
+
+- A chart's minor follows the library's minor: chart `0.6.x` ships common
+  `0.6.x`. The patch counts the chart's own releases, and a chart's first
+  release on a new library minor is patch 1 (`0.6.1`).
+- The dependency range covers that minor's line, `">=0.6.0 <0.7.0"`, so a
+  library patch release needs no edit to the chart.
+- `version` carries this comment:
+
+  ```yaml
+  # Minor follows the common library's minor; the patch counts this chart's releases.
+  version: 0.6.1
+  ```
+
+- A library minor release moves every dependent to the new minor in the same
+  PR: the range, and `version` to `0.<minor>.1`. A dependent left on the old
+  range fails `helm dependency update`, which CI's lint runs for every chart.
+
+Bump a chart's `version` in every PR that changes anything under its folder.
+Releases are keyed by version: a change merged without a bump publishes
+nothing. A published chart keeps the library it was packaged with, so it picks
+up a library release only at its own next version.

@@ -1,0 +1,4 @@
+# Values for CI rendering: config.apiToken has no default. A placeholder, not a
+# real token.
+config:
+  apiToken: ci-placeholder

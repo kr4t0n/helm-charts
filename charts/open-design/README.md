@@ -34,6 +34,12 @@
 >    `templates/_helpers.tpl` + `values.yaml`). Upstream can only build that
 >    Secret from `config.apiToken`. Default disabled → renders the same as
 >    upstream.
+> 5. `config.apiToken` defaults to `""` instead of upstream's published
+>    placeholder token (`values.yaml`, the `fail` message in
+>    `templates/secret.yaml`, and `ci/ci-values.yaml` + `.helmignore` so CI
+>    can still render the chart). Rendering fails until you set a token or
+>    `existingSecret`, so no install runs on a public token. On a sync, keep
+>    the empty default.
 >
 > **To sync:** re-copy `charts/open-design/` from upstream at a newer commit,
 > re-apply the local modifications above, update the commit + upstream
@@ -98,10 +104,16 @@ This chart bootstraps an [Open Design](https://github.com/nexu-io/open-design) d
 To install the chart with the release name `my-release`:
 
 ```console
-helm install my-release ./charts/open-design
+helm install my-release ./charts/open-design \
+  --set config.apiToken="$(openssl rand -hex 32)"
 ```
 
 These commands deploy an Open Design application on the Kubernetes cluster in the default configuration.
+
+The chart has no default API token (local change). Set `config.apiToken`, as
+above, or read the token from your own Secret (see
+[API token from an existing Secret](#api-token-from-an-existing-secret-local-addition)).
+With neither, `helm install` fails with `config.apiToken cannot be empty`.
 
 > **Tip**: List all releases using `helm list`
 
@@ -158,7 +170,7 @@ This chart adheres to strict security defaults:
 | `config.nodeOptions`   | V8 engine memory optimizations                                                                                | `--max-old-space-size=192`           |
 | `config.webPort`       | Web server listening port                                                                                     | `7456`                               |
 | `config.bindHost`      | Host to bind the web server to                                                                                | `"127.0.0.1"`                        |
-| `config.apiToken`      | API authentication token (must be changed from default). Ignored when `existingSecret.enabled` is `true`      | `"secure-default-token-change-me"`   |
+| `config.apiToken`      | API token for the daemon's `/api/*`. Required unless `existingSecret.enabled` is `true`, which ignores it      | `""`                                 |
 | `existingSecret.enabled` | Read the API token from an existing Secret instead of `config.apiToken`; the chart renders no Secret        | `false`                              |
 | `existingSecret.name`  | Name of that Secret, in the release's namespace. Required when `existingSecret.enabled` is `true`             | `""`                                 |
 | `existingSecret.key`   | Key in that Secret that holds the API token                                                                   | `OD_API_TOKEN`                       |
@@ -244,12 +256,14 @@ This chart adheres to strict security defaults:
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example,
 
 ```console
-helm install my-release --set config.nodeEnv=development ./charts/open-design
+helm install my-release --set config.nodeEnv=development \
+  --set existingSecret.enabled=true,existingSecret.name=open-design-api-token \
+  ./charts/open-design
 ```
 
-The above command sets the Open Design node environment to `development`.
+The above command sets the Open Design node environment to `development` and reads the API token from Secret `open-design-api-token`, which must exist in the release's namespace before the pod starts.
 
-Alternatively, a YAML file that specifies the values for the parameters can be provided while installing the chart. For example,
+Alternatively, a YAML file that specifies the values for the parameters can be provided while installing the chart. The file must set `config.apiToken` or `existingSecret`. For example,
 
 ```console
 helm install my-release -f values.yaml ./charts/open-design

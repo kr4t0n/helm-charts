@@ -13,7 +13,7 @@ image:
   pullPolicy: IfNotPresent
   # Set explicitly (not left to appVersion) so a stale appVersion can't
   # downgrade it. Tags are bare Tailscale versions.
-  tag: "1.104.1"
+  tag: "1.104.2"
 
 # Public DNS name of this DERP node. Required: derper only completes TLS
 # handshakes whose SNI matches it, and the certificate is issued for it.
@@ -52,7 +52,7 @@ certReloader:
   enabled: true
   image:
     repository: busybox
-    tag: "1.37"
+    tag: "1.38"
     pullPolicy: IfNotPresent
   intervalSeconds: 60
   resources:

@@ -4,9 +4,9 @@ description: A Helm chart for Kubernetes
 
 type: application
 # The minor follows the common library's minor (0.6.x ships common 0.6.x),
-# and the patch counts this chart's own releases. common is pinned exactly
-# below, so any common release fails `helm dependency update` here until the
-# pin moves with it, and a new common minor moves this version's minor too.
+# and the patch counts this chart's own releases. The range below takes any
+# common patch release. A new common minor fails `helm dependency update`
+# here, so the PR that releases it moves this range and this version's minor.
 version: 0.6.1
 # Pinned to the current linuxserver tag (identical digest to `latest`). The
 # deployed tag comes from values.yaml image.tag.
@@ -14,5 +14,5 @@ appVersion: 0.6.27
 
 dependencies:
   - name: common
-    version: 0.6.0
+    version: ">=0.6.0 <0.7.0"
     repository: file://../common

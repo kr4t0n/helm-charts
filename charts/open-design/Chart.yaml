@@ -4,5 +4,5 @@ description: A Helm chart for deploying Open Design on Kubernetes
 type: application
 # Local version: upstream chart 0.1.0 + this repo's local modifications (see
 # README provenance banner). Bump the patch on local changes.
-version: 0.1.3
+version: 0.1.4
 appVersion: "0.7.0"

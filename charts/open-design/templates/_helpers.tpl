@@ -50,3 +50,30 @@ Selector labels used by Services and HPAs.
 app.kubernetes.io/name: {{ include "open-design.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
+
+{{/*
+"true" when the API token comes from an existing Secret (local addition).
+*/}}
+{{- define "open-design.useExistingSecret" -}}
+{{- if and .Values.existingSecret .Values.existingSecret.enabled }}true{{ end }}
+{{- end }}
+
+{{/*
+Name and key of the Secret that the app and the auth-proxy init container read
+the API token from: the existing Secret when enabled, otherwise the chart's own.
+*/}}
+{{- define "open-design.apiTokenSecretName" -}}
+{{- if include "open-design.useExistingSecret" . }}
+{{- required "existingSecret.name is required when existingSecret.enabled is true" .Values.existingSecret.name }}
+{{- else }}
+{{- include "open-design.fullname" . }}
+{{- end }}
+{{- end }}
+
+{{- define "open-design.apiTokenSecretKey" -}}
+{{- if include "open-design.useExistingSecret" . }}
+{{- .Values.existingSecret.key | default "OD_API_TOKEN" }}
+{{- else }}
+{{- "OD_API_TOKEN" }}
+{{- end }}
+{{- end }}

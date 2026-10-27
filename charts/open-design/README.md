@@ -29,6 +29,11 @@
 >    (`values.yaml` + the parameter table below). Upstream still ships
 >    `1.25-alpine-slim`, an end-of-life nginx that misses the security fixes
 >    released since 1.25.5. On a sync, keep whichever pin is newer.
+> 4. `existingSecret.{enabled,name,key}`: read the API token from a Secret
+>    managed outside the chart (`templates/secret.yaml`, `templates/deployment.yaml`,
+>    `templates/_helpers.tpl` + `values.yaml`). Upstream can only build that
+>    Secret from `config.apiToken`. Default disabled → renders the same as
+>    upstream.
 >
 > **To sync:** re-copy `charts/open-design/` from upstream at a newer commit,
 > re-apply the local modifications above, update the commit + upstream
@@ -58,6 +63,28 @@ extraVolumeMounts:
     mountPath: /codex
     subPath: codex
 ```
+
+## API token from an existing Secret (local addition)
+
+By default the chart builds a Secret from `config.apiToken`. To keep the token
+out of your values, create a Secret yourself (by hand or with an
+ExternalSecret) in the release's namespace and point the chart at it:
+
+```yaml
+existingSecret:
+  enabled: true
+  name: open-design-api-token   # your Secret; not the release's own name
+  key: OD_API_TOKEN             # the key holding the token (default)
+```
+
+The chart then renders no Secret of its own and ignores `config.apiToken`.
+The app container and the auth-proxy init container both read the token from
+that key, so the Secret must exist before the pod starts. Both read it only at
+start: after changing the token, restart the Deployment
+(`kubectl rollout restart deployment/<release>`).
+
+Pick a Secret name other than the release's fullname. That name belongs to the
+chart's own Secret, which Helm deletes when you switch to `existingSecret`.
 
 ## Introduction
 This chart bootstraps an [Open Design](https://github.com/nexu-io/open-design) deployment on a [Kubernetes](https://kubernetes.io) cluster using the [Helm](https://helm.sh) package manager.
@@ -131,7 +158,10 @@ This chart adheres to strict security defaults:
 | `config.nodeOptions`   | V8 engine memory optimizations                                                                                | `--max-old-space-size=192`           |
 | `config.webPort`       | Web server listening port                                                                                     | `7456`                               |
 | `config.bindHost`      | Host to bind the web server to                                                                                | `"127.0.0.1"`                        |
-| `config.apiToken`      | API authentication token (must be changed from default)                                                       | `"secure-default-token-change-me"`   |
+| `config.apiToken`      | API authentication token (must be changed from default). Ignored when `existingSecret.enabled` is `true`      | `"secure-default-token-change-me"`   |
+| `existingSecret.enabled` | Read the API token from an existing Secret instead of `config.apiToken`; the chart renders no Secret        | `false`                              |
+| `existingSecret.name`  | Name of that Secret, in the release's namespace. Required when `existingSecret.enabled` is `true`             | `""`                                 |
+| `existingSecret.key`   | Key in that Secret that holds the API token                                                                   | `OD_API_TOKEN`                       |
 
 ### Auth Proxy Parameters
 

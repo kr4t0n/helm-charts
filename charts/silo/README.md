@@ -13,7 +13,7 @@
 > | Upstream | <https://github.com/pgsty/silo> |
 > | Upstream path | `helm/silo` |
 > | Vendored at | `c3ad836aed0d8a7d23c2e44a5eaa3009d08525e3` (signed tag `RELEASE.2026-10-26T00-00-00Z`) |
-> | Upstream chart version | `7.0.3` |
+> | Upstream chart version | `7.0.3` (this repo's `version` is upstream's plus a local patch) |
 > | Chart last changed upstream | `dcc2f20b`, *Preserve maintenance timeout behavior and prepare SILO 20261026*, 2026-10-26 |
 > | License | AGPL-3.0-or-later, see [`LICENSE`](./LICENSE) |
 >
@@ -21,6 +21,12 @@
 > 1. This banner.
 > 2. `LICENSE`, copied from the root of the upstream repo at the same commit.
 >    Upstream's chart folder has none.
+> 3. `image.tag` (`values.yaml`) and `appVersion` (`Chart.yaml`) default to
+>    `RELEASE.2026-10-26T00-00-00Z`, the release this chart was vendored at.
+>    Upstream's chart still names `RELEASE.2026-09-16T00-00-00Z`, which
+>    Silo's [security advisories](https://silo.pgsty.com/about/security-advisories/)
+>    list as affected by SN-2026-015 through SN-2026-017, fixed in Server
+>    20261018. `mcImage` is upstream's. On a sync, keep whichever tag is newer.
 >
 > To install from this repository's index, add it once, then use
 > `kr4t0n/silo` where the commands below use `./helm/silo`:
@@ -32,7 +38,8 @@
 >
 > **To sync:** copy `helm/silo/` and the root `LICENSE` from upstream at a
 > newer release tag, re-apply the local modifications above, update this
-> table, and bump `version` in `Chart.yaml` so chart-releaser publishes it.
+> table, and set `version` in `Chart.yaml` one patch above both upstream's
+> version and this chart's last release, so chart-releaser publishes it.
 
 This chart installs Silo, an independently maintained, S3-compatible object
 storage server, on Kubernetes. It supports standalone and distributed modes.

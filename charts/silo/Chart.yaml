@@ -1,8 +1,10 @@
 apiVersion: v1
 description: S3-Interface Libre Object Storage
 name: silo
-version: 7.0.3
-appVersion: RELEASE.2026-09-16T00-00-00Z
+# Local version: upstream chart 7.0.3 + this repo's local modifications (see
+# README provenance banner). Bump the patch on local changes.
+version: 7.0.4
+appVersion: RELEASE.2026-10-26T00-00-00Z
 keywords:
   - silo
   - storage

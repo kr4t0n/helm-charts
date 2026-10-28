@@ -1,0 +1,42 @@
+# gitleaks' default rules, plus three for credentials these charts take that
+# the defaults miss. Test a rule against a random fake before relying on it.
+[extend]
+useDefault = true
+
+# A password in a URL, such as a database DSN or a proxy variable in extraEnvs.
+# The username may be empty, as in redis://:password@host. The defaults catch
+# this only for Sidekiq's hosts.
+[[rules]]
+id = "url-credentials"
+description = "Password inside a URL (scheme://user:password@host)"
+regex = '''[a-zA-Z][a-zA-Z0-9+.-]*://[^\s:/@'"]*:([^\s/@'"]+)@'''
+secretGroup = 1
+keywords = ["://"]
+
+# Placeholders an example may show instead of a password, including Kubernetes'
+# $(VAR) and ${VAR} names with digits. The defaults' global allowlist already
+# passes xxxx, ****, {{ .templates }}, and $VAR or ${VAR} without digits.
+[[rules.allowlists]]
+regexes = ['''(?i)^(?:pw|pass|password|change-?me|<[^>]*>|\$\([A-Za-z_][A-Za-z0-9_]*\)|\$\{[A-Za-z_][A-Za-z0-9_]*\})$''']
+
+# ComfyUI's Replicate nodes read REPLICATE_API_TOKEN (charts/comfyui). Replicate
+# documents its tokens as 40 characters starting with r8_:
+# https://replicate.com/docs/topics/security/api-tokens
+[[rules]]
+id = "replicate-api-token"
+description = "Replicate API token"
+regex = '''\b(r8_[0-9A-Za-z_-]{37})(?:[^0-9A-Za-z_-]|$)'''
+secretGroup = 1
+entropy = 3
+keywords = ["r8_"]
+
+# An Xray VLESS or VMess client's id is its password (charts/xray). Xray takes
+# "any string less than 30 bytes or a valid UUID":
+# https://xtls.github.io/en/config/inbounds/vless.html
+# Only the UUID has a shape to match, and no other UUID is in this repo.
+[[rules]]
+id = "xray-client-id"
+description = "UUID under an id key, as an Xray client id"
+regex = '''(?i)["']?\bid["']?\s*:\s*["']?([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\b'''
+secretGroup = 1
+keywords = ["id"]

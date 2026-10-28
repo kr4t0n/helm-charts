@@ -1211,6 +1211,29 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/registry-0.0.1/registry-0.0.1.tgz
     version: 0.0.1
+  silo:
+  - apiVersion: v1
+    appVersion: RELEASE.2026-10-26T00-00-00Z
+    created: "2026-10-28T12:12:45.432877975Z"
+    description: S3-Interface Libre Object Storage
+    digest: a195bbf57988964cfd5608ec77e2c0c32825c9800900379c1960bdeff5621eb4
+    home: https://silo.pgsty.com/
+    icon: https://silo.pgsty.com/img/silo.svg
+    keywords:
+    - silo
+    - storage
+    - object-storage
+    - s3
+    - cluster
+    maintainers:
+    - name: Pigsty
+      url: https://pigsty.io
+    name: silo
+    sources:
+    - https://github.com/pgsty/silo
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/silo-7.0.4/silo-7.0.4.tgz
+    version: 7.0.4
   tautulli:
   - apiVersion: v2
     appVersion: 2.18.2
@@ -1450,4 +1473,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.1.0/xteve-0.1.0.tgz
     version: 0.1.0
-generated: "2026-10-27T12:21:52.22045272Z"
+generated: "2026-10-28T12:12:45.433069743Z"

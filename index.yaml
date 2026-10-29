@@ -966,6 +966,20 @@ entries:
     version: 0.0.1
   plex:
   - apiVersion: v2
+    appVersion: 1.43.5.11079-b3b13e506
+    created: "2026-10-29T06:33:16.244915549Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: '>=0.6.0 <0.7.0'
+    description: A Helm chart for Kubernetes
+    digest: d8ef50a2f52e3e9fe2fa5048a52952a81f6340667abf7277cb1c17b2a631319f
+    name: plex
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/plex-0.6.2/plex-0.6.2.tgz
+    version: 0.6.2
+  - apiVersion: v2
     appVersion: 1.43.4.10903-e5521bd8c
     created: "2026-10-27T08:34:57.680252938Z"
     dependencies:
@@ -1473,4 +1487,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.1.0/xteve-0.1.0.tgz
     version: 0.1.0
-generated: "2026-10-28T12:12:45.433069743Z"
+generated: "2026-10-29T06:33:16.245215389Z"

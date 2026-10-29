@@ -56,6 +56,16 @@ See [`values.yaml`](./values.yaml) for the full list.
   start. Expect a short outage on every upgrade. See
   [`common`](../common#update-strategy) for the trade-off.
 
+## Upgrading from 0.2.x or 0.6.1
+
+`0.6.2` moves Plex Media Server from `1.43.4.10903` to `1.43.5.11079`, whose
+release notes list security fixes with no CVE ids: requests arriving through
+a proxy (PM-6201), request locality when the local interface is unknown
+(PM-6183), library scoping in search results (PM-5958), DVR post-processing
+script validation (PM-5538), and distrust of the compromised eMudhra roots
+(PM-6479). No values changes are required. The upgrade restarts the pod under
+`Recreate`, so expect a short outage.
+
 ## Upgrading from 0.1.x
 
 `0.2.0` moves Plex Media Server from `1.43.0.10492` to `1.43.4.10903`. Builds

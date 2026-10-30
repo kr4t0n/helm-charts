@@ -190,6 +190,20 @@ entries:
     version: 0.1.0
   code-server:
   - apiVersion: v2
+    appVersion: 4.144.0
+    created: "2026-10-30T06:35:51.412719399Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: '>=0.6.0 <0.7.0'
+    description: A Helm chart for Kubernetes
+    digest: 8f3fc3df0c50c6d70ea93d80c69862e8ac63bf6a4f94b4dfe4c2a846ff054a04
+    name: code-server
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/code-server-0.6.2/code-server-0.6.2.tgz
+    version: 0.6.2
+  - apiVersion: v2
     appVersion: 4.143.1
     created: "2026-10-27T08:34:56.852185463Z"
     dependencies:
@@ -1501,4 +1515,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.1.0/xteve-0.1.0.tgz
     version: 0.1.0
-generated: "2026-10-30T06:35:03.194941113Z"
+generated: "2026-10-30T06:35:51.412874682Z"

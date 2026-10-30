@@ -7,7 +7,7 @@ replicaCount: 1
 image:
   repository: photoprism/photoprism
   pullPolicy: IfNotPresent
-  # Empty => the chart's appVersion (261007) is used.
+  # Empty => the chart's appVersion (261029) is used.
   #
   # Deliberately NOT `latest`. PhotoPrism's release tags are date stamps, and a
   # mutable `latest` combined with `pullPolicy: IfNotPresent` means the version

@@ -4,8 +4,8 @@ description: A Helm chart for Kubernetes
 
 type: application
 # Minor follows the common library's minor; the patch counts this chart's releases.
-version: 0.6.1
-appVersion: "261007"
+version: 0.6.2
+appVersion: "261029"
 
 dependencies:
   - name: common

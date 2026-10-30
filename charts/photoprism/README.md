@@ -67,6 +67,46 @@ See [`values.yaml`](./values.yaml) for the full list.
 - **`workingDir: /photoprism`** is required — PhotoPrism resolves its config and
   assets relative to it.
 
+## Upgrading to 0.6.2
+
+`0.6.2` moves PhotoPrism from `261007` to `261029`, which upgrades the bundled
+libheif from 1.23.5 to 1.23.7 (security fixes) and Go to 1.27.3. No values
+changes are required, but three things change at runtime:
+
+- **Back up the index database first.** `261029` upgrades PhotoPrism's database
+  layer and runs schema migrations on its first start, which may take longer
+  than usual and need extra disk space for a while. The migrations only run
+  forward, so going back to `261007` means restoring a dump taken before the
+  upgrade, for example with PhotoPrism's own command:
+
+  ```bash
+  kubectl -n <ns> exec deploy/<release> -- photoprism backup -i /photoprism/storage/backups/before-261029.sql
+  ```
+
+  `photoprism restore -i -f <file>` loads it back. See PhotoPrism's
+  [backup guide](https://docs.photoprism.app/user-guide/backups/).
+
+- **MCP is on by default.** The `/api/v1/mcp` endpoint is enabled for every
+  account whose role may use it: admins in every edition, users and viewers in
+  PhotoPrism Plus and Pro, managers in Pro. Apps connect to it through OAuth;
+  `PHOTOPRISM_OAUTH_APPS` defaults to `registered`, which allows only apps an
+  admin registers with `photoprism clients add`. To keep both off, add to
+  `extraEnvs`:
+
+  ```yaml
+  extraEnvs:
+    - name: PHOTOPRISM_DISABLE_MCP
+      value: "true"
+    - name: PHOTOPRISM_OAUTH_APPS
+      value: "none"
+  ```
+
+- **Some file names are skipped.** Files and folders whose names contain
+  `|"?*%<>{}:~$` are no longer indexed, imported or synced.
+
+The chart sets no update strategy, so on a ReadWriteOnce volume scale to zero
+first or set `strategy: {type: Recreate}`, as in the 0.0.x note below.
+
 ## Upgrading from 0.0.x
 
 `0.1.0` moves rendering to the `common` library. Resource names, the

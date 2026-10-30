@@ -4,10 +4,10 @@ description: A Helm chart for Kubernetes
 
 type: application
 # Minor follows the common library's minor; the patch counts this chart's releases.
-version: 0.6.1
+version: 0.6.2
 # Pinned to the current linuxserver tag (identical digest to `latest`). The
 # deployed tag comes from values.yaml image.tag.
-appVersion: 4.143.1
+appVersion: 4.144.0
 
 dependencies:
   - name: common

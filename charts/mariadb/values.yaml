@@ -1,0 +1,112 @@
+# Default values for mariadb.
+# The StatefulSet, Service and ConfigMap are this chart's own templates; names,
+# labels and the image reference come from the `common` library's helpers.
+
+image:
+  repository: mariadb
+  pullPolicy: IfNotPresent
+  # Empty => the chart's appVersion.
+  tag: ""
+  # Index digest of the tag, covering every architecture. Empty => pull by tag.
+  digest: sha256:d46e102fa8b9b72bfcdeb56f9dd538742092119dc8b11f31fe662605cd234cd9
+
+imagePullSecrets: []
+
+auth:
+  # Existing Secret holding the passwords. Required; the chart never creates one.
+  existingSecret: ""
+  # Key of the root password.
+  rootPasswordKey: mariadb-root-password
+  # Host root may log in from, created on the first start only. "localhost"
+  # allows the server's socket alone (kubectl exec); "%" allows any host.
+  rootHost: localhost
+  # Optional database and user, created on the first start only. The user gets
+  # all privileges on that database and nothing else.
+  database: ""
+  username: ""
+  # Key of the user's password; read only when username is set.
+  passwordKey: mariadb-password
+
+# Run mariadb-upgrade, after backing up the mysql schema into the data volume,
+# when the server's major or minor version rises.
+autoUpgrade: true
+
+# Appended to the chart's [mariadb] group in /etc/mysql/conf.d/my.cnf. Start a
+# line with [group] to set options for another group.
+config: ""
+  # innodb_buffer_pool_size=512M
+  # max_connections=200
+
+service:
+  type: ClusterIP
+  port: 3306
+
+persistence:
+  # Cluster default StorageClass when empty.
+  storageClass: ""
+  size: 8Gi
+  accessModes:
+    - ReadWriteOnce
+
+podSecurityContext:
+  runAsUser: 999
+  runAsGroup: 999
+  runAsNonRoot: true
+  fsGroup: 999
+  fsGroupChangePolicy: OnRootMismatch
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  privileged: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+# The image's own healthcheck.sh. Readiness logs in as the image's healthcheck
+# user; liveness only needs the server to answer, even with "access denied".
+probes:
+  startup:
+    exec:
+      command: ["/usr/local/bin/healthcheck.sh", "--connect", "--innodb_initialized"]
+    periodSeconds: 10
+    timeoutSeconds: 5
+    # Covers a first start or an upgrade of up to 10 minutes.
+    failureThreshold: 60
+  readiness:
+    exec:
+      command: ["/usr/local/bin/healthcheck.sh", "--connect", "--innodb_initialized"]
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  liveness:
+    exec:
+      command: ["/usr/local/bin/healthcheck.sh", "--connect"]
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+
+terminationGracePeriodSeconds: 60
+
+resources: {}
+  # requests:
+  #   cpu: 250m
+  #   memory: 512Mi
+  # limits:
+  #   memory: 1Gi
+
+# Additional environment variables for the server container.
+extraEnvs: []
+  # - name: TZ
+  #   value: "Asia/Shanghai"
+
+extraVolumes: []
+extraVolumeMounts: []
+
+podAnnotations: {}
+priorityClassName: ""
+nodeSelector: {}
+tolerations: []
+affinity: {}

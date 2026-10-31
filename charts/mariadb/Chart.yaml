@@ -1,0 +1,25 @@
+apiVersion: v2
+name: mariadb
+description: MariaDB server from the official mariadb image, as a single-instance StatefulSet.
+
+type: application
+# Minor follows the common library's minor; the patch counts this chart's releases.
+version: 0.6.1
+# The image tag when image.tag is empty. Bump image.digest with it.
+appVersion: "12.3.3"
+home: https://mariadb.org
+sources:
+  - https://github.com/MariaDB/server
+  - https://github.com/MariaDB/mariadb-docker
+keywords:
+  - mariadb
+  - mysql
+  - database
+maintainers:
+  - name: kr4t0n
+    url: https://github.com/kr4t0n
+
+dependencies:
+  - name: common
+    version: ">=0.6.0 <0.7.0"
+    repository: file://../common

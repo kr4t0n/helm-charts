@@ -1,0 +1,156 @@
+{{- /*
+A single server. Kubernetes rejects changes to a StatefulSet's selector,
+serviceName and volumeClaimTemplates, so those carry no version-bearing labels:
+a chart or image bump changes the pod template alone and upgrades in place.
+*/ -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "common.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  serviceName: {{ include "common.fullname" . }}
+  selector:
+    matchLabels:
+      {{- include "common.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "common.labels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.priorityClassName }}
+      priorityClassName: {{ . }}
+      {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+      containers:
+        - name: {{ include "common.name" . }}
+          image: {{ include "mariadb.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+            - name: MARIADB_ROOT_PASSWORD_FILE
+              value: /run/secrets/mariadb/root-password
+            - name: MARIADB_ROOT_HOST
+              value: {{ .Values.auth.rootHost | quote }}
+            {{- with .Values.auth.database }}
+            - name: MARIADB_DATABASE
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .Values.auth.username }}
+            - name: MARIADB_USER
+              value: {{ . | quote }}
+            - name: MARIADB_PASSWORD_FILE
+              value: /run/secrets/mariadb/password
+            {{- end }}
+            {{- if .Values.autoUpgrade }}
+            - name: MARIADB_AUTO_UPGRADE
+              value: "1"
+            {{- end }}
+            {{- with .Values.extraEnvs }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: mysql
+              containerPort: 3306
+              protocol: TCP
+          {{- with .Values.probes }}
+          {{- with .startup }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .liveness }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .readiness }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+            - name: config
+              mountPath: /etc/mysql/conf.d
+              readOnly: true
+            - name: secrets
+              mountPath: /run/secrets/mariadb
+              readOnly: true
+            - name: run
+              mountPath: /run/mysqld
+            - name: tmp
+              mountPath: /tmp
+            {{- with .Values.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "common.fullname" . }}
+        - name: secrets
+          secret:
+            secretName: {{ include "mariadb.secretName" . }}
+            defaultMode: 0440
+            items:
+              - key: {{ .Values.auth.rootPasswordKey }}
+                path: root-password
+              {{- if .Values.auth.username }}
+              - key: {{ .Values.auth.passwordKey }}
+                path: password
+              {{- end }}
+        - name: run
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+        {{- with .Values.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          {{- toYaml .Values.persistence.accessModes | nindent 10 }}
+        {{- with .Values.persistence.storageClass }}
+        storageClassName: {{ . }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.persistence.size }}

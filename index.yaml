@@ -773,6 +773,33 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/kikoeru-0.0.1/kikoeru-0.0.1.tgz
     version: 0.0.1
+  mariadb:
+  - apiVersion: v2
+    appVersion: 12.3.3
+    created: "2026-11-01T03:11:06.351154997Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: '>=0.6.0 <0.7.0'
+    description: MariaDB server from the official mariadb image, as a single-instance
+      StatefulSet.
+    digest: ede5c3014dffa77d658c45ba26269bd8417c923b661cedf41e85d4b780f8b790
+    home: https://mariadb.org
+    keywords:
+    - mariadb
+    - mysql
+    - database
+    maintainers:
+    - name: kr4t0n
+      url: https://github.com/kr4t0n
+    name: mariadb
+    sources:
+    - https://github.com/MariaDB/server
+    - https://github.com/MariaDB/mariadb-docker
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/mariadb-0.6.1/mariadb-0.6.1.tgz
+    version: 0.6.1
   moviepilot:
   - apiVersion: v2
     appVersion: 2.15.6
@@ -1515,4 +1542,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.1.0/xteve-0.1.0.tgz
     version: 0.1.0
-generated: "2026-10-30T06:35:51.412874682Z"
+generated: "2026-11-01T03:11:06.351395424Z"

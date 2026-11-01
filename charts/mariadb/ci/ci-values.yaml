@@ -1,0 +1,5 @@
+# Values for CI rendering: the chart has no default for the password Secret.
+auth:
+  existingSecret: mariadb-ci
+  database: app
+  username: app

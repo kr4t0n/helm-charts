@@ -1,0 +1,3 @@
+# Values for CI rendering: the chart has no default for the Postgres password Secret.
+postgres:
+  existingSecret: dispatcharr-ci

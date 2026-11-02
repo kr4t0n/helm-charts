@@ -4,10 +4,10 @@ description: Xray-core proxy server (VLESS, REALITY, XHTTP and friends) using th
 
 type: application
 # Minor follows the common library's minor; the patch counts this chart's releases.
-version: 0.6.1
+version: 0.6.2
 # XTLS publishes most releases as GitHub pre-releases and promotes one to
 # "Latest" every few months; appVersion tracks that latest stable release.
-appVersion: "26.10.21"
+appVersion: "26.10.31"
 home: https://github.com/XTLS/Xray-core
 sources:
   - https://github.com/XTLS/Xray-core

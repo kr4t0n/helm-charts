@@ -1,0 +1,121 @@
+# Default values for dispatcharr.
+# Rendering is delegated to the `common` library chart. The env vars, start
+# command and checks the chart owns are in templates/deployment.yaml; see the
+# README's "What the chart sets" for the list.
+
+replicaCount: 1
+
+image:
+  repository: ghcr.io/dispatcharr/dispatcharr
+  pullPolicy: IfNotPresent
+  # The 0.33.0 index (amd64 and arm64), pinned by digest. Bump with appVersion.
+  tag: "0.33.0@sha256:96bc548978c68e684677da7895692eeeefb7f0b2edfa38311dac2b702c61d236"
+
+# All-in-one keeps its Postgres data on the volume: two pods must never run
+# against it, so the old pod stops before the new one starts.
+strategy:
+  type: Recreate
+
+service:
+  type: ClusterIP
+  # nginx's port: the web UI, the API, the HDHomeRun endpoints and the streams.
+  port: 9191
+
+postgres:
+  # Secret in the release's namespace holding the password of the image's
+  # internal Postgres. Required; the chart never creates one.
+  existingSecret: ""
+  passwordKey: postgres-password
+
+dispatcharr:
+  # The only client IP allowed to create the first admin. 127.0.0.1 is a
+  # `kubectl port-forward` to the pod.
+  setupAllowedIP: "127.0.0.1"
+  # Peers whose X-Real-IP and X-Forwarded-* headers Dispatcharr trusts.
+  # "none" trusts no one.
+  trustedProxies: "127.0.0.1/32"
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts: []
+  #   - host: dispatcharr.example.com
+  tls: []
+  #   - hosts:
+  #       - dispatcharr.example.com
+  #     secretName: dispatcharr-tls   # optional; omit when the controller manages certs
+  # path: /            # optional, default "/"
+  # pathType: Prefix   # optional, default "Prefix"
+
+persistence:
+  enabled: true
+  # Cluster default StorageClass when empty.
+  storageClass: ""
+  accessModes:
+    - ReadWriteOnce
+  volumes:
+    data:
+      # Everything: the Postgres data, the Django secret key, logos, caches,
+      # uploads, plugins, recordings and backups.
+      mountPath: /data
+      size: 10Gi
+      # Empty suffix => PVC is named exactly "<release>".
+      claimNameSuffix: ""
+
+# The entrypoint starts as root: it creates the app user, writes /etc and
+# chowns /data, then runs Postgres, Redis, Django and Celery as UID 1000.
+# These are the capabilities those steps use.
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+    add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETUID
+      - SETGID
+      - KILL
+  seccompProfile:
+    type: RuntimeDefault
+
+# /api/core/version/ needs no login and no database, and goes through nginx.
+probes:
+  # The first start runs initdb and the migrations; a Postgres major bump runs
+  # pg_upgrade. Up to 15 minutes.
+  startup:
+    httpGet:
+      path: /api/core/version/
+      port: http
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 90
+  readiness:
+    httpGet:
+      path: /api/core/version/
+      port: http
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  liveness:
+    httpGet:
+      path: /api/core/version/
+      port: http
+    periodSeconds: 20
+    timeoutSeconds: 5
+    failureThreshold: 6
+
+# Not measured yet; set them for your node after a first run.
+resources: {}
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Extra env vars, e.g. TZ or UWSGI_WORKERS. The names the chart sets itself
+# are refused here; see the README.
+extraEnvs: []
+  # - name: TZ
+  #   value: "UTC"

@@ -1,0 +1,25 @@
+apiVersion: v2
+name: dispatcharr
+description: Dispatcharr IPTV stream and EPG manager, all-in-one, with an HDHomeRun tuner for Plex.
+
+type: application
+# Minor follows the common library's minor; the patch counts this chart's releases.
+version: 0.6.1
+# The image's version. Bump image.tag's version and digest with it.
+appVersion: "0.33.0"
+home: https://dispatcharr.tv
+sources:
+  - https://github.com/Dispatcharr/Dispatcharr
+keywords:
+  - iptv
+  - epg
+  - hdhomerun
+  - plex
+maintainers:
+  - name: kr4t0n
+    url: https://github.com/kr4t0n
+
+dependencies:
+  - name: common
+    version: ">=0.6.0 <0.7.0"
+    repository: file://../common

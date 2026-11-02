@@ -1,0 +1,57 @@
+{{- /*
+The env vars, start command and checks below belong to the chart, so they reach
+common.deployment through a copy of the values: merge keeps the keys set here
+(the chart's env ahead of the user's extraEnvs, and the command) and fills in
+the rest from .Values, which stays untouched. Keeping them out of extraEnvs
+means a release that sets its own extraEnvs can't drop them.
+*/ -}}
+{{- $secret := required "dispatcharr: set postgres.existingSecret, the Secret holding the Postgres password" .Values.postgres.existingSecret -}}
+{{- $passwordKey := required "dispatcharr: set postgres.passwordKey" .Values.postgres.passwordKey -}}
+{{- $setupIP := required "dispatcharr: set dispatcharr.setupAllowedIP" .Values.dispatcharr.setupAllowedIP -}}
+{{- $proxies := required "dispatcharr: set dispatcharr.trustedProxies (\"none\" trusts no proxy)" .Values.dispatcharr.trustedProxies -}}
+
+{{- if and .Values.existingSecret .Values.existingSecret.enabled -}}
+{{- fail "dispatcharr: existingSecret (envFrom) isn't supported; the Postgres password comes from postgres.existingSecret" -}}
+{{- end -}}
+{{- if or .Values.command .Values.args -}}
+{{- fail "dispatcharr: command and args are set by the chart" -}}
+{{- end -}}
+
+{{- $managed := list "DISPATCHARR_ENV" "DISPATCHARR_DEBUG" "DISPATCHARR_PORT" "DISPATCHARR_SETUP_ALLOWED_IP" "DISPATCHARR_TRUSTED_PROXIES" "POSTGRES_PASSWORD" "POSTGRES_PORT" "REDIS_PORT" -}}
+{{- range .Values.extraEnvs -}}
+{{- if has .name $managed -}}
+{{- fail (printf "dispatcharr: %s is set by the chart and can't go in extraEnvs" .name) -}}
+{{- end -}}
+{{- end -}}
+
+{{- /*
+DISPATCHARR_PORT, POSTGRES_PORT and REDIS_PORT are set so that Service link env
+vars (a Service named dispatcharr, postgres or redis in the namespace) can't
+replace them with tcp://<ip>:<port>.
+*/ -}}
+{{- $env := list
+  (dict "name" "DISPATCHARR_ENV" "value" "aio")
+  (dict "name" "DISPATCHARR_PORT" "value" (toString .Values.service.port))
+  (dict "name" "POSTGRES_PORT" "value" "5432")
+  (dict "name" "REDIS_PORT" "value" "6379")
+  (dict "name" "DISPATCHARR_SETUP_ALLOWED_IP" "value" (toString $setupIP))
+  (dict "name" "DISPATCHARR_TRUSTED_PROXIES" "value" (toString $proxies))
+  (dict "name" "POSTGRES_PASSWORD" "valueFrom" (dict "secretKeyRef" (dict "name" $secret "key" $passwordKey "optional" false))) -}}
+{{- $env = concat $env (.Values.extraEnvs | default list) -}}
+
+{{- /*
+The image's entrypoint falls back to the password "secret" when
+POSTGRES_PASSWORD is empty, and its Postgres listens on every interface. So the
+container refuses to start with an empty or default password, then hands PID 1
+to the entrypoint.
+*/ -}}
+{{- $start := `case "${POSTGRES_PASSWORD:-}" in
+  ""|secret)
+    echo "dispatcharr: the Postgres password in the Secret is empty or the image default; set a real one" >&2
+    exit 1
+    ;;
+esac
+exec /app/docker/entrypoint.sh` -}}
+
+{{- $values := merge (dict "extraEnvs" $env "command" (list "/bin/bash" "-c" $start)) .Values -}}
+{{- include "common.deployment" (dict "Values" $values "Release" .Release "Chart" .Chart "Capabilities" .Capabilities "Template" .Template "Files" .Files) }}

@@ -528,6 +528,33 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/derper-0.1.0/derper-0.1.0.tgz
     version: 0.1.0
+  dispatcharr:
+  - apiVersion: v2
+    appVersion: 0.33.0
+    created: "2026-11-02T14:27:40.066071623Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: '>=0.6.0 <0.7.0'
+    description: Dispatcharr IPTV stream and EPG manager, all-in-one, with an HDHomeRun
+      tuner for Plex.
+    digest: f6747a4292518e2d34db01bcc26608342d11833d86c8c5d99ebd24c943290c21
+    home: https://dispatcharr.tv
+    keywords:
+    - iptv
+    - epg
+    - hdhomerun
+    - plex
+    maintainers:
+    - name: kr4t0n
+      url: https://github.com/kr4t0n
+    name: dispatcharr
+    sources:
+    - https://github.com/Dispatcharr/Dispatcharr
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/dispatcharr-0.6.1/dispatcharr-0.6.1.tgz
+    version: 0.6.1
   home-assistant:
   - apiVersion: v2
     appVersion: 2026.10.4
@@ -1568,4 +1595,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.1.0/xteve-0.1.0.tgz
     version: 0.1.0
-generated: "2026-11-02T06:53:50.982309878Z"
+generated: "2026-11-02T14:27:40.0662792Z"

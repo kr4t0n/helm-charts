@@ -1434,6 +1434,32 @@ entries:
     version: 0.0.1
   xray:
   - apiVersion: v2
+    appVersion: 26.10.31
+    created: "2026-11-02T06:53:50.982061296Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: '>=0.6.0 <0.7.0'
+    description: Xray-core proxy server (VLESS, REALITY, XHTTP and friends) using
+      the official image.
+    digest: 750d0193020cdbf8d23e3e2134cbf0da49f0d52022eff080f3663eb028e53997
+    home: https://github.com/XTLS/Xray-core
+    keywords:
+    - xray
+    - proxy
+    - vless
+    - reality
+    maintainers:
+    - name: kr4t0n
+      url: https://github.com/kr4t0n
+    name: xray
+    sources:
+    - https://github.com/XTLS/Xray-core
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/xray-0.6.2/xray-0.6.2.tgz
+    version: 0.6.2
+  - apiVersion: v2
     appVersion: 26.10.21
     created: "2026-10-27T09:49:52.365328041Z"
     dependencies:
@@ -1542,4 +1568,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.1.0/xteve-0.1.0.tgz
     version: 0.1.0
-generated: "2026-11-01T03:11:06.351395424Z"
+generated: "2026-11-02T06:53:50.982309878Z"

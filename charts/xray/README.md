@@ -45,7 +45,7 @@ Changes to `config` roll the pod through a checksum annotation. Changes to
 
 | Key | Description | Default |
 |---|---|---|
-| `image.tag` | Bare version, without the GitHub release's `v` | `26.10.21` |
+| `image.tag` | Bare version, without the GitHub release's `v` | `26.10.31` |
 | `service.port` | Port the inbound must listen on; Service and hostPort target it | `8443` |
 | `service.hostPort` | Also bind `service.port` on the node | `false` |
 | `strategy` | Set `type: Recreate` with `hostPort` | `{}` |
@@ -64,8 +64,8 @@ See [`values.yaml`](./values.yaml) for the full list.
 Generate the credentials with the same image:
 
 ```bash
-docker run --rm ghcr.io/xtls/xray-core:26.10.21 uuid
-docker run --rm ghcr.io/xtls/xray-core:26.10.21 x25519   # PrivateKey -> server, Password (PublicKey) -> clients
+docker run --rm ghcr.io/xtls/xray-core:26.10.31 uuid
+docker run --rm ghcr.io/xtls/xray-core:26.10.31 x25519   # PrivateKey -> server, Password (PublicKey) -> clients
 openssl rand -hex 8                                      # a shortId
 ```
 
@@ -180,6 +180,10 @@ ingress that terminates TLS. Use one of these:
   `domainStrategy: IPIfNonMatch` resolves domain destinations first, so names
   such as `kubernetes.default.svc` are caught too. If you replace `routing` in
   your own config, keep an equivalent rule.
+- **MPTCP is off.** From 26.10.31, Xray's TCP listeners accept plain TCP only,
+  where earlier releases took Go's default and also accepted MPTCP on kernels
+  that enable it. `"sockopt": { "tcpMptcp": true }` in an inbound's
+  `streamSettings` turns it back on for that inbound.
 - **No probes by default.** A TCP probe only shows the port is open. Against a
   REALITY inbound, each probe also makes Xray dial the target, because REALITY
   connects to it before it reads the ClientHello. Xray starts in well under a

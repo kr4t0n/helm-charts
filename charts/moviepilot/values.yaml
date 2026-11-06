@@ -4,8 +4,12 @@
 
 replicaCount: 1
 
+# One replica on ReadWriteOnce volumes, and V2 and V3 must never run on one /config.
+strategy:
+  type: Recreate
+
 image:
-  repository: jxxghp/moviepilot-v2
+  repository: jxxghp/moviepilot-v3
   pullPolicy: IfNotPresent
   # Empty => the chart's appVersion is used (pins the deploy).
   tag: ""

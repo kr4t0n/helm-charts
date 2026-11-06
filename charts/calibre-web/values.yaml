@@ -7,9 +7,9 @@ replicaCount: 1
 image:
   repository: linuxserver/calibre-web
   pullPolicy: IfNotPresent
-  # Empty => the chart's appVersion is used (pins the deploy). This is the same
-  # image `latest` currently resolves to (identical digest).
-  tag: ""
+  # linuxserver's 0.6.27-ls408 index (amd64 and arm64), pinned by digest. Bump
+  # with appVersion.
+  tag: "0.6.27-ls408@sha256:f9c692fba85ade1ce71b98364b860f72855055a59198894cc8c2ea49fc98a840"
 
 service:
   type: ClusterIP

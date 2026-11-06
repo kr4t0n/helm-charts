@@ -25,7 +25,7 @@ kubectl -n calibre port-forward svc/calibre-web 8083:8083
 | Key | Description | Default |
 |---|---|---|
 | `image.repository` | Image | `linuxserver/calibre-web` |
-| `image.tag` | Tag (empty ⇒ chart `appVersion`) | `""` |
+| `image.tag` | linuxserver build tag and index digest (amd64 and arm64) | `0.6.27-ls408`, by digest |
 | `service.port` | Web UI port | `8083` |
 | `persistence.size` | Config volume (`/config`) size | `10Gi` |
 | `persistence.storageClass` | StorageClass (empty ⇒ cluster default) | `""` |

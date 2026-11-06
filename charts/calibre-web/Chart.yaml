@@ -4,9 +4,9 @@ description: A Helm chart for Kubernetes
 
 type: application
 # Minor follows the common library's minor; the patch counts this chart's releases.
-version: 0.6.1
-# Pinned to the current linuxserver tag (identical digest to `latest`). The
-# deployed tag comes from values.yaml image.tag.
+version: 0.6.2
+# Calibre-Web's upstream version. values.yaml image.tag pins the linuxserver
+# build by digest.
 appVersion: 0.6.27
 
 dependencies:

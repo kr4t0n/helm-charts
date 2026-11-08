@@ -4,7 +4,7 @@ description: Tailscale DERP relay server, from the kr4t0n/derper image built in 
 
 type: application
 # Minor follows the common library's minor; the patch counts this chart's releases.
-version: 0.6.1
+version: 0.6.2
 # Tracks images/derper/VERSION, the Tailscale release the image is built from.
 appVersion: "1.104.2"
 home: https://tailscale.com/kb/1118/custom-derp-servers

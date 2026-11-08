@@ -10,7 +10,7 @@ in the rest from .Values, which stays untouched.
 {{- $args := list
   (printf "-hostname=%s" $hostname)
   (printf "-a=:%v" .Values.service.port)
-  "-http-port=-1"
+  (printf "-http-port=%v" (ternary .Values.httpPort.port -1 .Values.httpPort.enabled))
   "-certmode=manual"
   "-certdir=/certs"
   "-c=/var/lib/derper/derper.key"
@@ -39,8 +39,25 @@ in the rest from .Values, which stays untouched.
 {{- $mounts = concat $mounts (.Values.extraVolumeMounts | default list) -}}
 
 {{- $ports := list -}}
+{{- if .Values.httpPort.enabled -}}
+{{- $ports = append $ports (dict "name" "http-plain" "containerPort" .Values.httpPort.port "protocol" "TCP") -}}
+{{- end -}}
 {{- if .Values.stun.enabled -}}
 {{- $ports = append $ports (dict "name" "stun" "containerPort" .Values.stun.port "protocol" "UDP") -}}
+{{- end -}}
+
+{{- /*
+/debug/check fails when derper can't query the node's tailscaled, which is
+what a stale socket mount looks like. The plain-HTTP listener serves /debug
+only to loopback and tailnet sources, so the kubelet calls it on 127.0.0.1,
+which is the node's loopback under hostNetwork.
+*/ -}}
+{{- $probes := .Values.probes -}}
+{{- if and (empty $probes) .Values.verifyClients.enabled .Values.httpPort.enabled -}}
+{{- $check := dict "host" "127.0.0.1" "path" "/debug/check" "port" "http-plain" -}}
+{{- $probes = dict
+  "readiness" (dict "httpGet" $check "periodSeconds" 10 "timeoutSeconds" 10 "failureThreshold" 3)
+  "liveness" (dict "httpGet" $check "periodSeconds" 30 "timeoutSeconds" 10 "failureThreshold" 5) -}}
 {{- end -}}
 
 {{- /*
@@ -77,6 +94,7 @@ done` $r.intervalSeconds -}}
   "dnsPolicy" "ClusterFirstWithHostNet"
   "strategy" (dict "type" "Recreate")
   "shareProcessNamespace" .Values.certReloader.enabled
+  "probes" $probes
   "extraPorts" $ports
   "extraContainers" $containers
   "extraVolumes" $volumes

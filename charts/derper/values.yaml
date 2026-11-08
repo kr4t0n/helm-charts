@@ -29,6 +29,15 @@ stun:
   enabled: true
   port: 3478
 
+# derper's plain-HTTP listener (derper -http-port), which the default probes
+# use. Like service.port it binds every interface, so keep it closed in the
+# node's firewall. It serves /debug only to loopback and tailnet addresses,
+# answers /generate_204, and redirects everything else to https. Disabling it
+# also drops the default probes.
+httpPort:
+  enabled: true
+  port: 56480
+
 # Admit only clients the node's tailscaled knows, i.e. devices in its tailnet.
 # Mounts the host's tailscaled socket, so the node must run tailscaled.
 verifyClients:
@@ -62,7 +71,7 @@ certReloader:
     limits:
       memory: 32Mi
 
-# Appended to the flags the chart sets: -hostname, -a, -http-port=-1,
+# Appended to the flags the chart sets: -hostname, -a, -http-port,
 # -certmode=manual, -certdir, -c, -stun, -stun-port, -verify-clients.
 extraArgs: []
   # - -home=blank
@@ -75,13 +84,10 @@ resources: {}
   # limits:
   #   memory: 256Mi
 
-# No probes by default: a TCP probe only proves the listener exists, and derper
-# exits on a bad flag, certificate or port, so the pod's state is already an
-# honest signal.
+# Left empty, and with verifyClients and httpPort enabled, the chart sets
+# readiness and liveness probes on derper's /debug/check through httpPort on
+# 127.0.0.1 (see the README, "Probes"). Anything set here replaces both.
 probes: {}
-  # liveness:
-  #   tcpSocket: { port: http }
-  #   periodSeconds: 30
 
 priorityClassName: ""
 

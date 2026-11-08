@@ -66,3 +66,7 @@ existingSecret:
 # Free-form extra volumes / mounts (e.g. a USB device or dbus socket).
 extraVolumes: []
 extraVolumeMounts: []
+
+# true: link the image's Python tree instead of copying it (~1.8 GiB) into the
+# container's writable layer on every start. See the README, "Python copy at start".
+skipPythonCopy: false

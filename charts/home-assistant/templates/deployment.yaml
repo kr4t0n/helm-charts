@@ -1,1 +1,18 @@
-{{- include "common.deployment" . }}
+{{- /*
+With skipPythonCopy, the chart's s6 scripts (configmap.yaml) are mounted over
+the image's through a copy of the values: merge keeps the volume and mounts set
+here (ahead of the user's extraVolumes / extraVolumeMounts) and fills in the
+rest from .Values, which stays untouched. defaultMode 493 is 0755.
+*/ -}}
+{{- $values := .Values -}}
+{{- if .Values.skipPythonCopy -}}
+{{- $s6 := "/etc/s6-overlay/s6-rc.d" -}}
+{{- $volume := dict "name" "s6-overrides" "configMap" (dict "name" (printf "%s-s6-overrides" (include "common.fullname" .)) "defaultMode" 493) -}}
+{{- $mounts := list
+  (dict "name" "s6-overrides" "mountPath" (printf "%s/init-config-homeassistant/run" $s6) "subPath" "init-config-homeassistant-run" "readOnly" true)
+  (dict "name" "s6-overrides" "mountPath" (printf "%s/svc-homeassistant/run" $s6) "subPath" "svc-homeassistant-run" "readOnly" true) -}}
+{{- $volumes := prepend (.Values.extraVolumes | default list) $volume -}}
+{{- $mounts = concat $mounts (.Values.extraVolumeMounts | default list) -}}
+{{- $values = merge (dict "extraVolumes" $volumes "extraVolumeMounts" $mounts) .Values -}}
+{{- end -}}
+{{- include "common.deployment" (dict "Values" $values "Release" .Release "Chart" .Chart "Capabilities" .Capabilities "Template" .Template "Files" .Files) }}

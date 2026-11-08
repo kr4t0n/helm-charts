@@ -1,0 +1,14 @@
+{{- if .Values.skipPythonCopy }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "common.fullname" . }}-s6-overrides
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+data:
+  init-config-homeassistant-run: |
+    {{- .Files.Get "files/init-config-homeassistant-run" | trimSuffix "\n" | nindent 4 }}
+  svc-homeassistant-run: |
+    {{- .Files.Get "files/svc-homeassistant-run" | trimSuffix "\n" | nindent 4 }}
+{{- end }}

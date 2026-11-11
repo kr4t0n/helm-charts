@@ -1429,6 +1429,20 @@ entries:
     version: 7.0.4
   tautulli:
   - apiVersion: v2
+    appVersion: 2.19.1
+    created: "2026-11-11T06:33:14.317384165Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: '>=0.6.0 <0.7.0'
+    description: A Helm chart for Kubernetes
+    digest: b0945073a06838b3fddd49861f8ae184e59977c6f6277c602c84e377e6ca86ef
+    name: tautulli
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/tautulli-0.6.2/tautulli-0.6.2.tgz
+    version: 0.6.2
+  - apiVersion: v2
     appVersion: 2.18.2
     created: "2026-10-27T09:49:52.085149663Z"
     dependencies:
@@ -1692,4 +1706,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.1.0/xteve-0.1.0.tgz
     version: 0.1.0
-generated: "2026-11-08T08:53:25.42463296Z"
+generated: "2026-11-11T06:33:14.317579677Z"

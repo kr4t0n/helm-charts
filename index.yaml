@@ -1406,6 +1406,28 @@ entries:
     version: 0.0.1
   silo:
   - apiVersion: v1
+    appVersion: RELEASE.2026-11-12T00-00-00Z
+    created: "2026-11-12T07:50:43.500023582Z"
+    description: S3-Interface Libre Object Storage
+    digest: e2944ba7063e1fc672f5590eb640e5e4e81757e7612c85e7b3af763895784f0e
+    home: https://silo.pgsty.com/
+    icon: https://silo.pgsty.com/img/silo.svg
+    keywords:
+    - silo
+    - storage
+    - object-storage
+    - s3
+    - cluster
+    maintainers:
+    - name: Pigsty
+      url: https://pigsty.io
+    name: silo
+    sources:
+    - https://github.com/pgsty/silo
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/silo-7.0.6/silo-7.0.6.tgz
+    version: 7.0.6
+  - apiVersion: v1
     appVersion: RELEASE.2026-10-26T00-00-00Z
     created: "2026-10-28T12:12:45.432877975Z"
     description: S3-Interface Libre Object Storage
@@ -1706,4 +1728,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.1.0/xteve-0.1.0.tgz
     version: 0.1.0
-generated: "2026-11-11T06:33:14.317579677Z"
+generated: "2026-11-12T07:50:43.500192864Z"

@@ -4,6 +4,10 @@
 
 replicaCount: 1
 
+# One replica on ReadWriteOnce volumes, and the SQLite database migrates at start.
+strategy:
+  type: Recreate
+
 image:
   repository: maziggy/bambuddy
   pullPolicy: IfNotPresent

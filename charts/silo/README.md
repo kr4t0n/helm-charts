@@ -12,21 +12,23 @@
 > |---|---|
 > | Upstream | <https://github.com/pgsty/silo> |
 > | Upstream path | `helm/silo` |
-> | Vendored at | `c3ad836aed0d8a7d23c2e44a5eaa3009d08525e3` (signed tag `RELEASE.2026-10-26T00-00-00Z`) |
-> | Upstream chart version | `7.0.3` (this repo's `version` is upstream's plus a local patch) |
-> | Chart last changed upstream | `dcc2f20b`, *Preserve maintenance timeout behavior and prepare SILO 20261026*, 2026-10-26 |
+> | Vendored at | `44e848fedf8cec3d8c0da4b1aa8422390a2b7a8b` (tag `RELEASE.2026-11-12T00-00-00Z`, unsigned; earlier release tags were signed) |
+> | Upstream chart version | `7.0.5` (this repo's `version` is upstream's plus a local patch) |
+> | Chart last changed upstream | `43122f76`, *docs(release): sync post-RC behavior changes, issue refs, and upgrade notes*, 2026-11-12 |
 > | License | AGPL-3.0-or-later, see [`LICENSE`](./LICENSE) |
 >
 > **Local modifications:**
 > 1. This banner.
 > 2. `LICENSE`, copied from the root of the upstream repo at the same commit.
 >    Upstream's chart folder has none.
-> 3. `image.tag` (`values.yaml`) and `appVersion` (`Chart.yaml`) default to
->    `RELEASE.2026-10-26T00-00-00Z`, the release this chart was vendored at.
->    Upstream's chart still names `RELEASE.2026-09-16T00-00-00Z`, which
->    Silo's [security advisories](https://silo.pgsty.com/about/security-advisories/)
->    list as affected by SN-2026-015 through SN-2026-017, fixed in Server
->    20261018. `mcImage` is upstream's. On a sync, keep whichever tag is newer.
+> 3. `version` in `Chart.yaml` and the `# Local version` comment above it
+>    (see *To sync* below).
+>
+> `image.tag`, `mcImage.tag` and `appVersion` are upstream's: at this commit
+> all three name `RELEASE.2026-11-12T00-00-00Z`. On a sync, keep whichever
+> tag is newer, upstream's or the newest release Silo's
+> [security advisories](https://silo.pgsty.com/about/security-advisories/)
+> list as fixed, and add it to the list above when it isn't upstream's.
 >
 > To install from this repository's index, add it once, then use
 > `kr4t0n/silo` where the commands below use `./helm/silo`:
@@ -75,9 +77,10 @@ helm install silo ./helm/silo \
   --set rootPassword='replace-with-a-long-random-secret'
 ```
 
-The default server and post-install image is `docker.io/pgsty/silo`. The image
-contains the `silo` server, `mcli`, and an `mc` compatibility symlink. It does
-not contain a `minio` server binary.
+The default server image is `docker.io/pgsty/silo` (which contains the `silo`
+server, `mcli`, and an `mc` client compatibility symlink, without a `minio`
+server binary). Post-install resource jobs use `mcImage` (`docker.io/pgsty/mc`)
+by default.
 
 ## Compatibility contract
 
@@ -140,6 +143,25 @@ Rollback is chart-level: use `helm rollback`, not an image-only downgrade. The
 new chart invokes `silo server`; an old image does not provide that executable.
 The new image accepts a legacy first argv token of `minio` only to support old
 chart commands during the forward migration.
+
+When upgrading an existing Silo release to `RELEASE.2026-11-12T00-00-00Z` (chart
+`7.0.5`):
+
+- `helm upgrade --reuse-values` keeps the previously saved `image.tag` and
+  `mcImage.tag`; pass `--set-string image.tag=RELEASE.2026-11-12T00-00-00Z` and
+  `--set-string mcImage.tag=RELEASE.2026-11-12T00-00-00Z` explicitly.
+- When upgrading from `20261109`, avoid editing service accounts on un-upgraded
+  pods or peer sites until every node runs `20261112`, drain active batch jobs,
+  and pause pool decommission or concurrent multi-pool writes during rolling pod
+  restarts so lock-ordering and cross-pool `null`-version Object Lock checks
+  apply uniformly.
+- When upgrading from `20261026` or earlier, drain or cancel active batch jobs
+  before upgrading; `20261026` cannot resume submitter-bound batch manifests on
+  downgrade, single-pool clusters whose erasure sets do not all share the same
+  pods/hosts require a drained stop-all upgrade rather than a rolling pod
+  restart, and `POST ?restore` returns `503` while mixed versions are serving.
+  See the [20261109 release notes](https://silo.pgsty.com/blog/release/silo-20261109/#upgrade)
+  and [server compatibility notes](https://silo.pgsty.com/compatibility/server/).
 
 ## Persistence and TLS
 

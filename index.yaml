@@ -2,6 +2,20 @@ apiVersion: v1
 entries:
   bambuddy:
   - apiVersion: v2
+    appVersion: 1.3.1
+    created: "2026-11-12T07:51:18.558684176Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: '>=0.6.0 <0.7.0'
+    description: A Helm chart for Kubernetes
+    digest: 778192153ba94b847e88bec5a833f9adcedc5d7eaf4fbb1c3287cb9e18e37090
+    name: bambuddy
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/bambuddy-0.6.2/bambuddy-0.6.2.tgz
+    version: 0.6.2
+  - apiVersion: v2
     appVersion: 0.2.4.7
     created: "2026-10-27T08:34:56.559391519Z"
     dependencies:
@@ -1728,4 +1742,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.1.0/xteve-0.1.0.tgz
     version: 0.1.0
-generated: "2026-11-12T07:50:43.500192864Z"
+generated: "2026-11-12T07:51:18.558929985Z"

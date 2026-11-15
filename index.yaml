@@ -70,6 +70,20 @@ entries:
   calibre-web:
   - apiVersion: v2
     appVersion: 0.6.27
+    created: "2026-11-15T14:47:58.302117421Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: '>=0.6.0 <0.7.0'
+    description: A Helm chart for Kubernetes
+    digest: 28f55f365cae3180a72a38d1edd5335baf1c16721c410f3bb65cb20bb09ca1d2
+    name: calibre-web
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/calibre-web-0.6.3/calibre-web-0.6.3.tgz
+    version: 0.6.3
+  - apiVersion: v2
+    appVersion: 0.6.27
     created: "2026-11-06T07:34:19.196685696Z"
     dependencies:
     - name: common
@@ -1742,4 +1756,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.1.0/xteve-0.1.0.tgz
     version: 0.1.0
-generated: "2026-11-12T07:51:18.558929985Z"
+generated: "2026-11-15T14:47:58.302317604Z"

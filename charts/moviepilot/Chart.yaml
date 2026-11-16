@@ -4,12 +4,12 @@ description: A Helm chart for Kubernetes
 
 type: application
 # Minor follows the common library's minor; the patch counts this chart's releases.
-version: 0.6.2
+version: 0.6.3
 # Tag of jxxghp/moviepilot-v3. Its first start migrates a V2 database in /config
 # one way (V2 can't read it afterwards), so moving a V2 release here is an
 # upgrade with a backup, not a tag bump (see README). Used as the image tag
 # whenever values.yaml image.tag is empty.
-appVersion: 3.2.4
+appVersion: 3.2.6
 
 dependencies:
   - name: common

@@ -43,7 +43,7 @@ See [`values.yaml`](./values.yaml) for the full list.
 - **Persistence** creates two PVCs: `<release>` (`/config`, config + data,
   `4Gi`) and `<release>-playwright` (`/moviepilot/.cache/ms-playwright`, the
   Playwright/Chromium cache, `1Gi`).
-- **Image version**: pinned to `appVersion` 3.2.4 of the `moviepilot-v3`
+- **Image version**: pinned to `appVersion` 3.2.6 of the `moviepilot-v3`
   image. Not the `moviepilot-v3t` free-threaded build, which upstream calls
   experimental. Chart 0.6.1 and older ran the `moviepilot-v2` image; see
   [Upgrading from V2](#upgrading-from-v2).

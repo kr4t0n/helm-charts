@@ -1,0 +1,127 @@
+# Default values for aria2.
+# Rendering is delegated to the `common` library chart; this file only supplies
+# the per-application data. See charts/common for the full template.
+#
+# One port serves the whole app: nginx in the image hands out the AriaNg web UI
+# and proxies /jsonrpc to aria2c (127.0.0.1:6800, pod-local), so the browser
+# talks to the same Service and Ingress for both. See images/aria2.
+
+replicaCount: 1
+
+image:
+  repository: kr4t0n/aria2
+  pullPolicy: IfNotPresent
+  # Empty => the chart's appVersion is used (pins the deploy).
+  tag: ""
+
+service:
+  type: ClusterIP
+  # nginx: AriaNg and /jsonrpc.
+  port: 8080
+  extraPorts: []
+
+# Extra container ports, e.g. a fixed BitTorrent port set in `args`. Declared on
+# the pod only; add matching `service.extraPorts` entries to take inbound peers
+# through the Service.
+extraPorts: []
+  # - name: bttcp
+  #   containerPort: 6888
+  #   protocol: TCP
+  # - name: btudp
+  #   containerPort: 6888
+  #   protocol: UDP
+
+# Extra aria2c options. They override the image's aria2.conf.
+args: []
+  # - --max-connection-per-server=8
+  # - --listen-port=6888
+  # - --dht-listen-port=6888
+
+# A singleton on ReadWriteOnce volumes: stop the old pod before starting the new.
+strategy:
+  type: Recreate
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts: []
+  #   - host: aria2.example.com
+  tls: []
+  #   - hosts:
+  #       - aria2.example.com
+  #     secretName: aria2-tls   # optional; omit when the controller manages certs
+
+persistence:
+  enabled: true
+  # Cluster default StorageClass when empty.
+  storageClass: ""
+  accessModes:
+    - ReadWriteOnce
+  volumes:
+    # The session (unfinished downloads, restored on start) and DHT state.
+    # PVC <release>-config.
+    config:
+      mountPath: /config
+      size: 1Gi
+    # The download directory. PVC <release>-downloads; set `existingClaim` to
+    # download into a shared volume instead.
+    downloads:
+      mountPath: /downloads
+      size: 20Gi
+
+# Every probe is one request through nginx to aria2c, so it fails when either is
+# down. system.listMethods needs no RPC secret.
+probes:
+  readiness:
+    httpGet: { path: "/jsonrpc?method=system.listMethods&id=probe", port: http }
+    periodSeconds: 10
+  liveness:
+    httpGet: { path: "/jsonrpc?method=system.listMethods&id=probe", port: http }
+    periodSeconds: 30
+
+resources: {}
+  # requests:
+  #   cpu: 50m
+  #   memory: 64Mi
+  # limits:
+  #   memory: 512Mi
+
+# The image runs as uid/gid 65532 and works as any uid. Downloads are owned by
+# runAsUser; on a shared volume, match the uid the other apps use. fsGroup makes
+# the PVCs writable, but the in-tree NFS plugin ignores it.
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  runAsGroup: 65532
+  fsGroup: 65532
+  fsGroupChangePolicy: OnRootMismatch
+  seccompProfile:
+    type: RuntimeDefault
+
+# For a read-only root filesystem, also mount an emptyDir at /tmp (nginx's
+# temp and pid files) via extraVolumes / extraVolumeMounts.
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: [ALL]
+
+# Additional environment variables.
+extraEnvs: []
+  # - name: TZ
+  #   value: "Asia/Shanghai"
+
+# Load ALL keys from an existing Secret as environment variables. Required in
+# practice: the image refuses to start without RPC_SECRET.
+existingSecret:
+  enabled: false
+  name: ""
+
+extraVolumes: []
+extraVolumeMounts: []
+
+podAnnotations: {}
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

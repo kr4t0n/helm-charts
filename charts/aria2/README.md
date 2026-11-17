@@ -33,9 +33,9 @@ kubectl -n aria2 port-forward svc/aria2 8080:8080
 | `service.port` | AriaNg + `/jsonrpc` port | `8080` |
 | `args` | Extra aria2c options (override the image's `aria2.conf`) | `[]` |
 | `extraPorts` | Extra container ports (e.g. a BitTorrent port) | `[]` |
-| `persistence.volumes.config` | `/config`: session + DHT state | `1Gi` |
-| `persistence.volumes.downloads` | `/downloads`: download directory | `20Gi` |
+| `persistence.size` | Config volume (`/config`: session + DHT state) size | `1Gi` |
 | `persistence.storageClass` | StorageClass (empty ⇒ cluster default) | `""` |
+| `extraVolumes` / `extraVolumeMounts` | Mount the download directory | `[]` |
 | `existingSecret.{enabled,name}` | Load env vars (`RPC_SECRET`) from a Secret | disabled |
 | `podSecurityContext` | uid/gid the app runs and writes as | `65532` |
 | `extraEnvs` | Extra env vars (e.g. `TZ`) | `[]` |
@@ -51,8 +51,13 @@ See [`values.yaml`](./values.yaml) for the full list.
   works through a port-forward or an HTTPS ingress without editing.
 - **Authentication is the RPC secret.** The UI itself is open; to keep it
   private, put the ingress behind an auth middleware (e.g. oauth2-proxy).
+- **Downloads.** The chart persists only `/config`. aria2c saves to
+  `/downloads` (or wherever `--dir` in `args` points), so mount a volume there
+  via `extraVolumes` / `extraVolumeMounts`. Without one, downloads live in the
+  container and are lost with it.
 - **Users.** By default the pod runs as uid 65532, and `fsGroup` makes the
-  chart's own PVCs writable. The image never chowns `/downloads`.
+  config PVC (and any volume you add) writable. The image never chowns
+  `/downloads`.
 - **Shared downloads volume.** Mount a volume other apps own and run as its
   owner. Drop `fsGroup`: CSI drivers with fsGroupPolicy `File` (csi-driver-nfs,
   for one) would regroup every file on it. Without `fsGroup`, the fresh config
@@ -61,10 +66,13 @@ See [`values.yaml`](./values.yaml) for the full list.
   aria2c as `PUID:PGID`:
 
   ```yaml
-  persistence:
-    volumes:
-      downloads:
-        existingClaim: downloads
+  extraVolumes:
+    - name: downloads-volume
+      persistentVolumeClaim:
+        claimName: downloads
+  extraVolumeMounts:
+    - name: downloads-volume
+      mountPath: /downloads
   extraEnvs:
     - { name: PUID, value: "1000" }
     - { name: PGID, value: "100" }
@@ -94,3 +102,17 @@ See [`values.yaml`](./values.yaml) for the full list.
 
   Add matching `service.extraPorts` entries and an appropriate Service type or
   host setup to take them through the Service.
+
+## Upgrading
+
+- **To 0.6.3:** the chart no longer creates a `<release>-downloads` PVC, so
+  upgrading a release that relied on it makes Helm delete it, data included. To
+  keep it, add it back before upgrading:
+
+  ```yaml
+  persistence:
+    volumes:
+      downloads:
+        mountPath: /downloads
+        size: 20Gi
+  ```

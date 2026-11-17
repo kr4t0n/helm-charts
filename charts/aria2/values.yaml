@@ -52,10 +52,12 @@ ingress:
   #       - aria2.example.com
   #     secretName: aria2-tls   # optional; omit when the controller manages certs
 
+# The config volume only. Mount the download directory via extraVolumes.
 persistence:
   enabled: true
   # Cluster default StorageClass when empty.
   storageClass: ""
+  size: 1Gi
   accessModes:
     - ReadWriteOnce
   volumes:
@@ -63,12 +65,6 @@ persistence:
     # PVC <release>-config.
     config:
       mountPath: /config
-      size: 1Gi
-    # The download directory. PVC <release>-downloads; set `existingClaim` to
-    # download into a shared volume instead.
-    downloads:
-      mountPath: /downloads
-      size: 20Gi
 
 # Every probe is one request through nginx to aria2c, so it fails when either is
 # down. system.listMethods needs no RPC secret.
@@ -120,8 +116,16 @@ existingSecret:
   enabled: false
   name: ""
 
+# The download directory. aria2c saves to /downloads unless `args` sets --dir;
+# without a volume there, downloads live in the container and are lost with it.
 extraVolumes: []
+  # - name: downloads-volume
+  #   persistentVolumeClaim:
+  #     claimName: downloads
+
 extraVolumeMounts: []
+  # - name: downloads-volume
+  #   mountPath: /downloads
 
 podAnnotations: {}
 

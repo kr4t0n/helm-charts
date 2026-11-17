@@ -87,9 +87,12 @@ resources: {}
   # limits:
   #   memory: 512Mi
 
-# The image runs as uid/gid 65532 and works as any uid. Downloads are owned by
-# runAsUser; on a shared volume, match the uid the other apps use. fsGroup makes
-# the PVCs writable, but the in-tree NFS plugin ignores it.
+# Non-root by default: fsGroup makes the chart's own PVCs writable for uid 65532.
+# fsGroup applies to every volume in the pod, and CSI drivers with fsGroupPolicy
+# File (csi-driver-nfs, for one) regroup a whole shared volume on first mount, so
+# set `fsGroup: null` when mounting one. To own /config without fsGroup, use the
+# image's root mode (README): runAsUser 0, PUID/PGID in extraEnvs, and the
+# CHOWN, SETUID and SETGID capabilities.
 podSecurityContext:
   runAsNonRoot: true
   runAsUser: 65532

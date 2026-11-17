@@ -51,19 +51,32 @@ See [`values.yaml`](./values.yaml) for the full list.
   works through a port-forward or an HTTPS ingress without editing.
 - **Authentication is the RPC secret.** The UI itself is open; to keep it
   private, put the ingress behind an auth middleware (e.g. oauth2-proxy).
-- **Shared downloads volume.** The image changes no ownership at startup, so a
-  volume other apps use can be mounted directly. Run as the uid that owns it,
-  and drop `fsGroup`, which would otherwise regroup every file on it:
+- **Users.** By default the pod runs as uid 65532, and `fsGroup` makes the
+  chart's own PVCs writable. The image never chowns `/downloads`.
+- **Shared downloads volume.** Mount a volume other apps own and run as its
+  owner. Drop `fsGroup`: CSI drivers with fsGroupPolicy `File` (csi-driver-nfs,
+  for one) would regroup every file on it. Without `fsGroup`, the fresh config
+  PVC stays root-owned, so use the image's root mode, the linuxserver pattern.
+  It starts as root, runs `chown -R PUID:PGID /config`, then runs nginx and
+  aria2c as `PUID:PGID`:
 
   ```yaml
   persistence:
     volumes:
       downloads:
         existingClaim: downloads
+  extraEnvs:
+    - { name: PUID, value: "1000" }
+    - { name: PGID, value: "100" }
   podSecurityContext:
-    runAsUser: 1000
-    runAsGroup: 1000
+    runAsUser: 0
+    runAsGroup: 0
+    runAsNonRoot: false
     fsGroup: null
+  securityContext:
+    capabilities:
+      drop: [ALL]
+      add: [CHOWN, SETUID, SETGID]
   ```
 
 - **BitTorrent port**: none is declared by default, and aria2c picks from its

@@ -5,6 +5,7 @@
 - `images/`: container images for charts that have no official upstream image,
   each with its own build workflow:
   - `images/derper`: Tailscale DERP relay (`kr4t0n/derper`), see its README.
+  - `images/aria2`: aria2 with the AriaNg web UI (`kr4t0n/aria2`), see its README.
 
 ## Setup
 

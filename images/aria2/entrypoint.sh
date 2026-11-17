@@ -9,8 +9,21 @@ if [ -z "${RPC_SECRET:-}" ]; then
   exit 1
 fi
 
-# aria2c refuses to start when its input-file is missing.
-touch /config/aria2.session
+# Started as root (the linuxserver pattern): hand /config to PUID:PGID, then run
+# nginx and aria2c as that user. /downloads is never chowned; it may be a volume
+# other apps own.
+run=
+if [ "$(id -u)" = 0 ]; then
+  if [ -z "${PUID:-}" ] || [ -z "${PGID:-}" ] || [ "$PUID" = 0 ]; then
+    echo "entrypoint: started as root, so set PUID (not 0) and PGID" >&2
+    exit 1
+  fi
+  chown -R "$PUID:$PGID" /config
+  run="su-exec $PUID:$PGID"
+fi
 
-nginx -e stderr &
-exec aria2c --conf-path=/etc/aria2/aria2.conf --rpc-secret="$RPC_SECRET" "$@"
+# aria2c refuses to start when its input-file is missing.
+$run touch /config/aria2.session
+
+$run nginx -e stderr &
+exec $run aria2c --conf-path=/etc/aria2/aria2.conf --rpc-secret="$RPC_SECRET" "$@"

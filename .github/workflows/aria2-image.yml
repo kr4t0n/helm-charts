@@ -23,9 +23,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Read aria2 version
+      # VERSION is <aria2 version>-<image revision>; the build needs only the first part.
+      - name: Read image version
         id: version
-        run: echo "aria2=$(tr -d '[:space:]' < images/aria2/VERSION)" >> "$GITHUB_OUTPUT"
+        run: |
+          image=$(tr -d '[:space:]' < images/aria2/VERSION)
+          echo "image=${image}" >> "$GITHUB_OUTPUT"
+          echo "aria2=${image%%-*}" >> "$GITHUB_OUTPUT"
 
       # The final stage installs Alpine packages, which runs the arm64 build under emulation.
       - name: Set up QEMU
@@ -39,10 +43,10 @@ jobs:
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
           images: ${{ secrets.DOCKERHUB_USERNAME || github.repository_owner }}/aria2
-          # The aria2 version is the release tag; the sha tag traces a rebuild of
-          # the same version (AriaNg or base image bump) back to its commit.
+          # A new revision gets a new tag, so a node that cached an older build
+          # never runs it under the new tag; the sha tag traces a build to its commit.
           tags: |
-            type=raw,value=${{ steps.version.outputs.aria2 }}
+            type=raw,value=${{ steps.version.outputs.image }}
             type=sha
 
       - name: Log in to Docker Hub

@@ -62,8 +62,8 @@ See [`values.yaml`](./values.yaml) for the full list.
   owner. Drop `fsGroup`: CSI drivers with fsGroupPolicy `File` (csi-driver-nfs,
   for one) would regroup every file on it. Without `fsGroup`, the fresh config
   PVC stays root-owned, so use the image's root mode, the linuxserver pattern.
-  It starts as root, runs `chown -R PUID:PGID /config`, then runs nginx and
-  aria2c as `PUID:PGID`:
+  It starts as root, chowns `/config` (skipping `lost+found`) to `PUID:PGID`,
+  then runs nginx and aria2c as that user:
 
   ```yaml
   extraVolumes:

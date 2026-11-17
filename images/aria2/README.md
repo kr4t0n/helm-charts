@@ -7,7 +7,7 @@ calls. aria2 publishes no official image, and the third-party ones are pinned
 to old Alpine releases.
 
 - **Version:** `VERSION` holds `<aria2 version>-<image revision>`, which is also
-  the image tag (`kr4t0n/aria2:1.37.0-2`). Bump the revision for every change
+  the image tag (e.g. `kr4t0n/aria2:1.37.0-3`). Bump the revision for every change
   that ships a new image (entrypoint, AriaNg, base); never re-push a tag, since
   nodes with `IfNotPresent` keep their cached copy. aria2 comes from Alpine's
   package (`aria2~<aria2 version>`; the build fails if the base no longer ships
@@ -41,11 +41,16 @@ docker run --rm -p 8080:8080 -e RPC_SECRET=change-me aria2:dev
   downloads, restored on start) and DHT state to `/config`.
 - **Users.** Started as a non-root uid (the default, 65532), nothing is chowned,
   so both paths must already be writable by it. Started as root, the entrypoint
-  needs `PUID` (not 0) and `PGID`: it runs `chown -R PUID:PGID /config`, then
-  starts nginx and aria2c as that user via `su-exec`, the linuxserver pattern.
-  `/downloads` is never chowned, since it may be a volume other apps own; it must
-  be writable by `PUID:PGID`. Root mode needs only the `CHOWN`, `SETUID` and
-  `SETGID` capabilities.
+  needs `PUID` (not 0) and `PGID`: it chowns whatever under `/config` isn't
+  already `PUID:PGID`, then starts nginx and aria2c as that user via `su-exec`,
+  the linuxserver pattern. `/downloads` is never chowned, since it may be a
+  volume other apps own; it must be writable by `PUID:PGID`. Root mode needs only
+  the `CHOWN`, `SETUID` and `SETGID` capabilities.
+- **Without `DAC_READ_SEARCH`, root can't enter a `0700` directory it doesn't
+  own.** So the chown skips ext4's `lost+found`, which a recursive chown would
+  hand to `PUID` and then fail to enter on every later start. Anything else it
+  can't reach is a warning, not an error; startup fails only if the session file
+  under `/config` isn't writable.
 - **AriaNg's default RPC address** is patched to the page's own host, port and
   scheme, so it works through a port-forward or an HTTPS ingress without
   editing. Settings saved in a browser override the default.

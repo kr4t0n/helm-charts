@@ -18,7 +18,13 @@ if [ "$(id -u)" = 0 ]; then
     echo "entrypoint: started as root, so set PUID (not 0) and PGID" >&2
     exit 1
   fi
-  chown -R "$PUID:$PGID" /config
+  # Root here has CHOWN but not DAC_READ_SEARCH, so it can't enter a 0700 directory
+  # it no longer owns, such as ext4's lost+found after a chown. Skip lost+found,
+  # touch only entries that need it, and don't fail on the rest: the session
+  # touch below is what aria2c needs.
+  find /config -path /config/lost+found -prune -o \
+    \( ! -user "$PUID" -o ! -group "$PGID" \) -exec chown "$PUID:$PGID" {} + ||
+    echo "entrypoint: could not chown everything under /config" >&2
   run="su-exec $PUID:$PGID"
 fi
 

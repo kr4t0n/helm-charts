@@ -2,6 +2,33 @@ apiVersion: v1
 entries:
   aria2:
   - apiVersion: v2
+    appVersion: 1.37.0-2
+    created: "2026-11-17T15:30:15.65929899Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: '>=0.6.0 <0.7.0'
+    description: aria2 download daemon with the AriaNg web UI, using the kr4t0n/aria2
+      image built in this repo.
+    digest: e7082f6c96c37a04d804753cdf2835eb590cb10d9fa7f064d9d586e5ce3b8cbb
+    home: https://aria2.github.io/
+    keywords:
+    - aria2
+    - ariang
+    - downloader
+    maintainers:
+    - name: kr4t0n
+      url: https://github.com/kr4t0n
+    name: aria2
+    sources:
+    - https://github.com/kr4t0n/helm-charts/tree/main/images/aria2
+    - https://github.com/aria2/aria2
+    - https://github.com/mayswind/AriaNg
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/aria2-0.6.2/aria2-0.6.2.tgz
+    version: 0.6.2
+  - apiVersion: v2
     appVersion: 1.37.0
     created: "2026-11-17T14:16:42.586419289Z"
     dependencies:
@@ -1798,4 +1825,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.1.0/xteve-0.1.0.tgz
     version: 0.1.0
-generated: "2026-11-17T14:16:42.58658714Z"
+generated: "2026-11-17T15:30:15.659430397Z"

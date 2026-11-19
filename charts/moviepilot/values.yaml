@@ -35,19 +35,16 @@ persistence:
   enabled: true
   # Cluster default StorageClass when empty.
   storageClass: ""
-  # Default request size; the config volume inherits it, playwright overrides.
+  # Size of the config volume.
   size: 4Gi
   accessModes:
     - ReadWriteOnce
   volumes:
-    # PVC "<release>", main config/data
+    # PVC "<release>", main config/data. V3 caches its browser here too
+    # (/config/.browser/cloakbrowser).
     config:
       mountPath: /config
       claimNameSuffix: ""
-    # PVC "<release>-playwright", the Playwright browser cache
-    playwright:
-      mountPath: /moviepilot/.cache/ms-playwright
-      size: 1Gi
 
 resources: {}
   # requests:

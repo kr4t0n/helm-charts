@@ -29,7 +29,6 @@ kubectl -n moviepilot port-forward svc/moviepilot 8080:8080
 | `strategy` | Deployment update strategy | `{type: Recreate}` |
 | `service.port` | Web UI port | `8080` |
 | `persistence.size` | Config volume (`/config`) size | `4Gi` |
-| `persistence.volumes.playwright.size` | Playwright cache volume size | `1Gi` |
 | `persistence.storageClass` | StorageClass (empty ⇒ cluster default) | `""` |
 | `extraEnvs` | Extra env vars (e.g. `TZ`) | `[]` |
 | `existingSecret.{enabled,name}` | Load env vars from a Secret | disabled |
@@ -40,9 +39,10 @@ See [`values.yaml`](./values.yaml) for the full list.
 
 ## Notes
 
-- **Persistence** creates two PVCs: `<release>` (`/config`, config + data,
-  `4Gi`) and `<release>-playwright` (`/moviepilot/.cache/ms-playwright`, the
-  Playwright/Chromium cache, `1Gi`).
+- **Persistence** creates one PVC, `<release>` (`/config`, config + data,
+  `4Gi`). V3 caches its browser (CloakBrowser) on it too, in
+  `/config/.browser/cloakbrowser`, unless `CLOAKBROWSER_CACHE_DIR` points
+  elsewhere.
 - **Image version**: pinned to `appVersion` 3.2.6 of the `moviepilot-v3`
   image. Not the `moviepilot-v3t` free-threaded build, which upstream calls
   experimental. Chart 0.6.1 and older ran the `moviepilot-v2` image; see
@@ -59,6 +59,23 @@ See [`values.yaml`](./values.yaml) for the full list.
   hash in its database. Existing V2 accounts carry over.
 - **Time zone**: set `TZ` via `extraEnvs`.
 
+## Upgrading
+
+- **To 0.6.4:** the chart no longer creates `<release>-playwright`. V3 never
+  writes to `/moviepilot/.cache/ms-playwright`; its browser cache is on the
+  config volume. Upgrading makes Helm delete the PVC. If its PersistentVolume's
+  reclaim policy is `Retain`, the PV and its storage stay behind, to delete by
+  hand. To keep the volume (say, for a plugin that launches Playwright's own
+  Chromium), add it back before upgrading:
+
+  ```yaml
+  persistence:
+    volumes:
+      playwright:
+        mountPath: /moviepilot/.cache/ms-playwright
+        size: 1Gi
+  ```
+
 ## Upgrading from V2
 
 Chart 0.6.2 moves the image from `jxxghp/moviepilot-v2` (2.15.6, the last V2
@@ -66,10 +83,12 @@ release) to `jxxghp/moviepilot-v3`. V3 keeps the same `/config` and database,
 but its first start migrates the database schema in place, and V2 can't read
 it afterwards. Rolling the release back alone doesn't undo that, so:
 
-1. **Back up both volumes first**, `<release>` (`/config`) and
-   `<release>-playwright`, with no MoviePilot pod running, and check that the
-   copy is complete before V3 starts. A Longhorn snapshot of a detached volume
-   completes only once the volume is attached again.
+1. **Back up the config volume first**, `<release>` (`/config`), with no
+   MoviePilot pod running, and check that the copy is complete before V3
+   starts. A Longhorn snapshot of a detached volume completes only once the
+   volume is attached again. The V2 release's `<release>-playwright` holds only
+   V2's Chromium download, and this chart deletes it (see
+   [Upgrading](#upgrading)).
 2. **Never run V2 and V3 on one `/config`.** Keep this chart's `Recreate`
    default, or scale the Deployment to 0 before the upgrade. A release that
    overrides `strategy` with `RollingUpdate` starts V3 next to V2.
@@ -77,8 +96,8 @@ it afterwards. Rolling the release back alone doesn't undo that, so:
    `/config/database_backup` before a migration only when `DB_BACKUP_ENABLE` is
    `"true"`, and it defaults to false. That copy sits on the same volume, so it
    doesn't replace the backup in step 1.
-4. **The way back is that backup.** Scale V3 to 0, restore both volumes, then
-   roll back to the V2 chart. With Longhorn, a backup restores only into a new
+4. **The way back is that backup.** Scale V3 to 0, restore the config volume,
+   then roll back to the V2 chart. With Longhorn, a backup restores only into a new
    volume, which you bind in place of the claim; a snapshot revert keeps the
    existing volume.
 

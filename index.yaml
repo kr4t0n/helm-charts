@@ -1050,6 +1050,20 @@ entries:
   moviepilot:
   - apiVersion: v2
     appVersion: 3.2.6
+    created: "2026-11-19T04:22:30.027635046Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: '>=0.6.0 <0.7.0'
+    description: A Helm chart for Kubernetes
+    digest: 037cf1512077ca0fc851fea03a352847f279c573cb8283935fa26cabf48a75f8
+    name: moviepilot
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/moviepilot-0.6.4/moviepilot-0.6.4.tgz
+    version: 0.6.4
+  - apiVersion: v2
+    appVersion: 3.2.6
     created: "2026-11-16T13:35:09.306946743Z"
     dependencies:
     - name: common
@@ -1879,4 +1893,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.1.0/xteve-0.1.0.tgz
     version: 0.1.0
-generated: "2026-11-17T16:16:44.488877104Z"
+generated: "2026-11-19T04:22:30.027756974Z"

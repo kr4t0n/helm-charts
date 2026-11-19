@@ -7,16 +7,19 @@ calls. aria2 publishes no official image, and the third-party ones are pinned
 to old Alpine releases.
 
 - **Version:** `VERSION` holds `<aria2 version>-<image revision>`, which is also
-  the image tag (e.g. `kr4t0n/aria2:1.37.0-3`). Bump the revision for every change
-  that ships a new image (entrypoint, AriaNg, base); never re-push a tag, since
-  nodes with `IfNotPresent` keep their cached copy. aria2 comes from Alpine's
-  package (`aria2~<aria2 version>`; the build fails if the base no longer ships
-  it). A `sha-<commit>` tag is pushed alongside. AriaNg is pinned in the
-  `Dockerfile` by version and sha256. `1.37.0` is the first build, from before
-  revisions.
-- **Base image:** Alpine, pinned by digest. The image runs as uid/gid 65532 and
-  works as any uid, or starts as root and drops to `PUID:PGID` (below); nginx
-  writes only under `/tmp`.
+  the image tag (e.g. `kr4t0n/aria2:1.37.0-4`). Bump the revision for every change
+  that ships a new image (entrypoint, AriaNg, base, a rebuild for package fixes);
+  never re-push a tag, since nodes with `IfNotPresent` keep their cached copy.
+  aria2 comes from Alpine's package (`aria2~<aria2 version>`; the build fails if
+  the base no longer ships it). A `sha-<commit>` tag is pushed alongside. AriaNg
+  is pinned in the `Dockerfile` by version and sha256. `1.37.0` is the first
+  build, from before revisions.
+- **Base image:** Alpine, pinned by digest. The build runs `apk upgrade` first,
+  so every package, the base's own included, is the newest the Alpine branch
+  holds at build time, and a rebuild picks up fixes that land between Alpine
+  point releases. The build log lists each package it installs or upgrades, per
+  platform. The image runs as uid/gid 65532 and works as any uid, or starts as
+  root and drops to `PUID:PGID` (below); nginx writes only under `/tmp`.
 - **Platforms:** `linux/amd64` and `linux/arm64` (arm64 under QEMU).
 - **CI:** `.github/workflows/aria2-image.yml` builds on pull requests and pushes
   to Docker Hub on `main`. It needs the `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN`

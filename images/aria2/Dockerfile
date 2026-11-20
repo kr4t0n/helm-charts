@@ -28,7 +28,10 @@ LABEL org.opencontainers.image.title="aria2" \
       org.opencontainers.image.source="https://github.com/kr4t0n/helm-charts"
 
 RUN test -n "${ARIA2_VERSION}" || { echo "ARIA2_VERSION build arg is required" >&2; exit 1; }
-RUN apk add --no-cache "aria2~${ARIA2_VERSION}" nginx su-exec \
+# The upgrade takes Alpine's fixes to the base's own packages (libssl3, zlib)
+# that land between point releases.
+RUN apk upgrade --no-cache \
+ && apk add --no-cache "aria2~${ARIA2_VERSION}" nginx su-exec \
  && install -d -o 65532 -g 65532 /config /downloads
 
 COPY --from=ariang /out /usr/share/ariang

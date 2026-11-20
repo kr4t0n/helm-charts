@@ -4,10 +4,10 @@ description: aria2 download daemon with the AriaNg web UI, using the kr4t0n/aria
 
 type: application
 # Minor follows the common library's minor; the patch counts this chart's releases.
-version: 0.6.4
+version: 0.6.5
 # The image version in images/aria2/VERSION (<aria2 version>-<image revision>).
 # The deployed image tag while values.yaml image.tag is empty.
-appVersion: "1.37.0-3"
+appVersion: "1.37.0-4"
 home: https://aria2.github.io/
 sources:
   - https://github.com/kr4t0n/helm-charts/tree/main/images/aria2

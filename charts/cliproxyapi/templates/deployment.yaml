@@ -1,0 +1,62 @@
+{{- /*
+CLIProxyAPI rewrites config.yaml itself (server-id, the hashed management key,
+every management-UI edit), so the file lives on the data volume and the Secret
+only seeds it: the seed-config init container copies it in when the volume has
+none, or on every start with overwriteConfig. The chart-owned pieces reach
+common.deployment through a copy of the values: merge keeps the keys set here
+(prepending to the user's extraInitContainers / extraVolumes / extraVolumeMounts
+/ extraEnvs, adding to their podAnnotations) and fills in the rest from .Values,
+which stays untouched.
+*/ -}}
+{{- if gt (int (.Values.replicaCount | default 1)) 1 -}}
+{{- fail "cliproxyapi: replicaCount must be 1; replicas cannot share config.yaml and the bbolt store on the data volume" -}}
+{{- end -}}
+{{- $dataDir := include "cliproxyapi.dataDir" . -}}
+{{- $configSecret := .Values.existingConfigSecret | default (include "cliproxyapi.configSecretName" .) -}}
+
+{{- /* Copy, then rename: a pod killed mid-copy must not leave a truncated config. */ -}}
+{{- $copy := printf `cp /seed/config.yaml %[1]s/.config.yaml.seed
+chmod 600 %[1]s/.config.yaml.seed
+mv %[1]s/.config.yaml.seed %[1]s/config.yaml
+echo "seeded %[1]s/config.yaml"` $dataDir -}}
+{{- $seed := printf "set -eu\n%s" $copy -}}
+{{- if not .Values.overwriteConfig -}}
+{{- $seed = printf "set -eu\nif [ -s %[1]s/config.yaml ]; then\n  echo \"keeping %[1]s/config.yaml\"\n  exit 0\nfi\n%[2]s" $dataDir $copy -}}
+{{- end -}}
+{{- $initContainers := prepend (.Values.extraInitContainers | default list) (dict
+  "name" "seed-config"
+  "image" (include "common.image" .)
+  "imagePullPolicy" (.Values.image.pullPolicy | default "IfNotPresent")
+  "command" (list "sh" "-c" $seed)
+  "securityContext" .Values.securityContext
+  "volumeMounts" (list
+    (dict "name" "data-volume" "mountPath" $dataDir)
+    (dict "name" "config-seed" "mountPath" "/seed" "readOnly" true))) -}}
+
+{{- $volumes := list (dict "name" "config-seed" "secret" (dict "secretName" $configSecret "items" (list (dict "key" "config.yaml" "path" "config.yaml")))) -}}
+{{- $mounts := list -}}
+{{- if not (and .Values.persistence .Values.persistence.enabled) -}}
+{{- $volumes = append $volumes (dict "name" "data-volume" "emptyDir" (dict)) -}}
+{{- $mounts = append $mounts (dict "name" "data-volume" "mountPath" $dataDir) -}}
+{{- end -}}
+{{- $volumes = concat $volumes (.Values.extraVolumes | default list) -}}
+{{- $mounts = concat $mounts (.Values.extraVolumeMounts | default list) -}}
+
+{{- /* auth-dir defaults to ~/.cli-proxy-api, which HOME puts on the data volume. */ -}}
+{{- $envs := prepend (.Values.extraEnvs | default list) (dict "name" "HOME" "value" $dataDir) -}}
+
+{{- $annotations := dict -}}
+{{- if and .Values.overwriteConfig (not .Values.existingConfigSecret) -}}
+{{- $annotations = dict "checksum/config" (include (print .Template.BasePath "/secret.yaml") . | sha256sum) -}}
+{{- end -}}
+
+{{- $chart := dict
+  "workingDir" $dataDir
+  "command" (list "/CLIProxyAPI/CLIProxyAPI" "-config" (printf "%s/config.yaml" $dataDir))
+  "extraInitContainers" $initContainers
+  "extraVolumes" $volumes
+  "extraVolumeMounts" $mounts
+  "extraEnvs" $envs
+  "podAnnotations" $annotations -}}
+{{- $values := merge $chart .Values -}}
+{{- include "common.deployment" (dict "Values" $values "Release" .Release "Chart" .Chart "Capabilities" .Capabilities "Template" .Template "Files" .Files) }}

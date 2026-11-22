@@ -1,0 +1,5 @@
+# Values for CI rendering: cliproxyapi refuses to render without client keys.
+config:
+  access:
+    api-keys:
+      - ci-placeholder-key

@@ -1,0 +1,147 @@
+# Default values for cliproxyapi.
+# Rendering is delegated to the `common` library chart; this file only supplies
+# the per-application data. See charts/common for the full template.
+#
+# Everything the app writes lives on one data volume (persistence.volumes.data),
+# which is also its working directory and HOME:
+#   config.yaml        the live config, seeded from `config` (below)
+#   .cli-proxy-api/    OAuth credentials and the bbolt KV store (auth-dir)
+#   static/            the management panel, downloaded from GitHub on demand
+#   logs/, plugins/    only when file logging or plugins are enabled
+
+# A singleton: replicas cannot share config.yaml or the bbolt store.
+replicaCount: 1
+
+image:
+  repository: eceasy/cli-proxy-api
+  pullPolicy: IfNotPresent
+  # Empty => the chart's appVersion is used (pins the deploy).
+  tag: ""
+
+service:
+  type: ClusterIP
+  # The proxy API, /healthz and the management API and panel.
+  port: 8317
+  extraPorts: []
+
+# Seed for <data>/config.yaml, in upstream's v8 layout (config.example.yaml in
+# the CLIProxyAPI repo). Rendered into a Secret, since it carries client keys.
+# server.port is filled in from service.port.
+#
+# The app owns the file after the first start: it writes the server-id, hashes a
+# plaintext management.secret-key, and saves management-UI edits back to it. So
+# by default the seed is copied only when the volume has no config.yaml, and
+# later changes here do not reach a running install (see overwriteConfig).
+config:
+  config-version: 8
+  access:
+    # Client keys for the proxy API (not upstream provider keys). Required: with
+    # none, the proxy serves every request unauthenticated.
+    api-keys: []
+  # management:
+  #   # Needed for management from outside the pod unless MANAGEMENT_PASSWORD is
+  #   # set, which implies it. kubectl port-forward connects as localhost.
+  #   allow-remote: false
+  #   secret-key: ""
+
+# A Secret with a `config.yaml` key to seed from instead of `config`. Its port
+# must match service.port.
+existingConfigSecret: ""
+
+# Copy the seed over config.yaml on every pod start, making `config` (or
+# existingConfigSecret) the source of truth: management-UI edits are lost at the
+# next restart. A rendered `config` change then rolls the pod. Pin
+# config.server.server-id with this, or a new one is generated on each start.
+overwriteConfig: false
+
+# Extra CLIProxyAPI flags, e.g. --local-model.
+args: []
+
+# A singleton on a ReadWriteOnce volume: stop the old pod before starting the new.
+strategy:
+  type: Recreate
+
+# Streaming responses (SSE) need buffering off and long read timeouts on the
+# ingress controller; for ingress-nginx:
+#   nginx.ingress.kubernetes.io/proxy-buffering: "off"
+#   nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts: []
+  #   - host: cliproxyapi.example.com
+  tls: []
+  #   - hosts:
+  #       - cliproxyapi.example.com
+  #     secretName: cliproxyapi-tls   # optional; omit when the controller manages certs
+
+persistence:
+  enabled: true
+  # Cluster default StorageClass when empty.
+  storageClass: ""
+  size: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  volumes:
+    # PVC <release>-data. With persistence disabled, an emptyDir takes its place
+    # and OAuth credentials are lost with the pod.
+    data:
+      mountPath: /data
+
+# /healthz answers once the HTTP server is up and needs no key. Use scheme HTTPS
+# when config.server.tls is enabled.
+probes:
+  readiness:
+    httpGet: { path: /healthz, port: http }
+    periodSeconds: 10
+  liveness:
+    httpGet: { path: /healthz, port: http }
+    periodSeconds: 30
+
+resources: {}
+  # requests:
+  #   cpu: 50m
+  #   memory: 64Mi
+  # limits:
+  #   memory: 512Mi
+
+# The image runs as root by default; the chart runs it as 65532, and fsGroup
+# makes the data PVC writable for that uid.
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  runAsGroup: 65532
+  fsGroup: 65532
+  fsGroupChangePolicy: OnRootMismatch
+  seccompProfile:
+    type: RuntimeDefault
+
+# Also applied to the seed-config init container.
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: [ALL]
+
+# Additional environment variables. The image sets TZ=Asia/Shanghai.
+extraEnvs: []
+  # - name: TZ
+  #   value: "Etc/UTC"
+
+# Load ALL keys from an existing Secret as environment variables:
+# MANAGEMENT_PASSWORD (enables the management API, remote access included),
+# GITHUB_TOKEN, or the PGSTORE_* / GITSTORE_* / OBJECTSTORE_* store settings.
+existingSecret:
+  enabled: false
+  name: ""
+
+extraPorts: []
+extraInitContainers: []
+extraVolumes: []
+extraVolumeMounts: []
+
+podAnnotations: {}
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

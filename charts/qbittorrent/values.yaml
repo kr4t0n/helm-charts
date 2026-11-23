@@ -7,8 +7,9 @@ replicaCount: 1
 image:
   repository: linuxserver/qbittorrent
   pullPolicy: IfNotPresent
-  # Empty => the chart's appVersion is used (pins the deploy).
-  tag: ""
+  # linuxserver's 5.3.0_v2.1.2-ls488 index (amd64 and arm64), pinned by digest.
+  # Bump with appVersion.
+  tag: "5.3.0_v2.1.2-ls488@sha256:afed7399d0f336ee22d6d011b3c8c50a44e3810f0af6e3c4083d79e566f1677a"
 
 service:
   type: ClusterIP

@@ -24,7 +24,7 @@ kubectl -n qbittorrent port-forward svc/qbittorrent 8080:8080
 | Key | Description | Default |
 |---|---|---|
 | `image.repository` | Image | `linuxserver/qbittorrent` |
-| `image.tag` | Tag (empty ⇒ chart `appVersion`) | `""` |
+| `image.tag` | linuxserver build tag and index digest (amd64 and arm64) | `5.3.0_v2.1.2-ls488`, by digest |
 | `service.port` | Web UI port | `8080` |
 | `extraPorts` | Extra container ports (BitTorrent `6881` TCP+UDP) | bttcp/btudp |
 | `persistence.size` | Config volume (`/config`) size | `4Gi` |

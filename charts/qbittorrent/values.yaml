@@ -61,6 +61,20 @@ resources: {}
   #   cpu: "2"
   #   memory: 2Gi
 
+# linuxserver's init runs as root, chowns /config and drops to PUID:PGID. The
+# base image chowns /config before qBittorrent's init seeds qBittorrent.conf into
+# it, so seeding also needs DAC_OVERRIDE: without it a fresh volume misses
+# linuxserver's defaults (save path /downloads, UPnP off, listen port 6881).
+podSecurityContext:
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: [ALL]
+    add: [CHOWN, DAC_OVERRIDE, SETUID, SETGID]
+
 nodeSelector: {}
 tolerations: []
 affinity: {}

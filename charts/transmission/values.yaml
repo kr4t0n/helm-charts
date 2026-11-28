@@ -1,0 +1,130 @@
+# Default values for transmission.
+# Rendering is delegated to the `common` library chart; this file only supplies
+# the per-application data. See charts/common for the full template.
+
+replicaCount: 1
+
+image:
+  repository: linuxserver/transmission
+  pullPolicy: IfNotPresent
+  # linuxserver's 4.1.4-r0-ls371 index (amd64 and arm64), pinned by digest.
+  # Bump with appVersion.
+  tag: "4.1.4-r0-ls371@sha256:3a8ecd4ebbc9ec657ccddba674a067db20eb28a25d61146698580d724599c7cb"
+
+service:
+  type: ClusterIP
+  # Web UI and RPC port.
+  port: 9091
+  extraPorts: []
+
+# The BitTorrent peer port, declared on the pod only. Add matching
+# `service.extraPorts` entries to take inbound peers through the Service. To
+# move it, set PEERPORT in extraEnvs and change both entries to match.
+extraPorts:
+  - name: bttcp
+    containerPort: 51413
+    protocol: TCP
+  - name: btudp
+    containerPort: 51413
+    protocol: UDP
+
+# A singleton on a ReadWriteOnce volume: stop the old pod before starting the new.
+strategy:
+  type: Recreate
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts: []
+  #   - host: transmission.example.com
+  tls: []
+  #   - hosts:
+  #       - transmission.example.com
+  #     secretName: transmission-tls   # optional; omit when the controller manages certs
+  # path: /            # optional, default "/"
+  # pathType: Prefix   # optional, default "Prefix"
+
+# The config volume only. Mount downloads (and a watch folder) via extraVolumes.
+persistence:
+  enabled: true
+  # Cluster default StorageClass when empty.
+  storageClass: ""
+  size: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  volumes:
+    # settings.json, torrent files and resume state, plus any alternative web
+    # UI (e.g. /config/web with TRANSMISSION_WEB_HOME). PVC <release>-config.
+    config:
+      mountPath: /config
+
+# TCP, not HTTP: with USER/PASS set, every web and RPC path answers 401. The
+# startup probe matches the image's own 5-minute wait for the daemon.
+probes:
+  startup:
+    tcpSocket: { port: http }
+    periodSeconds: 5
+    failureThreshold: 60
+  readiness:
+    tcpSocket: { port: http }
+    periodSeconds: 10
+  liveness:
+    tcpSocket: { port: http }
+    periodSeconds: 30
+
+resources: {}
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # limits:
+  #   memory: 1Gi
+
+# linuxserver's init runs as root, chowns /config and drops to PUID:PGID. It
+# also rewrites /config/settings.json, owned by PUID by then, on every start, so
+# it needs DAC_OVERRIDE: without it USER/PASS are silently not applied.
+podSecurityContext:
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: [ALL]
+    add: [CHOWN, DAC_OVERRIDE, SETUID, SETGID]
+
+# Additional environment variables: PUID/PGID (default 911), TZ, PEERPORT,
+# WHITELIST, HOST_WHITELIST, TRANSMISSION_WEB_HOME, UMASK.
+extraEnvs: []
+  # - name: TZ
+  #   value: "Asia/Shanghai"
+  # - name: PUID
+  #   value: "1000"
+  # - name: PGID
+  #   value: "100"
+
+# Load ALL keys from an existing Secret as environment variables, e.g. USER and
+# PASS for web UI and RPC authentication.
+existingSecret:
+  enabled: false
+  name: ""
+
+# Downloads go to /downloads/complete (incomplete ones to /downloads/incomplete);
+# without a volume there, they live in the container and are lost with it.
+# /watch is the watch folder, worth mounting only from a volume that whatever
+# drops .torrent files there shares; without one the daemon logs one
+# "Couldn't watch '/watch'" error per start.
+extraVolumes: []
+  # - name: downloads-volume
+  #   persistentVolumeClaim:
+  #     claimName: downloads
+
+extraVolumeMounts: []
+  # - name: downloads-volume
+  #   mountPath: /downloads
+
+podAnnotations: {}
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

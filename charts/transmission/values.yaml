@@ -93,38 +93,27 @@ securityContext:
     drop: [ALL]
     add: [CHOWN, DAC_OVERRIDE, SETUID, SETGID]
 
-# Additional environment variables: PUID/PGID (default 911), TZ, PEERPORT,
-# WHITELIST, HOST_WHITELIST, TRANSMISSION_WEB_HOME, UMASK.
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Additional environment variables (e.g. PUID, PGID, TZ).
 extraEnvs: []
   # - name: TZ
-  #   value: "Asia/Shanghai"
-  # - name: PUID
-  #   value: "1000"
-  # - name: PGID
-  #   value: "100"
+  #   value: "America/New_York"
 
-# Load ALL keys from an existing Secret as environment variables, e.g. USER and
-# PASS for web UI and RPC authentication.
+# Load ALL keys from an existing secret as environment variables.
 existingSecret:
   enabled: false
   name: ""
 
-# Downloads go to /downloads/complete (incomplete ones to /downloads/incomplete);
-# without a volume there, they live in the container and are lost with it.
-# /watch is the watch folder, worth mounting only from a volume that whatever
-# drops .torrent files there shares; without one the daemon logs one
-# "Couldn't watch '/watch'" error per start.
+# Mount your downloads directory (and any other volumes) into the pod.
 extraVolumes: []
-  # - name: downloads-volume
-  #   persistentVolumeClaim:
-  #     claimName: downloads
+  # - name: downloads
+  #   nfs:
+  #     server: nfs-server.example.com
+  #     path: /mnt/downloads
 
 extraVolumeMounts: []
-  # - name: downloads-volume
+  # - name: downloads
   #   mountPath: /downloads
-
-podAnnotations: {}
-
-nodeSelector: {}
-tolerations: []
-affinity: {}

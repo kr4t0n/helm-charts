@@ -1830,6 +1830,32 @@ entries:
   transmission:
   - apiVersion: v2
     appVersion: 4.1.4
+    created: "2026-11-28T08:56:12.91376964Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: '>=0.6.0 <0.7.0'
+    description: Transmission BitTorrent daemon with its web UI, using the linuxserver/transmission
+      image.
+    digest: 8b53cfa0f1e5d99d22063de1ccc1b947c4a6e42beecd3dd9bb0744e943a2ca45
+    home: https://transmissionbt.com/
+    keywords:
+    - transmission
+    - bittorrent
+    - downloader
+    maintainers:
+    - name: kr4t0n
+      url: https://github.com/kr4t0n
+    name: transmission
+    sources:
+    - https://github.com/transmission/transmission
+    - https://github.com/linuxserver/docker-transmission
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/transmission-0.6.2/transmission-0.6.2.tgz
+    version: 0.6.2
+  - apiVersion: v2
+    appVersion: 4.1.4
     created: "2026-11-28T08:50:28.005120733Z"
     dependencies:
     - name: common
@@ -1990,4 +2016,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.1.0/xteve-0.1.0.tgz
     version: 0.1.0
-generated: "2026-11-28T08:50:28.005310554Z"
+generated: "2026-11-28T08:56:12.91387439Z"

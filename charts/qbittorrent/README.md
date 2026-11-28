@@ -32,6 +32,7 @@ kubectl -n qbittorrent port-forward svc/qbittorrent 8080:8080
 | `extraEnvs` | Extra env vars (e.g. `TZ`, `WEBUI_PORT`) | `[]` |
 | `existingSecret.{enabled,name}` | Load env vars from a Secret | disabled |
 | `extraVolumes` / `extraVolumeMounts` | Mount a downloads directory | `[]` |
+| `securityContext` | Capabilities for linuxserver's root init | see below |
 | `ingress.*` | See [`common`](../common) (className / hosts / tls) | disabled |
 
 See [`values.yaml`](./values.yaml) for the full list.
@@ -44,6 +45,15 @@ See [`values.yaml`](./values.yaml) for the full list.
   `extraPorts` but is **not** published by the Service (same as before). To
   accept inbound peers, add a matching `service.extraPorts` entry and an
   appropriate Service type / host setup.
+- **Capabilities.** The chart drops all capabilities and adds back the four the
+  init needs: `CHOWN` to chown `/config`, `SETUID` / `SETGID` to drop to
+  `PUID:PGID`, and `DAC_OVERRIDE` for root to create `/config/qBittorrent` and
+  copy linuxserver's default `qBittorrent.conf` there, after the base image has
+  already chowned `/config` to `PUID`. Without `DAC_OVERRIDE`, a fresh volume
+  starts on qBittorrent's built-in defaults instead: downloads saved to
+  `/config/Downloads` rather than `/downloads`, UPnP on, and a random listen
+  port rather than `6881`. A volume that already has `qBittorrent.conf` keeps
+  working with the other three.
 - **Downloads**: mount your downloads directory via
   `extraVolumes`/`extraVolumeMounts` (e.g. an NFS share at `/downloads`).
 - **Time zone**: set `TZ` via `extraEnvs`.

@@ -1827,6 +1827,33 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/tautulli-0.0.1/tautulli-0.0.1.tgz
     version: 0.0.1
+  transmission:
+  - apiVersion: v2
+    appVersion: 4.1.4
+    created: "2026-11-28T08:50:28.005120733Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: '>=0.6.0 <0.7.0'
+    description: Transmission BitTorrent daemon with its web UI, using the linuxserver/transmission
+      image.
+    digest: d4d39979fd1ba91c0c30802a5b278c34fc8a52af3388f6c947ddd0dd9a2958d7
+    home: https://transmissionbt.com/
+    keywords:
+    - transmission
+    - bittorrent
+    - downloader
+    maintainers:
+    - name: kr4t0n
+      url: https://github.com/kr4t0n
+    name: transmission
+    sources:
+    - https://github.com/transmission/transmission
+    - https://github.com/linuxserver/docker-transmission
+    type: application
+    urls:
+    - https://github.com/kr4t0n/helm-charts/releases/download/transmission-0.6.1/transmission-0.6.1.tgz
+    version: 0.6.1
   xray:
   - apiVersion: v2
     appVersion: 26.10.31
@@ -1963,4 +1990,4 @@ entries:
     urls:
     - https://github.com/kr4t0n/helm-charts/releases/download/xteve-0.1.0/xteve-0.1.0.tgz
     version: 0.1.0
-generated: "2026-11-25T02:43:52.829542023Z"
+generated: "2026-11-28T08:50:28.005310554Z"
